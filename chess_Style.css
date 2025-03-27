@@ -1,0 +1,88 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url(./img/bg.jpeg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  overflow: hidden;
+}
+
+.notification-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.notification {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #333;
+  border-radius: 15px;
+  padding: 30px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+.notification:hover {
+  transform: scale(1);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+#ok-button {
+  margin-top: 20px;
+  padding: 10px 25px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#ok-button:hover {
+  background-color: #45a049;
+}
+
+#chess-pieces-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.chess-piece {
+  position: absolute;
+  font-size: 30px;
+  pointer-events: none;
+  animation: fly 3s linear forwards;
+  z-index: 1000;
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx, 100px), var(--ty, 100px)) rotate(360deg);
+    opacity: 0;
+  }
+}
