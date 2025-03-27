@@ -86,3 +86,128 @@ body {
     opacity: 0;
   }
 }
+
+#chess-board-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 50;
+}
+
+#chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, 80px);
+  grid-template-rows: repeat(8, 80px);
+  border: 3px solid #333;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.chess-square {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#color-controls {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+}
+
+#color-controls label {
+  margin: 0 10px;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+#color-controls input[type="color"] {
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+/* Thêm vào file CSS */
+#timer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+#board-container {
+  margin: 0 20px;
+}
+
+.player-timer {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 150px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.player-timer h3 {
+  margin: 0 0 10px 0;
+  font-size: 24px;
+}
+
+.time {
+  font-size: 36px;
+  font-family: "Courier New", monospace;
+  margin: 10px 0;
+}
+
+.pause-btn {
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pause-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Đổi màu timer khi hết giờ */
+.time-critical {
+  color: #f44336;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.player-timer {
+  transition: all 0.3s ease;
+}
+
+.player-timer.active {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+  border: 2px solid gold;
+}

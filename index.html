@@ -31,7 +31,46 @@
         <br />
         Chess Project!
       </h1>
-      <button id="engage-button">Engage !!!</button>
+      <button id="go-button">Go!!!</button>
+    </div>
+
+    <div id="chess-board-container" style="display: none">
+      <div id="timer-container">
+        <div class="player-timer" id="player-black">
+          <h3>Đen</h3>
+          <div class="time">10:00</div>
+          <button class="pause-btn">Tạm dừng</button>
+        </div>
+
+        <div id="board-container">
+          <!-- Bàn cờ sẽ được đặt ở đây -->
+          <div id="chess-board"></div>
+        </div>
+
+        <div class="player-timer" id="player-white">
+          <h3>Trắng</h3>
+          <div class="time">10:00</div>
+          <button class="pause-btn">Tạm dừng</button>
+        </div>
+      </div>
+      <div id="color-controls">
+        <label>
+          Ô trắng:
+          <input type="color" id="white-square" value="#f0d9b5" />
+        </label>
+        <label>
+          Ô đen:
+          <input type="color" id="black-square" value="#b58863" />
+        </label>
+        <label>
+          Quân trắng:
+          <input type="color" id="white-piece" value="#ffffff" />
+        </label>
+        <label>
+          Quân đen:
+          <input type="color" id="black-piece" value="#000000" />
+        </label>
+      </div>
     </div>
     <div id="chess-pieces-container"></div>
     <script src="script.js"></script>

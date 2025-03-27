@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   const notification = document.querySelector(".notification");
   const container = document.getElementById("chess-pieces-container");
-  const okButton = document.getElementById("ok-button");
+  const goButton = document.getElementById("go-button");
   const notificationContainer = document.getElementById("notification-container");
   const pieces = ["♔", "♕", "♖", "♗", "♘", "♙", "♚", "♛", "♜", "♝", "♞", "♟"];
 
@@ -12,16 +12,230 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Xử lý khi nhấn nút OK
-  okButton.addEventListener("click", function () {
-    // Ẩn bảng thông báo
-    notificationContainer.style.display = "none";
+  // Ấn nút go
+  goButton.addEventListener("click", function () {
+    // Ẩn thông báo chào mừng
+    notification.style.display = "none";
 
-    // Chuyển sang giao diện khác (thêm code của bạn ở đây)
-    // Ví dụ: load giao diện chơi cờ
-    // window.location.href = "game.html";
-    alert("Chuyển sang giao diện chính!");
+    // Hiển thị bàn cờ
+    const boardContainer = document.getElementById("chess-board-container");
+    boardContainer.style.display = "flex";
+
+    // Tạo bàn cờ
+    createChessBoard();
   });
+
+  // Biến toàn cục cho timer
+  let timers = {
+    white: 600, // 10 phút = 600 giây
+    black: 600,
+    currentPlayer: "white", // Trắng đi trước
+    interval: null,
+    isPaused: false,
+  };
+
+  function createChessBoard() {
+    const board = document.getElementById("chess-board");
+    board.innerHTML = "";
+
+    // Vị trí ban đầu các quân cờ
+    const initialPosition = [
+      ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
+      ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
+      ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"],
+    ];
+
+    // Màu sắc mặc định
+    let whiteSquareColor = "#f0d9b5";
+    let blackSquareColor = "#b58863";
+    let whitePieceColor = "#ffffff";
+    let blackPieceColor = "#000000";
+
+    // Tạo các ô cờ
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const square = document.createElement("div");
+        square.className = "chess-square";
+        square.dataset.row = row;
+        square.dataset.col = col;
+
+        // Đặt màu ô cờ
+        if ((row + col) % 2 === 0) {
+          square.style.backgroundColor = whiteSquareColor;
+        } else {
+          square.style.backgroundColor = blackSquareColor;
+        }
+
+        // Đặt quân cờ nếu có
+        const piece = initialPosition[row][col];
+        if (piece) {
+          square.textContent = piece;
+          // Đặt màu quân cờ
+          if (piece === piece.toUpperCase()) {
+            square.style.color = whitePieceColor;
+          } else {
+            square.style.color = blackPieceColor;
+          }
+        }
+
+        // Thêm sự kiện click để di chuyển quân cờ
+        square.addEventListener("click", function () {
+          handleSquareClick(this);
+        });
+
+        board.appendChild(square);
+      }
+    }
+
+    // Xử lý thay đổi màu sắc
+    document.getElementById("white-square").addEventListener("input", updateColors);
+    document.getElementById("black-square").addEventListener("input", updateColors);
+    document.getElementById("white-piece").addEventListener("input", updateColors);
+    document.getElementById("black-piece").addEventListener("input", updateColors);
+
+    // Khởi tạo timer
+    initTimers();
+
+    function updateColors() {
+      whiteSquareColor = document.getElementById("white-square").value;
+      blackSquareColor = document.getElementById("black-square").value;
+      whitePieceColor = document.getElementById("white-piece").value;
+      blackPieceColor = document.getElementById("black-piece").value;
+
+      const squares = document.querySelectorAll(".chess-square");
+      squares.forEach((square) => {
+        const row = parseInt(square.dataset.row);
+        const col = parseInt(square.dataset.col);
+
+        // Cập nhật màu ô cờ
+        if ((row + col) % 2 === 0) {
+          square.style.backgroundColor = whiteSquareColor;
+        } else {
+          square.style.backgroundColor = blackSquareColor;
+        }
+
+        // Cập nhật màu quân cờ
+        if (square.textContent) {
+          if (square.textContent === square.textContent.toUpperCase()) {
+            square.style.color = whitePieceColor;
+          } else {
+            square.style.color = blackPieceColor;
+          }
+        }
+      });
+    }
+  }
+
+  // Hàm xử lý timer
+  function initTimers() {
+    updateTimerDisplay();
+
+    // Bắt đầu timer cho người chơi trắng
+    startTimer();
+
+    // Thêm sự kiện click cho nút tạm dừng
+    document.querySelectorAll(".pause-btn").forEach((btn) => {
+      btn.addEventListener("click", togglePause);
+    });
+  }
+
+  function startTimer() {
+    if (timers.interval) clearInterval(timers.interval);
+
+    timers.interval = setInterval(() => {
+      if (!timers.isPaused) {
+        timers[timers.currentPlayer]--;
+        updateTimerDisplay();
+
+        // Kiểm tra hết giờ
+        if (timers[timers.currentPlayer] <= 0) {
+          clearInterval(timers.interval);
+          alert(`${timers.currentPlayer === "white" ? "Trắng" : "Đen"} hết giờ!`);
+        }
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const formatTime = (seconds) => {
+      const mins = Math.floor(seconds / 60)
+        .toString()
+        .padStart(2, "0");
+      const secs = (seconds % 60).toString().padStart(2, "0");
+      return `${mins}:${secs}`;
+    };
+
+    document.querySelector("#player-white .time").textContent = formatTime(timers.white);
+    document.querySelector("#player-black .time").textContent = formatTime(timers.black);
+
+    // Đánh dấu timer hiện tại đang chạy
+    document.getElementById(`player-${timers.currentPlayer}`).classList.add("active");
+    document
+      .getElementById(`player-${timers.currentPlayer === "white" ? "black" : "white"}`)
+      .classList.remove("active");
+
+    // Thêm hiệu ứng khi thời gian ít hơn 1 phút
+    if (timers.white < 60) {
+      document.querySelector("#player-white .time").classList.add("time-critical");
+    } else {
+      document.querySelector("#player-white .time").classList.remove("time-critical");
+    }
+
+    if (timers.black < 60) {
+      document.querySelector("#player-black .time").classList.add("time-critical");
+    } else {
+      document.querySelector("#player-black .time").classList.remove("time-critical");
+    }
+  }
+
+  function togglePause() {
+    timers.isPaused = !timers.isPaused;
+    const pauseBtns = document.querySelectorAll(".pause-btn");
+
+    if (timers.isPaused) {
+      pauseBtns.forEach((btn) => {
+        btn.textContent = "Tiếp tục";
+        btn.style.backgroundColor = "#4CAF50";
+      });
+    } else {
+      pauseBtns.forEach((btn) => {
+        btn.textContent = "Tạm dừng";
+        btn.style.backgroundColor = "#f44336";
+      });
+    }
+  }
+
+  function switchPlayer() {
+    timers.currentPlayer = timers.currentPlayer === "white" ? "black" : "white";
+    startTimer();
+  }
+
+  // Hàm xử lý khi click vào ô cờ (cần phát triển thêm)
+  let selectedPiece = null;
+
+  function handleSquareClick(square) {
+    // Logic di chuyển quân cờ cơ bản
+    if (selectedPiece) {
+      // Nếu đã chọn quân cờ trước đó, thực hiện di chuyển
+      if (square.textContent === "") {
+        square.textContent = selectedPiece.textContent;
+        square.style.color = selectedPiece.style.color;
+        selectedPiece.textContent = "";
+        selectedPiece = null;
+
+        // Chuyển lượt sau khi di chuyển
+        switchPlayer();
+      }
+    } else if (square.textContent !== "") {
+      // Chọn quân cờ để di chuyển
+      selectedPiece = square;
+    }
+  }
 
   function createFlyingPiece() {
     const piece = document.createElement("div");
