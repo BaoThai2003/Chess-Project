@@ -34,6 +34,9 @@ document.addEventListener("DOMContentLoaded", function () {
     isPaused: false,
   };
 
+  // Danh sách các quân cờ trắng
+  const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
+
   function createChessBoard() {
     const board = document.getElementById("chess-board");
     board.innerHTML = "";
@@ -75,8 +78,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const piece = initialPosition[row][col];
         if (piece) {
           square.textContent = piece;
-          // Đặt màu quân cờ
-          if (piece === piece.toUpperCase()) {
+          // Đặt màu quân cờ dựa trên danh sách whitePieces
+          if (whitePieces.includes(piece)) {
             square.style.color = whitePieceColor;
           } else {
             square.style.color = blackPieceColor;
@@ -121,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Cập nhật màu quân cờ
         if (square.textContent) {
-          if (square.textContent === square.textContent.toUpperCase()) {
+          if (whitePieces.includes(square.textContent)) {
             square.style.color = whitePieceColor;
           } else {
             square.style.color = blackPieceColor;
