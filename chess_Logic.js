@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (square.textContent === square.textContent.toUpperCase()) {
             square.style.color = whitePieceColor;
           } else {
-            square.style.color = blackPieceColor;
+            square.style.color = whitePieceColor;
           }
         }
       });
