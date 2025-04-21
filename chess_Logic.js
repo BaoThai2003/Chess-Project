@@ -36,6 +36,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Danh sách các quân cờ trắng
   const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
+  const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
+
+  //Cập nhật trạng thái bàn cờ
+  let boardState = [];
 
   function createChessBoard() {
     const board = document.getElementById("chess-board");
