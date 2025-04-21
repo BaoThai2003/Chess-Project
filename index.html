@@ -23,7 +23,6 @@
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
     <meta name="theme-color" content="#ffffff" />
     <title>Chess Project</title>
-    /* mới */
   </head>
   <body>
     <div class="notification" id="notification">
@@ -44,8 +43,15 @@
         </div>
 
         <div id="board-container">
-          <!-- Bàn cờ sẽ được đặt ở đây -->
-          <div id="chess-board"></div>
+          <div id="chess-board-wrapper">
+            <div id="row-labels">
+              <div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div>
+            </div>
+            <div id="chess-board"></div>
+            <div id="col-labels">
+              <div>a</div><div>b</div><div>c</div><div>d</div><div>e</div><div>f</div><div>g</div><div>h</div>
+            </div>
+          </div>
         </div>
 
         <div class="player-timer" id="player-white">
