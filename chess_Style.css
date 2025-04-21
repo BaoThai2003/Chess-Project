@@ -42,7 +42,7 @@ body {
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
 }
 
-#ok-button {
+#go-button {
   margin-top: 20px;
   padding: 10px 25px;
   background-color: #4caf50;
@@ -54,7 +54,7 @@ body {
   transition: background-color 0.3s;
 }
 
-#ok-button:hover {
+#go-button:hover {
   background-color: #45a049;
 }
 
