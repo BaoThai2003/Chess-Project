@@ -204,13 +204,13 @@ body {
 
 .player-timer h3 {
   margin: 0 0 10px 0;
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .time {
-  font-size: 36px;
+  font-size: 28px;
   font-family: "Courier New", monospace;
-  margin: 10px 0;
+  margin: 8px 0;
 }
 
 .pause-btn {
