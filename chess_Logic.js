@@ -166,6 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
         c += dc;
       }
     });
+    return moves;
   }
 
   // Hàm xử lý timer
