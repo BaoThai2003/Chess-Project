@@ -129,6 +129,44 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   }
+  //Xây dựng các nước đi cho các quân cờ
+  //Quân hậu
+  function getValidQueenMoves (row, col, piece){
+    const moves = [];
+    const isWhite = whitePieces.includes(piece);
+    //Kiểm tra các hướng ngang, dọc, chéo
+    const directions = [
+      [0,1], [0,-1], //ngang(phải, trái)
+      [1,0], [-1,0], //dọc(xuống, lên)
+      [1,1], [1,-1], //chéo(xuống phải, xuống trái)
+      [-1,1],[-1,-1], //chéo(lên phải, lên trái)
+    ];
+    directions.forEach(([dr, dc]) => {
+      let r = row + dr;
+      let c = col + dc;
+      //tiếp tục kiểm tra cho đến khi chạm giới hạn bàn cờ
+      while (r>=0 && r<8 && c>=0 && c<8){
+        const targetPiece = boardState[r][c];
+        if (!targetPiece) {
+          moves.push([r,c]);
+        }
+        else{
+          //Gặp quân cờ
+          if (
+          (isWhite && blackPieces.includes(targetPiece)) ||
+          (!isWhite && whitePieces.includes(targetPiece))
+          ){
+            //ăn quân
+            moves.push([r,c]);
+          }
+          //không thể nhảy qua quân cờ
+          break;
+        }
+        r += dr;
+        c += dc;
+      }
+    });
+  }
 
   // Hàm xử lý timer
   function initTimers() {
