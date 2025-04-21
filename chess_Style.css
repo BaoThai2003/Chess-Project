@@ -101,10 +101,16 @@ body {
   z-index: 50;
 }
 
+/*Thêm wrapper để hỗ trợ nhãn hàng/cột đánh số*/
+#chess-board-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
 #chess-board {
   display: grid;
-  grid-template-columns: repeat(8, 80px);
-  grid-template-rows: repeat(8, 80px);
+  grid-template-columns: repeat(8, 64px);
+  grid-template-rows: repeat(8, 64px);
   border: 3px solid #333;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
@@ -115,47 +121,84 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 50px;
+  font-size: 40px;
   cursor: pointer;
   user-select: none;
 }
 
+/*Thêm style cho các ô đánh số*/
+#row-labels {
+  position: absolute;
+  left: -20px;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 512px;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+#row-labels div {
+  height: 64px;
+  line-height: 64px;
+  text-align: center;
+}
+
+#col-labels {
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  width: 512px;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+#col-labels div {
+  width: 64px;
+  text-align: center;
+}
+
 #color-controls {
-  margin-top: 20px;
-  padding: 15px;
+  margin-top: 15px;
+  padding: 13.5px;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 10px;
+  font-size: 14.4px;
 }
 
 #color-controls label {
-  margin: 0 10px;
+  margin: 0 9px;
   font-family: Arial, sans-serif;
   color: #333;
 }
 
 #color-controls input[type="color"] {
-  margin-left: 5px;
+  margin-left: 4.5px;
   vertical-align: middle;
 }
 
-/* Thêm vào file CSS */
 #timer-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
 }
 
 #board-container {
-  margin: 0 20px;
+  margin: 0 15px;
 }
 
 .player-timer {
   background: rgba(255, 255, 255, 0.8);
-  padding: 20px;
+  padding: 15px;
   border-radius: 10px;
   text-align: center;
-  min-width: 150px;
+  min-width: 120px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
