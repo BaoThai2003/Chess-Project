@@ -79,11 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (piece) {
           square.textContent = piece;
           // Đặt màu quân cờ dựa trên danh sách whitePieces
-          if (whitePieces.includes(piece)) {
-            square.style.color = whitePieceColor;
-          } else {
-            square.style.color = blackPieceColor;
-          }
+          square.style.color = whitePieces.includes(piece) ? whitePieceColor : blackPieceColor;
         }
 
         // Thêm sự kiện click để di chuyển quân cờ
@@ -124,11 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Cập nhật màu quân cờ
         if (square.textContent) {
-          if (whitePieces.includes(square.textContent)) {
-            square.style.color = whitePieceColor;
-          } else {
-            square.style.color = blackPieceColor;
-          }
+          square.style.color = whitePieces.includes(square.textContent) ? whitePieceColor : blackPieceColor;
         }
       });
     }
