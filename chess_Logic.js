@@ -266,24 +266,47 @@ document.addEventListener("DOMContentLoaded", function () {
   let selectedPiece = null;
 
   function handleSquareClick(square) {
-    // Logic di chuyển quân cờ cơ bản
-    if (selectedPiece) {
-      // Nếu đã chọn quân cờ trước đó, thực hiện di chuyển
-      if (square.textContent === "") {
-        square.textContent = selectedPiece.textContent;
-        square.style.color = selectedPiece.style.color;
-        selectedPiece.textContent = "";
-        selectedPiece = null;
+    const row = parseInt(square.dataset.row);
+    const col = parseInt(square.dataset.col);
 
-        // Chuyển lượt sau khi di chuyển
-        switchPlayer();
+    if (selectedPiece) {
+      const fromRow = parseInt(selectedPiece.dataset.row);
+      const fromCol = parseInt(selectedPiece.dataset.col);
+      const piece = selectedPiece.textContent;
+
+      // Kiểm tra nước đi hợp lệ
+      if (isValidMove(fromRow, fromCol, row, col, piece)) {
+        // Kiểm tra lượt chơi
+        const isWhiteTurn = timers.currentPlayer === "white";
+        const isWhitePiece = whitePieces.includes(piece);
+
+        if ((isWhiteTurn && isWhitePiece) || (!isWhiteTurn && !isWhitePiece)) {
+          // Cập nhật trạng thái bàn cờ
+          boardState[row][col] = piece;
+          boardState[fromRow][fromCol] = "";
+
+          // Cập nhật giao diện
+          square.textContent = piece;
+          square.style.color = selectedPiece.style.color;
+          selectedPiece.textContent = "";
+          selectedPiece = null;
+
+          // Chuyển lượt
+          switchPlayer();
+        } else {
+          alert("Không phải lượt của bạn!");
+        }
+      } else {
+        alert("Nước đi không hợp lệ!");
       }
+
+      selectedPiece = null; // Reset sau mỗi lần thử di chuyển
     } else if (square.textContent !== "") {
-      // Chọn quân cờ để di chuyển
+      // Chọn quân cờ
       selectedPiece = square;
     }
   }
-
+  
   function createFlyingPiece() {
     const piece = document.createElement("div");
     piece.className = "chess-piece";
