@@ -169,6 +169,15 @@ document.addEventListener("DOMContentLoaded", function () {
     return moves;
   }
 
+  //Hàm kiểm tra nước đi hợp lệ
+  function isValidMove (fromRow, fromCol, toRow, toCol, piece){
+    if (piece === "♕" || piece === "♛"){
+      const validMoves = getValidQueenMoves (fromRow, fromCol, toRow, toCol, piece);
+      return validMoves.some(([r,c]) => r === toRow && c === toCol);
+    }
+    return false;
+  }
+  
   // Hàm xử lý timer
   function initTimers() {
     updateTimerDisplay();
