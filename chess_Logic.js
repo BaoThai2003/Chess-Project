@@ -57,6 +57,8 @@ document.addEventListener("DOMContentLoaded", function () {
       ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"],
     ];
 
+    boardState = initialPosition.map(row => [...row]);
+
     // Màu sắc mặc định
     let whiteSquareColor = "#f0d9b5";
     let blackSquareColor = "#b58863";
@@ -130,6 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
   //Xây dựng các nước đi cho các quân cờ
+
   //Quân hậu
   function getValidQueenMoves (row, col, piece){
     const moves = [];
@@ -169,10 +172,54 @@ document.addEventListener("DOMContentLoaded", function () {
     return moves;
   }
 
+//Quân vua
+function getValidKingMoves (row, col, piece){
+  const moves = [];
+  const isWhite = whitePieces.includes(piece);
+  //Kiểm tra các hướng ngang, dọc, chéo
+  const directions = [
+    [0,1], [0,-1], //ngang(phải, trái)
+    [1,0], [-1,0], //dọc(xuống, lên)
+    [1,1], [1,-1], //chéo(xuống phải, xuống trái)
+    [-1,1], [-1,-1], //chéo(lên phải, lên trái)
+  ];
+  directions.forEach(([dr,dc]) => {
+    let r = row + dr;
+    let c = col + dc;
+    //tiếp tục kiểm tra cho đến khi chạm giới hạn bàn cờ
+    //khác với hậu phải chạy while để đi cả bàn cờ thì vua chỉ cần if là được do chỉ đi 1 ô
+    if(r>=0 && r<8 && c>=0 && c<8){
+      const targetPiece = boardState[r][c];
+      if (!targetPiece){
+        moves.push([r,c]);
+      }
+      else{
+        //gặp quân cờ
+        if (
+        (isWhite && blackPieces.includes(targetPiece)) ||
+        (!isWhite && whitePieces.includes(targetPiece))
+        ){
+         //ăn quân
+          moves.push([r,c]);
+        }
+      }
+    }
+  });
+  return moves;
+}
+
   //Hàm kiểm tra nước đi hợp lệ
-  function isValidMove (fromRow, fromCol, toRow, toCol, piece){
+  function isValidMove (fromRow, fromCol, toRow, toCol, piece, isWhiteTurn){
+    const isWhitePiece = whitePieces.includes(piece);
+    if (isWhiteTurn && !isWhitePiece) return false;
+    if (!isWhiteTurn && isWhitePiece) return false;
+    let validMoves = [];
     if (piece === "♕" || piece === "♛"){
-      const validMoves = getValidQueenMoves (fromRow, fromCol, toRow, toCol, piece);
+      const validMoves = getValidQueenMoves (fromRow, fromCol, piece);
+      return validMoves.some(([r,c]) => r === toRow && c === toCol);
+    }
+    if (piece === "♔" || piece === "♚"){
+      const validMoves = getValidKingMoves (fromRow, fromCol, piece);
       return validMoves.some(([r,c]) => r === toRow && c === toCol);
     }
     return false;
