@@ -304,6 +304,39 @@ function getValidRookMoves (row, col, piece){
   return moves;
 }
 
+// Quân Tốt
+function getValidRookMoves (row, col, piece){
+  const moves = [];
+  const isWhite = whitePieces.includes(piece);
+  //Kiểm tra các hướng ngang, dọc, chéo
+  const directions = [
+    [1,0], [-1,0], //dọc(xuống, lên)
+    [-1,1], [-1,-1], //chéo(lên phải, lên trái)
+  ];
+  directions.forEach(([dr,dc]) => {
+    let r = row + dr;
+    let c = col + dc;
+    //tiếp tục kiểm tra cho đến khi chạm giới hạn bàn cờ
+    if(r>=0 && r<8 && c>=0 && c<8){
+      const targetPiece = boardState[r][c];
+      if (!targetPiece){
+        moves.push([r,c]);
+      }
+      else{
+        //gặp quân cờ
+        if (
+        (isWhite && blackPieces.includes(targetPiece)) ||
+        (!isWhite && whitePieces.includes(targetPiece))
+        ){
+         //ăn quân
+          moves.push([r,c]);
+        }
+      }
+    }
+  });
+  return moves;
+}
+
   //Hàm kiểm tra nước đi hợp lệ
   function isValidMove (fromRow, fromCol, toRow, toCol, piece, isWhiteTurn){
     const isWhitePiece = whitePieces.includes(piece);
@@ -318,6 +351,8 @@ function getValidRookMoves (row, col, piece){
       validMoves = getValidBishopMoves(fromRow, fromCol, piece);
     } else if (piece === "♖" || piece === "♜"){
       validMoves = getValidBishopMoves(fromRow, fromCol, piece);
+    } else if (piece === "♟" || piece === "♟"){
+      validMoves = getValidPawnMoves(fromRow, fromCol, piece);
     }
     else {
       return false;
