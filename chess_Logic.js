@@ -208,23 +208,66 @@ function getValidKingMoves (row, col, piece){
   return moves;
 }
 
+//Hàm kiểm tra vua bị chiếu
+function isKingInCheck(kingPos, boardState) {
+  const [kingRow, kingCol] = kingPos;
+  const isWhiteKing = boardState[kingRow][kingCol] === "♔";
+
+  // Kiểm tra xem vị trí vua có bị tấn công bởi quân đối phương hay không
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const piece = boardState[row][col];
+      if (piece && (isWhiteKing ? blackPieces.includes(piece) : whitePieces.includes(piece))) {
+        // Giả định: kiểm tra nước đi hợp lệ của quân cờ đối phương
+        // Cần triển khai logic đầy đủ cho tất cả các quân cờ
+        if (piece === "♕" || piece === "♛") {
+          const moves = getValidQueenMoves(row, col, piece);
+          if (moves.some(([r, c]) => r === kingRow && c === kingCol)) {
+            return true;
+          }
+        } else if (piece === "♔" || piece === "♚") {
+          const moves = getValidKingMoves(row, col, piece);
+          if (moves.some(([r, c]) => r === kingRow && c === kingCol)) {
+            return true;
+          }
+        }
+        // Thêm logic cho các quân cờ khác (xe, tượng, mã, tốt)
+      }
+    }
+  }
+  return false;
+}
+
   //Hàm kiểm tra nước đi hợp lệ
   function isValidMove (fromRow, fromCol, toRow, toCol, piece, isWhiteTurn){
     const isWhitePiece = whitePieces.includes(piece);
     if (isWhiteTurn && !isWhitePiece) return false;
     if (!isWhiteTurn && isWhitePiece) return false;
     let validMoves = [];
-    if (piece === "♕" || piece === "♛"){
-      const validMoves = getValidQueenMoves (fromRow, fromCol, piece);
-      return validMoves.some(([r,c]) => r === toRow && c === toCol);
+    if (piece === "♕" || piece === "♛") {
+      validMoves = getValidQueenMoves(fromRow, fromCol, piece);
+    } else if (piece === "♔" || piece === "♚") {
+      validMoves = getValidKingMoves(fromRow, fromCol, piece);
+    } else {
+      return false;
     }
-    if (piece === "♔" || piece === "♚"){
-      const validMoves = getValidKingMoves (fromRow, fromCol, piece);
-      return validMoves.some(([r,c]) => r === toRow && c === toCol);
-    }
-    return false;
   }
+
+  //Kiểm tra nước đi có trong danh sách hợp lệ
+  const isMoveValid = validMoves.some (([r,c]) => r === toRow && c == toCol);
+  if(!isMoveValid) return false;
   
+  //Kiểm tra xem nước đi có dẫn đến vua bị chiếu
+  const tempPiece = boardState[toRow][toCol];
+  boardState[toRow][toCol] = piece;
+  boardState[fromRow][fromCol] = "";
+  const kingPos = (piece === "♔" || piece === "♚") ? [toRow, toCol] : (isWhitePiece ? whiteKingPos : blackKingPos);
+  const kingInCheck = isKingInCheck(kingPos, boardState);
+  boardState[fromRow][fromCol] = piece;
+  boardState[toRow][toCol] = tempPiece;
+
+  return !kingInCheck;
+
   // Hàm xử lý timer
   function initTimers() {
     updateTimerDisplay();
