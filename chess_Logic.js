@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Cập nhật trạng thái bàn cờ
   let boardState = [];
-  // Khởi tạo vị trí vua
   let whiteKingPos = [7, 4]; // Vị trí ban đầu của vua trắng
   let blackKingPos = [0, 4]; // Vị trí ban đầu của vua đen
 
@@ -217,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ) {
             moves.push([r, c]);
           }
-          break; // THAY ĐỔI: Thêm break để dừng khi gặp quân cờ
+          break;
         }
         r += dr;
         c += dc;
@@ -248,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ) {
             moves.push([r, c]);
           }
-          break; // Thêm break để dừng khi gặp quân cờ
+          break;
         }
         r += dr;
         c += dc;
@@ -257,16 +256,18 @@ document.addEventListener("DOMContentLoaded", function () {
     return moves;
   }
 
-  //Quân tốt
+  // Quân tốt
   function getValidPawnMoves(row, col, piece) {
     const moves = [];
     const isWhite = whitePieces.includes(piece);
     const direction = isWhite ? -1 : 1; // Trắng đi lên, đen đi xuống
     const startRow = isWhite ? 6 : 1; // Hàng bắt đầu của tốt
 
+    // Di chuyển tiến 1 ô
     if (row + direction >= 0 && row + direction < 8) {
       if (!boardState[row + direction][col]) {
         moves.push([row + direction, col]);
+        // Di chuyển tiến 2 ô từ vị trí ban đầu
         if (row === startRow && !boardState[row + 2 * direction][col]) {
           moves.push([row + 2 * direction, col]);
         }
@@ -296,16 +297,39 @@ document.addEventListener("DOMContentLoaded", function () {
     return moves;
   }
 
+  // Quân mã
+  function getValidKnightMoves(row, col, piece) {
+    const moves = [];
+    const isWhite = whitePieces.includes(piece);
+    const directions = [
+      [-2, -1], [-2, 1], [-1, -2], [-1, 2], // 2 ô dọc, 1 ô ngang
+      [1, -2], [1, 2], [2, -1], [2, 1]      // 2 ô ngang, 1 ô dọc
+    ];
+    directions.forEach(([dr, dc]) => {
+      const r = row + dr;
+      const c = col + dc;
+      if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+        const targetPiece = boardState[r][c];
+        if (!targetPiece || 
+            (isWhite && blackPieces.includes(targetPiece)) || 
+            (!isWhite && whitePieces.includes(targetPiece))) {
+          moves.push([r, c]);
+        }
+      }
+    });
+    return moves;
+  }
+
   // Hàm kiểm tra vua bị chiếu
   function isKingInCheck(kingPos, boardState) {
-    const [ kingRow, kingCol] = kingPos;
+    const [kingRow, kingCol] = kingPos;
     const isWhiteKing = boardState[kingRow][kingCol] === "♔";
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const piece = boardState[row][col];
         if (piece && (isWhiteKing ? blackPieces.includes(piece) : whitePieces.includes(piece))) {
-          let moves = [];
+          let moves = []; // THAY ĐỔI: Sửa lỗi cú pháp, xóa "<>"
           if (piece === "♕" || piece === "♛") {
             moves = getValidQueenMoves(row, col, piece);
           } else if (piece === "♔" || piece === "♚") {
@@ -316,6 +340,8 @@ document.addEventListener("DOMContentLoaded", function () {
             moves = getValidRookMoves(row, col, piece);
           } else if (piece === "♙" || piece === "♟") {
             moves = getValidPawnMoves(row, col, piece);
+          } else if (piece === "♘" || piece === "♞") {
+            moves = getValidKnightMoves(row, col, piece);
           }
           if (moves.some(([r, c]) => r === kingRow && c === kingCol)) {
             return true;
@@ -326,6 +352,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return false;
   }
 
+  // Hàm kiểm tra nước đi hợp lệ
   function isValidMove(fromRow, fromCol, toRow, toCol, piece, isWhiteTurn) {
     const isWhitePiece = whitePieces.includes(piece);
     if (isWhiteTurn && !isWhitePiece) return false;
@@ -342,6 +369,8 @@ document.addEventListener("DOMContentLoaded", function () {
       validMoves = getValidRookMoves(fromRow, fromCol, piece);
     } else if (piece === "♙" || piece === "♟") {
       validMoves = getValidPawnMoves(fromRow, fromCol, piece);
+    } else if (piece === "♘" || piece === "♞") {
+      validMoves = getValidKnightMoves(fromRow, fromCol, piece);
     } else {
       return false;
     }
