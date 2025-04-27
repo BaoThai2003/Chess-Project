@@ -364,30 +364,30 @@ function isKingInCheck(kingPos, boardState) {
       const fromCol = parseInt(selectedPiece.dataset.col);
       const piece = selectedPiece.textContent;
 
-      // Kiểm tra nước đi hợp lệ
-      if (isValidMove(fromRow, fromCol, row, col, piece)) {
-        // Kiểm tra lượt chơi
-        const isWhiteTurn = timers.currentPlayer === "white";
-        const isWhitePiece = whitePieces.includes(piece);
+      // THAY ĐỔI: Truyền isWhiteTurn vào isValidMove
+      const isWhiteTurn = timers.currentPlayer === "white";
+      if (isValidMove(fromRow, fromCol, row, col, piece, isWhiteTurn)) {
+        // Cập nhật trạng thái bàn cờ
+        boardState[row][col] = piece;
+        boardState[fromRow][fromCol] = "";
 
-        if ((isWhiteTurn && isWhitePiece) || (!isWhiteTurn && !isWhitePiece)) {
-          // Cập nhật trạng thái bàn cờ
-          boardState[row][col] = piece;
-          boardState[fromRow][fromCol] = "";
-
-          // Cập nhật giao diện
-          square.textContent = piece;
-          square.style.color = selectedPiece.style.color;
-          selectedPiece.textContent = "";
-          selectedPiece = null;
-
-          // Chuyển lượt
-          switchPlayer();
-        } else {
-          alert("Không phải lượt của bạn!");
+        // THÊM: Cập nhật vị trí vua nếu di chuyển vua
+        if (piece === "♔") {
+          whiteKingPos = [row, col];
+        } else if (piece === "♚") {
+          blackKingPos = [row, col];
         }
+
+        // Cập nhật giao diện
+        square.textContent = piece;
+        square.style.color = selectedPiece.style.color;
+        selectedPiece.textContent = "";
+        selectedPiece = null;
+
+        // Chuyển lượt
+        switchPlayer();
       } else {
-        alert("Nước đi không hợp lệ!");
+        alert("Nước đi không hợp lệ hoặc không phải lượt của bạn!");
       }
 
       selectedPiece = null; // Reset sau mỗi lần thử di chuyển
