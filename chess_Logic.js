@@ -60,6 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
 
     boardState = initialPosition.map(row => [...row]);
+    console.log("Initial boardState:", boardState); // Kiểm tra trạng thái ban đầu
 
     // Màu sắc mặc định
     let whiteSquareColor = "#f0d9b5";
@@ -324,12 +325,13 @@ document.addEventListener("DOMContentLoaded", function () {
   function isKingInCheck(kingPos, boardState) {
     const [kingRow, kingCol] = kingPos;
     const isWhiteKing = boardState[kingRow][kingCol] === "♔";
+    console.log(`Checking if king at [${kingRow}, ${kingCol}] (white: ${isWhiteKing}) is in check`);
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const piece = boardState[row][col];
         if (piece && (isWhiteKing ? blackPieces.includes(piece) : whitePieces.includes(piece))) {
-          let moves = []; // THAY ĐỔI: Sửa lỗi cú pháp, xóa "<>"
+          let moves = [];
           if (piece === "♕" || piece === "♛") {
             moves = getValidQueenMoves(row, col, piece);
           } else if (piece === "♔" || piece === "♚") {
@@ -343,7 +345,9 @@ document.addEventListener("DOMContentLoaded", function () {
           } else if (piece === "♘" || piece === "♞") {
             moves = getValidKnightMoves(row, col, piece);
           }
+          console.log(`Piece ${piece} at [${row}, ${col}] has moves:`, moves);
           if (moves.some(([r, c]) => r === kingRow && c === kingCol)) {
+            console.log(`King at [${kingRow}, ${kingCol}] is in check by ${piece} at [${row}, ${col}]`);
             return true;
           }
         }
@@ -352,11 +356,28 @@ document.addEventListener("DOMContentLoaded", function () {
     return false;
   }
 
+  // Hàm đồng bộ trạng thái bàn cờ với DOM
+  function syncBoardStateWithDOM() {
+    const squares = document.querySelectorAll(".chess-square");
+    squares.forEach((square) => {
+      const row = parseInt(square.dataset.row);
+      const col = parseInt(square.dataset.col);
+      boardState[row][col] = square.textContent;
+    });
+    console.log("Synced boardState:", boardState);
+  }
+
   // Hàm kiểm tra nước đi hợp lệ
   function isValidMove(fromRow, fromCol, toRow, toCol, piece, isWhiteTurn) {
     const isWhitePiece = whitePieces.includes(piece);
-    if (isWhiteTurn && !isWhitePiece) return false;
-    if (!isWhiteTurn && isWhitePiece) return false;
+    if (isWhiteTurn && !isWhitePiece) {
+      console.log("Invalid move: Not your turn (white turn, black piece)");
+      return false;
+    }
+    if (!isWhiteTurn && isWhitePiece) {
+      console.log("Invalid move: Not your turn (black turn, white piece)");
+      return false;
+    }
 
     let validMoves = [];
     if (piece === "♕" || piece === "♛") {
@@ -372,22 +393,29 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (piece === "♘" || piece === "♞") {
       validMoves = getValidKnightMoves(fromRow, fromCol, piece);
     } else {
+      console.log("Invalid move: Unknown piece");
       return false;
     }
 
-    // Kiểm tra nước đi có trong danh sách hợp lệ
+    console.log(`Valid moves for ${piece} at [${fromRow}, ${fromCol}]:`, validMoves);
     const isMoveValid = validMoves.some(([r, c]) => r === toRow && c === toCol);
-    if (!isMoveValid) return false;
+    if (!isMoveValid) {
+      console.log(`Move to [${toRow}, ${toCol}] is not in valid moves`);
+      return false;
+    }
 
-    // Kiểm tra xem nước đi có dẫn đến vua bị chiếu
+    console.log("Board state before move:", JSON.parse(JSON.stringify(boardState)));
     const tempPiece = boardState[toRow][toCol];
     boardState[toRow][toCol] = piece;
     boardState[fromRow][fromCol] = "";
+    console.log("Board state after move:", JSON.parse(JSON.stringify(boardState)));
     const kingPos = (piece === "♔" || piece === "♚") ? [toRow, toCol] : (isWhitePiece ? whiteKingPos : blackKingPos);
     const kingInCheck = isKingInCheck(kingPos, boardState);
     boardState[fromRow][fromCol] = piece;
     boardState[toRow][toCol] = tempPiece;
+    console.log("Board state after restore:", JSON.parse(JSON.stringify(boardState)));
 
+    console.log(`Move to [${toRow}, ${toCol}] results in king in check: ${kingInCheck}`);
     return !kingInCheck;
   }
 
@@ -494,14 +522,21 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedPiece.textContent = "";
         selectedPiece = null;
 
+        syncBoardStateWithDOM(); // Đồng bộ trạng thái bàn cờ
         switchPlayer();
       } else {
         alert("Nước đi không hợp lệ hoặc không phải lượt của bạn!");
+        selectedPiece = null; // Đặt lại selectedPiece
       }
-
-      selectedPiece = null;
     } else if (square.textContent !== "") {
-      selectedPiece = square;
+      const piece = square.textContent;
+      const isWhitePiece = whitePieces.includes(piece);
+      const isWhiteTurn = timers.currentPlayer === "white";
+      if ((isWhiteTurn && isWhitePiece) || (!isWhiteTurn && !isWhitePiece)) {
+        selectedPiece = square;
+      } else {
+        alert("Không phải lượt của quân này!");
+      }
     }
   }
 
