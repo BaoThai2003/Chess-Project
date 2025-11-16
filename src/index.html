@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="apple-touch-icon" sizes="57x57" href="./img/ico/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="./img/ico/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="./img/ico/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="./img/ico/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="./img/ico/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="./img/ico/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="./img/ico/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="./img/ico/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./img/ico/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./img/ico/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./img/ico/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="./img/ico/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./img/ico/favicon-16x16.png" />
+    <link rel="manifest" href="./img/ico/manifest.json" />
+    <link rel="stylesheet" href="chess_Style.css" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Chess Project - Akh'Zahara</title>
+  </head>
+  <body>
+    <!-- STORY INTRO -->
+    <div id="story-intro" class="fullscreen-overlay">
+      <div class="story-panel">
+        <h1 class="title-gold">Chess Project</h1>
+        <div class="story-text">
+          <p>
+            Bao, an IT student from Vietnam, traveled to Japan to visit his girlfriend Shizuku, a professional chess
+            player.
+          </p>
+          <p>During a summer festival at an ancient temple, they discovered a mysterious glowing chessboard...</p>
+          <p>As Shizuku touched it, a powerful force pulled her inside. Bao jumped after her without hesitation.</p>
+          <p class="highlight">
+            They awakened in
+            <strong>Akh'Zahara</strong>
+            - the Land of Sand.
+          </p>
+          <p>
+            A world where the working class suffers under intellectual tyrants, and all conflicts are decided by deadly
+            chess battles.
+          </p>
+          <p>"To find Shizuku and escape this world, you must fight through the arena..."</p>
+        </div>
+        <button id="start-story-btn" class="btn-primary-large">Begin Your Journey</button>
+      </div>
+    </div>
+
+    <!-- MAIN MENU (Edopro Style) -->
+    <div id="main-menu" class="fullscreen-overlay hidden">
+      <div class="menu-container">
+        <div class="menu-header">
+          <h1 class="game-title">Chess Project</h1>
+          <div class="player-info">
+            <div class="player-name">
+              Player:
+              <span id="player-name">Bao</span>
+            </div>
+            <div class="player-level">
+              Level:
+              <span id="player-level">1</span>
+            </div>
+            <div class="player-exp">
+              EXP:
+              <span id="player-exp">0</span>
+              /
+              <span id="player-exp-max">100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-content">
+          <div class="menu-left">
+            <button class="menu-btn" data-action="campaign">
+              <span class="btn-icon">⚔️</span>
+              <span class="btn-text">Campaign</span>
+            </button>
+            <button class="menu-btn" data-action="arena">
+              <span class="btn-icon">🏆</span>
+              <span class="btn-text">Arena</span>
+            </button>
+            <button class="menu-btn" data-action="deck">
+              <span class="btn-icon">📚</span>
+              <span class="btn-text">Deck Builder</span>
+            </button>
+            <button class="menu-btn" data-action="profile">
+              <span class="btn-icon">👤</span>
+              <span class="btn-text">Profile</span>
+            </button>
+            <button class="menu-btn" data-action="options">
+              <span class="btn-icon">⚙️</span>
+              <span class="btn-text">Options</span>
+            </button>
+            <button class="menu-btn btn-danger" data-action="quit">
+              <span class="btn-icon">🚪</span>
+              <span class="btn-text">Exit</span>
+            </button>
+          </div>
+
+          <div class="menu-right">
+            <div class="character-display">
+              <div class="character-silhouette">♔</div>
+              <div class="character-name">Bao - The Wanderer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGN MAP (Shadow Fight 2 Style) -->
+    <div id="campaign-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Campaign - Act I: Desert of Despair</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+
+        <div class="campaign-map">
+          <div class="act-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="act-progress" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+              Act Progress:
+              <span id="act-progress-text">0/5</span>
+            </div>
+          </div>
+
+          <!-- Boss Node -->
+          <div class="map-node boss-node locked" data-node="boss-1" data-level="5">
+            <div class="node-icon">👑</div>
+            <div class="node-name">The Sandlord</div>
+            <div class="node-level">Level 5</div>
+          </div>
+
+          <!-- Regular Nodes -->
+          <div class="map-node unlocked" data-node="fight-4" data-level="4">
+            <div class="node-icon">⚔️</div>
+            <div class="node-name">Desert Warrior</div>
+            <div class="node-level">Level 4</div>
+          </div>
+
+          <div class="map-node unlocked" data-node="fight-3" data-level="3">
+            <div class="node-icon">⚔️</div>
+            <div class="node-name">Sandstorm Scout</div>
+            <div class="node-level">Level 3</div>
+          </div>
+
+          <div class="map-node unlocked" data-node="fight-2" data-level="2">
+            <div class="node-icon">⚔️</div>
+            <div class="node-name">Dune Raider</div>
+            <div class="node-level">Level 2</div>
+          </div>
+
+          <div class="map-node unlocked" data-node="fight-1" data-level="1">
+            <div class="node-icon">⚔️</div>
+            <div class="node-name">Lost Traveler</div>
+            <div class="node-level">Level 1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARENA SCREEN -->
+    <div id="arena-screen" class="fullscreen-overlay hidden">
+      <div class="arena-container">
+        <div class="arena-header">
+          <h2>Arena - Prove Your Skills</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+
+        <div class="arena-opponents">
+          <div class="opponent-card" data-opponent="easy-1">
+            <div class="opponent-portrait">♟</div>
+            <div class="opponent-name">Beginner Bot</div>
+            <div class="opponent-difficulty easy">Easy</div>
+            <div class="opponent-reward">+10 EXP</div>
+            <button class="btn-challenge">Challenge</button>
+          </div>
+
+          <div class="opponent-card" data-opponent="easy-2">
+            <div class="opponent-portrait">♞</div>
+            <div class="opponent-name">Training Dummy</div>
+            <div class="opponent-difficulty easy">Easy</div>
+            <div class="opponent-reward">+10 EXP</div>
+            <button class="btn-challenge">Challenge</button>
+          </div>
+
+          <div class="opponent-card" data-opponent="medium-1">
+            <div class="opponent-portrait">♜</div>
+            <div class="opponent-name">Arena Fighter</div>
+            <div class="opponent-difficulty medium">Medium</div>
+            <div class="opponent-reward">+25 EXP</div>
+            <button class="btn-challenge">Challenge</button>
+          </div>
+
+          <div class="opponent-card" data-opponent="hard-1">
+            <div class="opponent-portrait">♛</div>
+            <div class="opponent-name">Champion</div>
+            <div class="opponent-difficulty hard">Hard</div>
+            <div class="opponent-reward">+50 EXP</div>
+            <button class="btn-challenge">Challenge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRE-BATTLE DIALOGUE -->
+    <div id="dialogue-screen" class="fullscreen-overlay hidden">
+      <div class="dialogue-container">
+        <div class="dialogue-portrait left">
+          <div class="portrait-image">♔</div>
+          <div class="portrait-name">Bao</div>
+        </div>
+
+        <div class="dialogue-box">
+          <div class="dialogue-text" id="dialogue-text">Loading dialogue...</div>
+          <button class="dialogue-continue" id="dialogue-continue">Continue ►</button>
+        </div>
+
+        <div class="dialogue-portrait right">
+          <div class="portrait-image" id="enemy-portrait">♚</div>
+          <div class="portrait-name" id="enemy-name">Enemy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BATTLE SCREEN -->
+    <div id="battle-screen" class="fullscreen-overlay hidden">
+      <div class="battle-ui">
+        <!-- Top Bar -->
+        <div class="battle-top-bar">
+          <div class="battle-info">
+            <span id="battle-turn">Turn: 1</span>
+            <span id="battle-opponent">vs Lost Traveler</span>
+          </div>
+          <button class="btn-surrender">Surrender</button>
+        </div>
+
+        <!-- Main Battle Area -->
+        <div class="battle-main">
+          <!-- Left Panel: Move Log & Effects -->
+          <div class="battle-left-panel">
+            <div class="panel-section">
+              <h4>Move Log</h4>
+              <div id="battle-move-log" class="scroll-content"></div>
+            </div>
+            <div class="panel-section">
+              <h4>Active Effects</h4>
+              <div id="battle-effects" class="scroll-content"></div>
+            </div>
+          </div>
+
+          <!-- Center: Chess Board -->
+          <div class="battle-center">
+            <div class="player-status enemy">
+              <div class="status-name" id="enemy-name-battle">Enemy</div>
+              <div class="status-timer" id="enemy-timer">10:00</div>
+            </div>
+
+            <div id="chess-board-wrapper">
+              <div id="row-labels">
+                <div>8</div>
+                <div>7</div>
+                <div>6</div>
+                <div>5</div>
+                <div>4</div>
+                <div>3</div>
+                <div>2</div>
+                <div>1</div>
+              </div>
+              <div id="chess-board"></div>
+              <div id="col-labels">
+                <div>a</div>
+                <div>b</div>
+                <div>c</div>
+                <div>d</div>
+                <div>e</div>
+                <div>f</div>
+                <div>g</div>
+                <div>h</div>
+              </div>
+            </div>
+
+            <div class="player-status player">
+              <div class="status-name">You (Bao)</div>
+              <div class="status-timer" id="player-timer">10:00</div>
+            </div>
+          </div>
+
+          <!-- Right Panel: Energy & Skills -->
+          <div class="battle-right-panel">
+            <div class="panel-section">
+              <h4>Energy</h4>
+              <div class="energy-display">
+                <div class="energy-orbs">
+                  <span class="energy-orb filled">⚡</span>
+                  <span class="energy-orb">⚡</span>
+                  <span class="energy-orb">⚡</span>
+                </div>
+                <div class="energy-text">
+                  <span id="current-ep">1</span>
+                  /3 EP
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <h4>Your Skills</h4>
+              <div id="battle-skills" class="skill-cards-vertical"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VICTORY SCREEN -->
+    <div id="victory-screen" class="fullscreen-overlay hidden">
+      <div class="result-panel victory">
+        <h1>VICTORY!</h1>
+        <div class="result-rewards">
+          <p>
+            Experience Gained:
+            <span class="reward-value" id="exp-gained">+25</span>
+          </p>
+          <p>
+            New Level:
+            <span class="reward-value" id="new-level">2</span>
+          </p>
+        </div>
+        <button class="btn-primary-large" id="victory-continue">Continue</button>
+      </div>
+    </div>
+
+    <!-- DEFEAT SCREEN -->
+    <div id="defeat-screen" class="fullscreen-overlay hidden">
+      <div class="result-panel defeat">
+        <h1>DEFEAT</h1>
+        <div class="result-text">
+          <p>You were defeated in battle...</p>
+          <p>Train harder and try again!</p>
+        </div>
+        <button class="btn-primary-large" id="defeat-retry">Retry</button>
+        <button class="btn-secondary" id="defeat-menu">Return to Menu</button>
+      </div>
+    </div>
+
+    <!-- DECK BUILDER -->
+    <div id="deck-builder" class="fullscreen-overlay hidden">
+      <div class="deck-container">
+        <div class="deck-header">
+          <h2>Deck Builder</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+
+        <div class="deck-content">
+          <div class="deck-left">
+            <h3>Available Skills</h3>
+            <div id="available-skills" class="skill-grid"></div>
+          </div>
+
+          <div class="deck-right">
+            <h3>Your Deck (5/5)</h3>
+            <div id="selected-skills" class="skill-list-large"></div>
+            <button class="btn-save-deck" id="save-deck-btn">Save Deck</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div id="profile-screen" class="fullscreen-overlay hidden">
+      <div class="profile-container">
+        <div class="profile-header">
+          <h2>Player Profile</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+
+        <div class="profile-content">
+          <div class="profile-stats">
+            <h3>Statistics</h3>
+            <div class="stat-line">
+              Name:
+              <span id="profile-name">Bao</span>
+            </div>
+            <div class="stat-line">
+              Level:
+              <span id="profile-level">1</span>
+            </div>
+            <div class="stat-line">
+              Experience:
+              <span id="profile-exp">0</span>
+            </div>
+            <div class="stat-line">
+              Battles Won:
+              <span id="profile-wins">0</span>
+            </div>
+            <div class="stat-line">
+              Battles Lost:
+              <span id="profile-losses">0</span>
+            </div>
+            <div class="stat-line">
+              Win Rate:
+              <span id="profile-winrate">0%</span>
+            </div>
+          </div>
+
+          <div class="profile-achievements">
+            <h3>Achievements</h3>
+            <div class="achievement locked">
+              <span class="achievement-icon">🏆</span>
+              <span class="achievement-name">First Victory</span>
+            </div>
+            <div class="achievement locked">
+              <span class="achievement-icon">⚔️</span>
+              <span class="achievement-name">Arena Champion</span>
+            </div>
+            <div class="achievement locked">
+              <span class="achievement-icon">👑</span>
+              <span class="achievement-name">Boss Slayer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="game_State.js"></script>
+    <script src="skill_System.js"></script>
+    <script src="ai_System.js"></script>
+    <script src="dialogue_System.js"></script>
+    <script src="chess_Logic.js"></script>
+    <script src="menu_Logic.js"></script>
+    <script src="battle_System.js"></script>
+  </body>
+</html>
