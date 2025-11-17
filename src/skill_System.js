@@ -5,11 +5,11 @@ window.skillSystem = {
     // === AZW Faction Skills ===
     azw_attack: {
       id: "azw_attack",
-      name: "AZW - Attack",
+      name: "AZW - Tiến công",
       cost: 2,
-      description: "Push a designated piece forward 2 spaces",
+      description: "Đẩy 1 quân cờ chỉ định của phe mình tiến thêm 2 ô.",
       execute: function (player) {
-        alert("Select a piece to push forward 2 spaces");
+        alert("Chọn 1 quân cờ để đẩy quân cờ chỉ định đó tiến thêm 2 ô.");
         // Implementation would require piece selection
         return true;
       },
@@ -17,9 +17,9 @@ window.skillSystem = {
 
     azw_shield: {
       id: "azw_shield",
-      name: "AZW - Shield",
+      name: "AZW - AZW - Che chở",
       cost: 2,
-      description: "Reduce 0.25 damage from all sources for 3 turns",
+      description: "Tạo lớp khiên, giảm 0.25 sát thương từ mọi nguồn cho toàn đội trong 3 lượt.",
       execute: function (player) {
         window.gameState.activeEffects.push({
           name: "Shield",
@@ -29,16 +29,17 @@ window.skillSystem = {
           value: 0.25,
         });
         window.gameState.updateEffectsDisplay();
-        alert("Shield activated! -0.25 damage for 3 turns");
+        alert("Khiên đang kích hoạt! Giảm 0.25 sát thương trong 3 lượt!");
         return true;
       },
     },
 
     azw_hard_work: {
       id: "azw_hard_work",
-      name: "AZW - Hard Work",
+      name: "AZW - Lao động hăng say",
       cost: 2,
-      description: "All troops take 0.25 damage now, but gain +0.25 damage for 3 turns",
+      description:
+        "Toàn bộ quân mình nhận 0.25 sát thương ngay lập tức, nhưng tăng 0.25 sát thương trong 3 lượt tiếp theo.",
       execute: function (player) {
         // Damage all friendly pieces
         const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
@@ -60,16 +61,17 @@ window.skillSystem = {
         });
         window.gameState.updateEffectsDisplay();
         window.updateAllHealthBars();
-        alert("Hard Work activated! -0.25 HP now, +0.25 damage for 3 turns");
+        alert("Các công nhân đang lao động hăng say! Toàn bộ sát thương tăng 0.25 trong 3 lượt!");
         return true;
       },
     },
 
     azw_unity: {
       id: "azw_unity",
-      name: "AZW - Unity",
-      cost: 1,
-      description: "When ally eliminated or takes >0.5 damage, all allies gain +0.25 damage permanently",
+      name: "AZW - Đồng tâm hiệp lực",
+      cost: 6,
+      description:
+        "Khi 1 quân phe mình bị loại hoặc chịu trên 0.5 sát thương → sát thương toàn quân tăng vĩnh viễn 0.25.",
       execute: function (player) {
         window.gameState.activeEffects.push({
           name: "Unity",
@@ -79,16 +81,17 @@ window.skillSystem = {
           value: 0.25,
         });
         window.gameState.updateEffectsDisplay();
-        alert("Unity activated! Gains strength from sacrifice");
+        alert("Đông tâm hiệp lực đã kích hoạt! Sức mạnh tăng từ sự hy sinh");
         return true;
       },
     },
 
     azw_sandstorm: {
       id: "azw_sandstorm",
-      name: "AZW - Sandstorm",
-      cost: 3,
-      description: "Cover 2 rows for 3 turns. Enemies can move 1 less space",
+      name: "AZW - Anh em ta là bão cát",
+      cost: 6,
+      description:
+        "Gọi bão cát bao phủ 2 hàng trong 3 lượt. Quân địch trong phạm vi chỉ có thể di chuyển tối đa giảm đi 1 ô.",
       execute: function (player) {
         window.gameState.activeEffects.push({
           name: "Sandstorm",
@@ -98,7 +101,7 @@ window.skillSystem = {
           value: 1,
         });
         window.gameState.updateEffectsDisplay();
-        alert("Sandstorm summoned! Enemy movement reduced for 3 turns");
+        alert("Bão cát đã bao trùm! Những kẻ xâm phạm sẽ bị giảm di chuyển giảm 1 ô trong 3 lượt");
         return true;
       },
     },
@@ -108,9 +111,9 @@ window.skillSystem = {
       id: "azw_sand_rage",
       name: "AZW - Cuồng Phong Cát",
       cost: 4,
-      description: "Đổi chỗ 2 quân địch, gây 0.5 sát thương nếu chúng va chạm",
+      description: "Đổi chỗ 2 quân địch, gây 0.25 sát thương nếu chúng va chạm",
       execute: function (player) {
-        alert("Select 2 enemy pieces to swap");
+        alert("Lụa chọn 2 quân địch để đổi chỗ chúng. Nếu chúng va chạm, mỗi quân sẽ chịu 0.25 sát thương.");
         // Implementation for swap
         return true;
       },
@@ -119,9 +122,9 @@ window.skillSystem = {
     // === Individual Piece Skills ===
     pawn_volcanic: {
       id: "pawn_volcanic",
-      name: "Volcanic Power",
+      name: "Bão cát nóng chảy",
       cost: 1,
-      description: "When moving into energy tile, all AZW pieces gain +0.25 HP for 1 turn",
+      description: "Khi di chuyển vào ô năng lượng, tất cả quân AZW nhận +0.25 HP trong 1 lượt",
       execute: function (player) {
         const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
         for (let key in window.gameState.pieceHealth) {
@@ -133,16 +136,16 @@ window.skillSystem = {
           }
         }
         window.updateAllHealthBars();
-        alert("Volcanic Power! All allies gain +0.25 HP");
+        alert("Bão cát nóng chảy! Năng lượng từ sa mạc tiếp thêm sức mạnh cho đồng đội!");
         return true;
       },
     },
 
     rook_caravan: {
       id: "rook_caravan",
-      name: "Desert Caravan",
+      name: "Mánh khóe của những kẻ du mục",
       cost: 2,
-      description: "After attack, restore 0.25 HP to 2 adjacent allies",
+      description: "Sau khi tấn công, hồi 0.25 HP cho 2 đồng minh kế bên",
       execute: function (player) {
         alert("Caravan healing activated after next attack");
         return true;
@@ -151,31 +154,33 @@ window.skillSystem = {
 
     knight_forced_labor: {
       id: "knight_forced_labor",
-      name: "Forced Labor",
+      name: "Lao dịch khổ sai",
       cost: 2,
-      description: "After jump, if enemy defeated, deal 0.25 splash damage to adjacent enemies",
+      description:
+        "Sau khi nhảy, nếu hạ gục được quân địch → gây thêm 0.25 sát thương lan cho quân địch đứng cạnh ô đáp xuống.",
       execute: function (player) {
-        alert("Forced Labor activated for next knight move");
+        alert("Hãy cất lên, hỡi tiếng gầm của những người cùng khổ!");
         return true;
       },
     },
 
     bishop_guide: {
       id: "bishop_guide",
-      name: "Guide",
+      name: "Đưa đường dẫn lối",
       cost: 1,
-      description: "Pass through energy tile to leave mark. Ally on it gains +1 move space",
+      description:
+        "Khi đi qua ô năng lượng, để lại dấu ấn trong 1 lượt. Quân AZW đứng trên đó được +1 ô di chuyển trong lượt kế tiếp.",
       execute: function (player) {
-        alert("Guide activated - leave marks on energy tiles");
+        alert("Những dấu chân đã để lại, liệu người đến sau có thể tìm thấy lối đi?");
         return true;
       },
     },
 
     queen_roar: {
       id: "queen_roar",
-      name: "Desert Roar",
+      name: "Tiếng gào hoang mạc",
       cost: 3,
-      description: "When attacked, reflect 0.5 damage (once every 2 turns)",
+      description: "Khi bị tấn công, phản lại 0.5 sát thương lên quân địch (kích hoạt tối đa 1 lần mỗi 2 lượt).",
       execute: function (player) {
         window.gameState.activeEffects.push({
           name: "Desert Roar",
@@ -185,16 +190,16 @@ window.skillSystem = {
           value: 0.5,
         });
         window.gameState.updateEffectsDisplay();
-        alert("Desert Roar! Queen will reflect damage");
+        alert("Bão cát rít từng hồi đáng sợ ! Liệu ngươi có sống sót trong tiếng gào này?");
         return true;
       },
     },
 
     king_concentric: {
       id: "king_concentric",
-      name: "Concentric",
+      name: "Đồng tâm",
       cost: 2,
-      description: "When ≤6 pieces remain, King heals 0.25 HP per turn",
+      description: "Khi số quân AZW còn lại ≤ 6 → Vua tự hồi 0.25 máu mỗi lượt.",
       execute: function (player) {
         const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
         let count = 0;
@@ -213,7 +218,7 @@ window.skillSystem = {
             value: 0.25,
           });
           window.gameState.updateEffectsDisplay();
-          alert("Concentric activated! King regenerates HP");
+          alert("Đồng tâm hiệp lực! Ngai vàng mãi vững giữa bão cát khô căn!");
           return true;
         } else {
           alert("Need ≤6 pieces to activate Concentric");
