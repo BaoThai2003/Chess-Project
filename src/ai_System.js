@@ -11,22 +11,19 @@ window.aiSystem = {
   makeMove() {
     if (!window.gameState || !window.gameState.boardState) return;
 
-    // Find all black pieces
     const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
     const pieces = [];
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const piece = window.gameState.boardState[row][col];
-        if (blackPieces.includes(piece)) {
-          pieces.push({ row, col, piece });
-        }
+        if (blackPieces.includes(piece)) pieces.push({ row, col, piece });
       }
     }
 
     if (pieces.length === 0) return;
 
-    // Get valid moves for all pieces
+    // Gather all valid moves
     const allMoves = [];
     pieces.forEach(({ row, col, piece }) => {
       const moves = this.getValidMovesForPiece(row, col, piece);
@@ -44,59 +41,102 @@ window.aiSystem = {
 
     if (allMoves.length === 0) return;
 
-    // Choose move based on difficulty
-    let selectedMove;
-    if (this.difficulty === "easy") {
-      // Easy: Random move
-      selectedMove = allMoves[Math.floor(Math.random() * allMoves.length)];
-    } else if (this.difficulty === "medium") {
-      // Medium: 70% best move, 30% random
-      if (Math.random() < 0.7) {
-        allMoves.sort((a, b) => b.score - a.score);
-        selectedMove = allMoves[0];
+    // Prefer capture moves strongly: if any capture exists, bias selection toward captures
+    const captureMoves = allMoves.filter((m) => window.gameState.boardState[m.toRow][m.toCol]);
+
+    let selectedMove = null;
+    if (captureMoves.length > 0) {
+      // Choose a capture move with higher probability depending on difficulty
+      if (this.difficulty === "easy") {
+        // easy: 60% chance to pick a capture, otherwise random
+        if (Math.random() < 0.6) selectedMove = captureMoves[Math.floor(Math.random() * captureMoves.length)];
+      } else if (this.difficulty === "medium") {
+        // medium: 90% chance to pick best capture
+        if (Math.random() < 0.9) {
+          captureMoves.sort((a, b) => b.score - a.score);
+          selectedMove = captureMoves[0];
+        }
       } else {
-        selectedMove = allMoves[Math.floor(Math.random() * allMoves.length)];
+        // hard: always pick best capture
+        captureMoves.sort((a, b) => b.score - a.score);
+        selectedMove = captureMoves[0];
       }
-    } else {
-      // Hard: Always best move
-      allMoves.sort((a, b) => b.score - a.score);
-      selectedMove = allMoves[0];
     }
 
-    // Execute move
-    if (selectedMove && window.executeMove) {
-      setTimeout(() => {
-        window.executeMove(
-          selectedMove.fromRow,
-          selectedMove.fromCol,
-          selectedMove.toRow,
-          selectedMove.toCol,
-          selectedMove.piece,
-          false // isPlayerMove
-        );
-      }, 1000); // 1 second delay for AI
+    // If not selected from captures, fall back to normal selection
+    if (!selectedMove) {
+      if (this.difficulty === "easy") selectedMove = allMoves[Math.floor(Math.random() * allMoves.length)];
+      else if (this.difficulty === "medium") {
+        if (Math.random() < 0.7) {
+          allMoves.sort((a, b) => b.score - a.score);
+          selectedMove = allMoves[0];
+        } else selectedMove = allMoves[Math.floor(Math.random() * allMoves.length)];
+      } else {
+        allMoves.sort((a, b) => b.score - a.score);
+        selectedMove = allMoves[0];
+      }
     }
+
+    if (!selectedMove) return;
+
+    // Execute the move immediately (rely on centralized damage logic)
+    const fr = selectedMove.fromRow;
+    const fc = selectedMove.fromCol;
+    const tr = selectedMove.toRow;
+    const tc = selectedMove.toCol;
+    const pieceChar = selectedMove.piece;
+
+    const captured = window.gameState.boardState[tr][tc] !== "";
+
+    if (captured && window.gameState.applyDamage) {
+      window.gameState.applyDamage(tr, tc, 1, "capture", "black");
+    }
+
+    window.gameState.boardState[tr][tc] = pieceChar;
+    window.gameState.boardState[fr][fc] = "";
+
+    if (pieceChar === "♚") window.gameState.blackKingPos = [tr, tc];
+
+    const oldKey = `${fr}-${fc}`;
+    const newKey = `${tr}-${tc}`;
+    if (window.gameState.pieceHealth[oldKey]) {
+      window.gameState.pieceHealth[newKey] = window.gameState.pieceHealth[oldKey];
+      delete window.gameState.pieceHealth[oldKey];
+    }
+
+    if (window.gameState.isEnergyTile(tr, tc)) window.gameState.addEnergy("black", 1);
+
+    window.gameState.logMove([fr, fc], [tr, tc], pieceChar, captured);
+
+    window.syncBoardStateWithDOM();
+    window.updateAllHealthBars();
+
+    // Process turn effects and switch back to player
+    window.gameState.processTurnEffects();
+    if (window.switchPlayer) switchPlayer();
+
+    window.battleSystem.checkVictory();
+
+    // AI may use a skill
+    this.useSkill();
   },
 
   // Get valid moves for a piece
   getValidMovesForPiece(row, col, piece) {
-    const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
-    const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
-
     let moves = [];
 
     if (piece === "♛") {
-      moves = this.getQueenMoves(row, col, false);
+      moves = window.getValidQueenMoves(row, col, piece); // Use global from chess_Logic
     } else if (piece === "♚") {
-      moves = this.getKingMoves(row, col, false);
+      moves = window.getValidKingMoves(row, col, piece);
     } else if (piece === "♝") {
-      moves = this.getBishopMoves(row, col, false);
+      moves = window.getValidBishopMoves(row, col, piece);
     } else if (piece === "♜") {
-      moves = this.getRookMoves(row, col, false);
+      moves = window.getValidRookMoves(row, col, piece);
     } else if (piece === "♟") {
-      moves = this.getPawnMoves(row, col, false);
+      moves = window.getValidPawnMoves(row, col, piece);
     } else if (piece === "♞") {
-      moves = this.getKnightMoves(row, col, false);
+      moves = window.getValidKnightMoves(row, col, piece);
     }
 
     // Filter out moves that put king in check
@@ -113,7 +153,11 @@ window.aiSystem = {
     // Capture value
     if (targetPiece) {
       const values = { "♔": 1000, "♕": 9, "♖": 5, "♗": 3, "♘": 3, "♙": 1 };
-      score += (values[targetPiece] || 1) * 10;
+      // Heavy weight for captures so AI aggressively takes pieces
+      const baseVal = values[targetPiece] || 1;
+      score += baseVal * 100; // main capture incentive
+      // Also add a small EP-related bonus for defeating (AI gets +2 EP on kill)
+      score += 10;
     }
 
     // Center control
@@ -147,23 +191,23 @@ window.aiSystem = {
     window.gameState.boardState[fromRow][fromCol] = "";
 
     const kingPos = piece === "♚" ? [toRow, toCol] : window.gameState.blackKingPos;
-    const safe = !this.isKingInCheck(kingPos);
+    const safe = !this.isKingInCheck(kingPos[0], kingPos[1], false);
 
+    // Restore
     window.gameState.boardState[fromRow][fromCol] = piece;
     window.gameState.boardState[toRow][toCol] = tempPiece;
 
     return safe;
   },
 
-  // Check if king is in check
-  isKingInCheck(kingPos) {
-    const [kingRow, kingCol] = kingPos;
+  isKingInCheck(kingRow, kingCol, isWhite) {
+    const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
     const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
-
+    const opponentPieces = isWhite ? blackPieces : whitePieces;
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const piece = window.gameState.boardState[row][col];
-        if (whitePieces.includes(piece)) {
+        if (opponentPieces.includes(piece)) {
           const moves = this.getValidMovesForPiece(row, col, piece);
           if (moves.some(([r, c]) => r === kingRow && c === kingCol)) {
             return true;
@@ -174,164 +218,22 @@ window.aiSystem = {
     return false;
   },
 
-  // Movement patterns (simplified from chess_Logic.js)
-  getQueenMoves(row, col, isWhite) {
-    return [...this.getRookMoves(row, col, isWhite), ...this.getBishopMoves(row, col, isWhite)];
-  },
-
-  getKingMoves(row, col, isWhite) {
-    const moves = [];
-    const directions = [
-      [0, 1],
-      [0, -1],
-      [1, 0],
-      [-1, 0],
-      [1, 1],
-      [1, -1],
-      [-1, 1],
-      [-1, -1],
-    ];
-    directions.forEach(([dr, dc]) => {
-      const r = row + dr,
-        c = col + dc;
-      if (r >= 0 && r < 8 && c >= 0 && c < 8) {
-        const target = window.gameState.boardState[r][c];
-        if (!target || this.isOpponentPiece(target, isWhite)) {
-          moves.push([r, c]);
-        }
-      }
-    });
-    return moves;
-  },
-
-  getRookMoves(row, col, isWhite) {
-    const moves = [];
-    const directions = [
-      [0, 1],
-      [0, -1],
-      [1, 0],
-      [-1, 0],
-    ];
-    directions.forEach(([dr, dc]) => {
-      let r = row + dr,
-        c = col + dc;
-      while (r >= 0 && r < 8 && c >= 0 && c < 8) {
-        const target = window.gameState.boardState[r][c];
-        if (!target) {
-          moves.push([r, c]);
-        } else {
-          if (this.isOpponentPiece(target, isWhite)) moves.push([r, c]);
-          break;
-        }
-        r += dr;
-        c += dc;
-      }
-    });
-    return moves;
-  },
-
-  getBishopMoves(row, col, isWhite) {
-    const moves = [];
-    const directions = [
-      [1, 1],
-      [1, -1],
-      [-1, 1],
-      [-1, -1],
-    ];
-    directions.forEach(([dr, dc]) => {
-      let r = row + dr,
-        c = col + dc;
-      while (r >= 0 && r < 8 && c >= 0 && c < 8) {
-        const target = window.gameState.boardState[r][c];
-        if (!target) {
-          moves.push([r, c]);
-        } else {
-          if (this.isOpponentPiece(target, isWhite)) moves.push([r, c]);
-          break;
-        }
-        r += dr;
-        c += dc;
-      }
-    });
-    return moves;
-  },
-
-  getKnightMoves(row, col, isWhite) {
-    const moves = [];
-    const jumps = [
-      [-2, -1],
-      [-2, 1],
-      [-1, -2],
-      [-1, 2],
-      [1, -2],
-      [1, 2],
-      [2, -1],
-      [2, 1],
-    ];
-    jumps.forEach(([dr, dc]) => {
-      const r = row + dr,
-        c = col + dc;
-      if (r >= 0 && r < 8 && c >= 0 && c < 8) {
-        const target = window.gameState.boardState[r][c];
-        if (!target || this.isOpponentPiece(target, isWhite)) {
-          moves.push([r, c]);
-        }
-      }
-    });
-    return moves;
-  },
-
-  getPawnMoves(row, col, isWhite) {
-    const moves = [];
-    const direction = isWhite ? -1 : 1;
-    const startRow = isWhite ? 6 : 1;
-
-    // Forward 1
-    if (row + direction >= 0 && row + direction < 8) {
-      if (!window.gameState.boardState[row + direction][col]) {
-        moves.push([row + direction, col]);
-        // Forward 2 from start
-        if (row === startRow && !window.gameState.boardState[row + 2 * direction][col]) {
-          moves.push([row + 2 * direction, col]);
-        }
-      }
-    }
-
-    // Diagonal captures
-    [
-      [direction, -1],
-      [direction, 1],
-    ].forEach(([dr, dc]) => {
-      const r = row + dr,
-        c = col + dc;
-      if (r >= 0 && r < 8 && c >= 0 && c < 8) {
-        const target = window.gameState.boardState[r][c];
-        if (target && this.isOpponentPiece(target, isWhite)) {
-          moves.push([r, c]);
-        }
-      }
-    });
-
-    return moves;
-  },
-
-  isOpponentPiece(piece, isWhite) {
-    const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
-    const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
-    return isWhite ? blackPieces.includes(piece) : whitePieces.includes(piece);
-  },
-
   // AI uses skill (simple logic)
   useSkill() {
-    if (!window.gameState || window.gameState.energy.black < 2) return;
+    if (window.gameState.energy.black < 2) return;
 
     // AI uses skills randomly when it has energy
     if (Math.random() < 0.3 && window.gameState.enemyHand.length > 0) {
       const randomSkill = Math.floor(Math.random() * window.gameState.enemyHand.length);
-      // Simple skill execution - you can enhance this
-      if (window.skillSystem && window.gameState.enemyHand[randomSkill]) {
-        window.skillSystem.executeSkill(window.gameState.enemyHand[randomSkill], "black");
-        window.gameState.enemyHand.splice(randomSkill, 1);
+      const skillId = window.gameState.enemyHand[randomSkill];
+      const skill = window.skillSystem.getSkill(skillId);
+      if (skill && window.gameState.energy.black >= skill.cost) {
+        if (window.skillSystem.executeSkill(skillId, "black")) {
+          window.gameState.energy.black -= skill.cost;
+          window.gameState.enemyHand.splice(randomSkill, 1);
+          window.gameState.skillLog.push(`AI Turn ${window.gameState.turnNumber}: Used ${skill.name}`);
+          window.gameState.updateSkillLog();
+        }
       }
     }
   },

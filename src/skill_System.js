@@ -103,6 +103,19 @@ window.skillSystem = {
       },
     },
 
+    // New skill
+    azw_sand_rage: {
+      id: "azw_sand_rage",
+      name: "AZW - Cuồng Phong Cát",
+      cost: 4,
+      description: "Đổi chỗ 2 quân địch, gây 0.5 sát thương nếu chúng va chạm",
+      execute: function (player) {
+        alert("Select 2 enemy pieces to swap");
+        // Implementation for swap
+        return true;
+      },
+    },
+
     // === Individual Piece Skills ===
     pawn_volcanic: {
       id: "pawn_volcanic",
@@ -216,11 +229,17 @@ window.skillSystem = {
   },
 
   // Execute a skill
-  executeSkill(skillId, player) {
+  executeSkill(skillId, player, context) {
     const skill = this.skills[skillId];
     if (!skill) return false;
 
-    return skill.execute(player);
+    // Pass context if skill implementation accepts it
+    try {
+      return skill.execute(player, context);
+    } catch (e) {
+      // Fallback: call with only player
+      return skill.execute(player);
+    }
   },
 
   // Get all available skills for deck building
@@ -232,12 +251,60 @@ window.skillSystem = {
   getDefaultDeck() {
     return ["azw_attack", "azw_shield", "azw_hard_work", "azw_unity", "azw_sandstorm"];
   },
+
+  // Get piece-skill mapping for factions. Keys are piece symbols placed on board.
+  getPieceSkillMapping(faction) {
+    if (!faction || faction === "azw") {
+      // Map both white and black symbols to AZW piece skills
+      return {
+        // White pieces
+        "♙": "pawn_volcanic",
+        "♖": "rook_caravan",
+        "♘": "knight_forced_labor",
+        "♗": "bishop_guide",
+        "♕": "queen_roar",
+        "♔": "king_concentric",
+        // Black pieces
+        "♟": "pawn_volcanic",
+        "♜": "rook_caravan",
+        "♞": "knight_forced_labor",
+        "♝": "bishop_guide",
+        "♛": "queen_roar",
+        "♚": "king_concentric",
+      };
+    }
+    return null;
+  },
 };
 
 // Deck builder functionality
 document.addEventListener("DOMContentLoaded", () => {
   const deckBuilder = document.getElementById("deck-builder");
   if (!deckBuilder) return;
+
+  // Insert faction selector control (allows choosing piece skill set)
+  const factionDiv = document.createElement("div");
+  factionDiv.id = "faction-selector";
+  factionDiv.style.marginBottom = "8px";
+  factionDiv.innerHTML = `
+    <label style="font-size:14px;color:#fff">Faction: 
+      <select id="faction-select">
+        <option value="azw">AZW (Akh'Zahara Workers)</option>
+      </select>
+    </label>
+  `;
+  deckBuilder.insertBefore(factionDiv, deckBuilder.firstChild);
+  const factionSelect = document.getElementById("faction-select");
+  const savedFaction = localStorage.getItem("selected_faction") || "azw";
+  factionSelect.value = savedFaction;
+  factionSelect.addEventListener("change", () => {
+    localStorage.setItem("selected_faction", factionSelect.value);
+    if (window.gameState) {
+      window.gameState.selectedFaction = factionSelect.value;
+      if (window.gameState.assignPieceSkills) window.gameState.assignPieceSkills();
+      if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+    }
+  });
 
   // Populate available skills
   const availableSkills = document.getElementById("available-skills");
@@ -315,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize deck builder when shown
   const observer = new MutationObserver(() => {
-    if (!deckBuilder.classList.contains("d-none")) {
+    if (!deckBuilder.classList.contains("hidden")) {
       renderSkills();
     }
   });

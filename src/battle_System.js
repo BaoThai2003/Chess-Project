@@ -35,7 +35,6 @@ window.battleSystem = {
 
     // Set enemy name
     document.getElementById("battle-opponent").textContent = `vs ${enemyData.name}`;
-    document.getElementById("enemy-name-battle").textContent = enemyData.name;
 
     // Initialize game state
     if (window.gameState) {
@@ -52,10 +51,18 @@ window.battleSystem = {
       window.gameState.enemyHand = [];
     }
 
-    // Create chess board
-    if (window.createChessBoard) {
-      window.createChessBoard();
-    }
+    // Create chess board with retry
+    const renderBoard = () => {
+      if (window.createChessBoard) {
+        window.createChessBoard();
+        window.gameState.updateSkillCardsUI();
+        window.gameState.updateEnergyDisplay();
+        window.gameState.updateEffectsDisplay();
+      } else {
+        setTimeout(renderBoard, 500); // Retry if not ready
+      }
+    };
+    renderBoard();
 
     // Update turn display
     document.getElementById("battle-turn").textContent = "Turn: 1";

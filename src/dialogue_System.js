@@ -98,7 +98,7 @@ window.dialogueSystem = {
 
     const dialogueScreen = document.getElementById("dialogue-screen");
     const enemyPortrait = document.getElementById("enemy-portrait");
-    const enemyName = document.getElementById("enemy-name");
+    const enemyName = document.getElementById("dialogue-name"); // Sửa id từ enemy-name thành dialogue-name
 
     // Set enemy info
     const enemyData = this.getEnemyData(enemyId);
@@ -154,6 +154,10 @@ window.dialogueSystem = {
     const dialogueText = document.getElementById("dialogue-text");
     const leftPortrait = document.querySelector(".dialogue-portrait.left");
     const rightPortrait = document.querySelector(".dialogue-portrait.right");
+    const dialogueName = document.getElementById("dialogue-name");
+
+    // Update name
+    dialogueName.textContent = dialogue.speaker === "player" ? "Bao" : "Opponent";
 
     // Highlight active speaker
     if (dialogue.speaker === "player") {

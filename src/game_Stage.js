@@ -21,7 +21,7 @@ window.gameState = {
   energy: {
     white: 1,
     black: 1,
-    maxEP: 3,
+    maxEP: 12,
   },
 
   // Piece health system
@@ -35,6 +35,9 @@ window.gameState = {
   playerHand: [],
   enemyDeck: [],
   enemyHand: [],
+
+  // Piece-level skills mapping: key = "row-col" -> skillId
+  pieceSkills: {},
 
   // Buffs and debuffs
   activeEffects: [],
@@ -51,6 +54,13 @@ window.gameState = {
     this.generateEnergyTiles();
     this.initializePieceHealth();
     this.loadPlayerDeck();
+    this.updateEnergyDisplay(); // New: Update on init
+    this.updateEffectsDisplay();
+    // Load selected faction and assign piece skills
+    this.selectedFaction = localStorage.getItem("selected_faction") || "azw";
+    if (window.skillSystem && window.skillSystem.getPieceSkillMapping) {
+      this.assignPieceSkills();
+    }
   },
 
   // Generate energy tiles in rows 3-6 (indices 2-5)
@@ -104,7 +114,7 @@ window.gameState = {
     if (deck.length === 0) return;
 
     const randomIndex = Math.floor(Math.random() * deck.length);
-    const card = deck[randomIndex];
+    const card = deck.splice(randomIndex, 1)[0]; // remove from deck when drawn
     hand.push(card);
 
     if (player === "white") {
@@ -114,7 +124,7 @@ window.gameState = {
 
   // Update skill cards UI
   updateSkillCardsUI() {
-    const container = document.getElementById("skill-cards");
+    const container = document.getElementById("battle-skills");
     if (!container) return;
 
     container.innerHTML = "";
@@ -187,6 +197,16 @@ window.gameState = {
     if (epElement) {
       epElement.textContent = this.energy.white;
     }
+
+    // Update orbs
+    const orbs = document.querySelectorAll(".energy-orb");
+    orbs.forEach((orb, i) => {
+      if (i < this.energy.white) {
+        orb.classList.add("filled");
+      } else {
+        orb.classList.remove("filled");
+      }
+    });
   },
 
   // Check if tile is energy tile
@@ -240,7 +260,7 @@ window.gameState = {
   incrementTurn() {
     if (this.timers.currentPlayer === "black") {
       this.turnNumber++;
-      document.getElementById("turn-number").textContent = this.turnNumber;
+      document.getElementById("battle-turn").textContent = `Turn: ${this.turnNumber}`;
 
       // Draw card every 3 turns
       if (this.turnNumber % 3 === 0) {
@@ -268,15 +288,116 @@ window.gameState = {
 
   // Process turn-based effects
   processTurnEffects() {
+    // Decrement durations and remove expired effects
     this.activeEffects = this.activeEffects.filter((effect) => {
       effect.duration--;
-      if (effect.duration <= 0) {
-        // Remove effect
-        return false;
-      }
-      return true;
+      return effect.duration > 0;
     });
+
+    // Regenerate pieces that are on their starting rows (rows 0-1 for black, 6-7 for white)
+    const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
+    const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
+    for (let key in this.pieceHealth) {
+      const [r, c] = key.split("-").map(Number);
+      const piece = this.boardState[r] ? this.boardState[r][c] : null;
+      if (!piece) continue;
+
+      // If white piece on rows 6-7, regen 0.25 per turn
+      if (whitePieces.includes(piece) && (r === 6 || r === 7)) {
+        this.pieceHealth[key].current = Math.min(this.pieceHealth[key].max, this.pieceHealth[key].current + 0.25);
+      }
+
+      // If black piece on rows 0-1, regen 0.25 per turn
+      if (blackPieces.includes(piece) && (r === 0 || r === 1)) {
+        this.pieceHealth[key].current = Math.min(this.pieceHealth[key].max, this.pieceHealth[key].current + 0.25);
+      }
+    }
+
     this.updateEffectsDisplay();
+  },
+
+  // Apply damage to a piece at (row,col). `source` = 'skill'|'capture' etc.
+  // `attacker` should be 'white' or 'black' when awarding EP on kill.
+  applyDamage(row, col, amount, source = "skill", attacker = null) {
+    // Cap skill damage at 0.75
+    if (source === "skill") amount = Math.min(amount, 0.75);
+
+    const key = `${row}-${col}`;
+    const health = this.pieceHealth[key];
+    if (!health) return false;
+
+    health.current -= amount;
+    if (health.current <= 0) {
+      // Remove piece from board
+      const piece = this.boardState[row][col];
+      this.boardState[row][col] = "";
+      delete this.pieceHealth[key];
+
+      // Award 2 EP to attacker if provided (cap applied in addEnergy)
+      if (attacker) this.addEnergy(attacker, 2);
+
+      // Remove piece-skill mapping
+      if (this.pieceSkills && this.pieceSkills[key]) delete this.pieceSkills[key];
+
+      // Log death
+      this.moveLog.push(`Piece eliminated: ${piece} at ${this.positionToNotation(row, col)}`);
+      this.updateMoveLog();
+
+      // Update UI
+      if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+      if (window.updateAllHealthBars) window.updateAllHealthBars();
+      if (window.battleSystem) window.battleSystem.checkVictory();
+      return true; // died
+    }
+
+    // Update health bar visuals
+    if (window.updateAllHealthBars) window.updateAllHealthBars();
+    return false; // still alive
+  },
+
+  // Assign piece skills according to selected faction mapping
+  assignPieceSkills() {
+    const mapping =
+      window.skillSystem && window.skillSystem.getPieceSkillMapping
+        ? window.skillSystem.getPieceSkillMapping(this.selectedFaction || "azw")
+        : null;
+    this.pieceSkills = {};
+    if (!mapping) return;
+
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const piece = this.boardState[r] && this.boardState[r][c];
+        if (!piece) continue;
+        const skillId = mapping[piece];
+        if (skillId) this.pieceSkills[`${r}-${c}`] = skillId;
+      }
+    }
+  },
+
+  // Use a piece-level skill at (row,col) for `player` ("white"/"black")
+  usePieceSkill(row, col, player) {
+    const key = `${row}-${col}`;
+    const skillId = this.pieceSkills[key];
+    if (!skillId) return false;
+    const skill = window.skillSystem.getSkill(skillId);
+    if (!skill) return false;
+
+    // Check EP
+    if (this.energy[player] < skill.cost) {
+      alert("Not enough EP to use piece skill");
+      return false;
+    }
+
+    // Execute skill (pass context if skill supports it)
+    const ok = window.skillSystem.executeSkill(skillId, player, { row, col });
+    if (ok) {
+      this.energy[player] = Math.max(0, this.energy[player] - skill.cost);
+      this.updateEnergyDisplay();
+      this.skillLog.push(`${player} used ${skill.name} at ${this.positionToNotation(row, col)}`);
+      this.updateSkillLog();
+      return true;
+    }
+    return false;
   },
 };
 
@@ -286,8 +407,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const storyBtn = document.getElementById("start-story-btn");
   if (storyBtn) {
     storyBtn.addEventListener("click", () => {
-      document.getElementById("story-intro").classList.add("d-none");
-      document.getElementById("welcome-screen").classList.remove("d-none");
+      document.getElementById("story-intro").classList.add("hidden");
+      document.getElementById("main-menu").classList.remove("hidden");
     });
   }
 });
