@@ -10,6 +10,8 @@ window.aiSystem = {
   // AI makes a move
   makeMove() {
     if (!window.gameState || !window.gameState.boardState) return;
+    // Ensure any dead pieces are cleaned before AI decision-making
+    if (window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
 
     const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
     const pieces = [];
@@ -17,7 +19,12 @@ window.aiSystem = {
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const piece = window.gameState.boardState[row][col];
-        if (blackPieces.includes(piece)) pieces.push({ row, col, piece });
+        const key = `${row}-${col}`;
+        const health = window.gameState.pieceHealth[key];
+        // Only consider pieces that exist and have positive health
+        if (blackPieces.includes(piece) && health && health.current > 0) {
+          pieces.push({ row, col, piece });
+        }
       }
     }
 
@@ -42,7 +49,13 @@ window.aiSystem = {
     if (allMoves.length === 0) return;
 
     // Prefer capture moves strongly: if any capture exists, bias selection toward captures
-    const captureMoves = allMoves.filter((m) => window.gameState.boardState[m.toRow][m.toCol]);
+    const captureMoves = allMoves.filter((m) => {
+      const target = window.gameState.boardState[m.toRow][m.toCol];
+      if (!target) return false;
+      const tKey = `${m.toRow}-${m.toCol}`;
+      const tHealth = window.gameState.pieceHealth[tKey];
+      return tHealth && tHealth.current > 0;
+    });
 
     let selectedMove = null;
     if (captureMoves.length > 0) {
@@ -87,26 +100,41 @@ window.aiSystem = {
     const pieceChar = selectedMove.piece;
 
     const captured = window.gameState.boardState[tr][tc] !== "";
+    let defeatPieceSurvived = false;
 
     if (captured && window.gameState.applyDamage) {
-      window.gameState.applyDamage(tr, tc, 1, "capture", "black");
+      // applyDamage returns true if the target died
+      const died = window.gameState.applyDamage(tr, tc, 1, "capture", "black");
+      defeatPieceSurvived = !died;
     }
 
-    window.gameState.boardState[tr][tc] = pieceChar;
-    window.gameState.boardState[fr][fc] = "";
+    // Determine final position
+    let finalRow = tr;
+    let finalCol = tc;
+    if (captured && defeatPieceSurvived) {
+      // If defeated piece survived, AI piece returns to origin
+      finalRow = fr;
+      finalCol = fc;
+    }
 
-    if (pieceChar === "♚") window.gameState.blackKingPos = [tr, tc];
+    // Only move board state if final differs from origin
+    if (finalRow !== fr || finalCol !== fc) {
+      window.gameState.boardState[finalRow][finalCol] = pieceChar;
+      window.gameState.boardState[fr][fc] = "";
+    }
+
+    if (pieceChar === "♚") window.gameState.blackKingPos = [finalRow, finalCol];
 
     const oldKey = `${fr}-${fc}`;
-    const newKey = `${tr}-${tc}`;
+    const newKey = `${finalRow}-${finalCol}`;
     if (window.gameState.pieceHealth[oldKey]) {
       window.gameState.pieceHealth[newKey] = window.gameState.pieceHealth[oldKey];
       delete window.gameState.pieceHealth[oldKey];
     }
 
-    if (window.gameState.isEnergyTile(tr, tc)) window.gameState.addEnergy("black", 1);
+    if (window.gameState.isEnergyTile(finalRow, finalCol)) window.gameState.addEnergy("black", 1);
 
-    window.gameState.logMove([fr, fc], [tr, tc], pieceChar, captured);
+    window.gameState.logMove([fr, fc], [finalRow, finalCol], pieceChar, captured);
 
     window.syncBoardStateWithDOM();
     window.updateAllHealthBars();

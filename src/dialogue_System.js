@@ -1,12 +1,38 @@
-// Dialogue System - Shadow Fight 2 Style
 window.dialogueSystem = {
   dialogues: {
     // Campaign Act 1
     "fight-1": [
-      { speaker: "enemy", text: "Another lost soul wandering the desert... You won't last long here." },
-      { speaker: "player", text: "I'm looking for someone. Have you seen a girl with a chess piece?" },
-      { speaker: "enemy", text: "Ha! Many come seeking, few leave. Prove your worth on the board!" },
-      { speaker: "player", text: "I don't have time for games. But if this is the only way..." },
+      {
+        speaker: "player",
+        text: "dụi dụi mắt... Đôi mắt từ từ mở ra... một không gian hoàn toàn xa lạ hiện ra ngay trước mắt, một khu mỏ được phủ dầy bởi cát và nắng gió sa mạc...",
+      },
+      {
+        speaker: "player",
+        text: "một không gian hoàn toàn xa lạ hiện ra ngay trước mắt, một khu mỏ được phủ dầy bởi cát và nắng gió sa mạc...",
+      },
+      { speaker: "enemy", text: "Lại thêm một lãng khách nữa lạc lối sao? Thật tội nghiệp, thật tội nghiệp..." },
+      {
+        speaker: "player",
+        text: "Ông...ông là ai? Đây là đâu? À mà, ông có thấy một cô gái mặc một bộ kimono, cao khoảng 1m65, mái tóc đen dài ngang vai, mái ngố nào không?",
+      },
+      { speaker: "enemy", text: "Nghe lạ nhỉ, có thể là tôi không biết rồi... À không, có lẽ là biết đấy, nhưng..." },
+      { speaker: "player", text: "... Nhưng? Tại sao lại nhưng, đừng ngập ngừng nữa! Hãy cho tôi biết đi mà!!!" },
+      {
+        speaker: "enemy",
+        text: "Theo luật của thế giới này, nếu cậu muốn biết cái gì đó, hãy đoạt lấy nó bằng một trận đấu cờ vua đi!!!",
+      },
+      {
+        speaker: "player",
+        text: "Cờ vua? Chuyện quái gì đang xảy ra vậy? Tôi không có thời gian cho việc này đâu!",
+      },
+      {
+        speaker: "enemy",
+        text: "À, thế thì thôi, chào cậu nhé. Chúc may mắn!",
+      },
+      {
+        speaker: "player",
+        text: "Haizz, thôi được rồi, có vẻ như đây là cách duy nhất rồi... Tôi sẽ đánh bại ông ta và tìm hiểu mọi chuyện sau vậy!",
+      },
     ],
     "fight-2": [
       { speaker: "enemy", text: "You survived the desert? Impressive... for a beginner." },

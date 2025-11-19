@@ -365,40 +365,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (isValidMove(fromRow, fromCol, row, col, movingPiece, isWhiteTurn)) {
         const captured = piece !== "";
+        let defeatPieceSurvived = false;
 
         // Handle capture using centralized applyDamage (awards EP to attacker)
         const attacker = isWhiteTurn ? "white" : "black";
         if (captured && window.gameState && window.gameState.applyDamage) {
-          // applyDamage will remove piece from boardState if it dies
-          window.gameState.applyDamage(row, col, 1, "capture", attacker);
+          // applyDamage returns true if the target died
+          const died = window.gameState.applyDamage(row, col, 1, "capture", attacker);
+          // If it died, attacker can move to that square; if not, attacker should return to origin
+          defeatPieceSurvived = !died;
         }
 
-        // Move piece in state
-        window.gameState.boardState[row][col] = movingPiece;
-        window.gameState.boardState[fromRow][fromCol] = "";
+        // Determine where attacking piece moves
+        let finalRow = row;
+        let finalCol = col;
 
-        // Update king position
-        if (movingPiece === "♔") window.gameState.whiteKingPos = [row, col];
-        else if (movingPiece === "♚") window.gameState.blackKingPos = [row, col];
-
-        // Update health key mapping
-        const oldKey = `${fromRow}-${fromCol}`;
-        const newKey = `${row}-${col}`;
-        if (window.gameState.pieceHealth[oldKey]) {
-          window.gameState.pieceHealth[newKey] = window.gameState.pieceHealth[oldKey];
-          delete window.gameState.pieceHealth[oldKey];
+        if (captured && defeatPieceSurvived) {
+          // If defeated piece survived, attacker returns to origin
+          finalRow = fromRow;
+          finalCol = fromCol;
         }
+        // If defeated piece died, attacker moves to target square (already set)
 
-        // Energy tile
-        if (window.gameState.isEnergyTile(row, col)) {
-          window.gameState.addEnergy(isWhiteTurn ? "white" : "black", 1);
+        // Move piece in state only if final position differs from origin
+        if (finalRow !== fromRow || finalCol !== fromCol) {
+          window.gameState.boardState[finalRow][finalCol] = movingPiece;
+          window.gameState.boardState[fromRow][fromCol] = "";
+
+          // Update king position
+          if (movingPiece === "♔") window.gameState.whiteKingPos = [finalRow, finalCol];
+          else if (movingPiece === "♚") window.gameState.blackKingPos = [finalRow, finalCol];
+
+          // Update health key mapping
+          const oldKey = `${fromRow}-${fromCol}`;
+          const newKey = `${finalRow}-${finalCol}`;
+          if (window.gameState.pieceHealth[oldKey]) {
+            window.gameState.pieceHealth[newKey] = window.gameState.pieceHealth[oldKey];
+            delete window.gameState.pieceHealth[oldKey];
+          }
+
+          // Energy tile (only if actually moved to that square)
+          if (window.gameState.isEnergyTile(finalRow, finalCol)) {
+            window.gameState.addEnergy(isWhiteTurn ? "white" : "black", 1);
+          }
+        } else {
+          // Stayed in place: no board/health changes needed
         }
 
         selectedPiece.classList.remove("selected");
         selectedPiece = null;
 
         // Log move
-        window.gameState.logMove([fromRow, fromCol], [row, col], movingPiece, captured);
+        window.gameState.logMove([fromRow, fromCol], [finalRow, finalCol], movingPiece, captured);
 
         // Update DOM
         syncBoardStateWithDOM();
@@ -438,6 +456,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const squares = document.querySelectorAll(".chess-square");
     // Remove any lingering tooltip when rebuilding
     removeSkillTooltip();
+    // Cleanup any dead pieces left in gameState (in case health reached <= 0 without using applyDamage)
+    if (window.gameState && window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
 
     squares.forEach((square) => {
       const row = parseInt(square.dataset.row);
@@ -465,7 +485,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // Attach hover handlers to show piece skill tooltip after ~1s
         let hoverTimer = null;
         square.addEventListener("mouseenter", function onEnter() {
-          // clear any previous tooltip timers
+          // clear any previous tooltip timers and prepare for display
+          if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
+          _tooltipHideTimer = null;
           hoverTimer = setTimeout(() => {
             const key = `${row}-${col}`;
             const skillId = window.gameState && window.gameState.pieceSkills ? window.gameState.pieceSkills[key] : null;
@@ -478,7 +500,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         square.addEventListener("mouseleave", function onLeave() {
           if (hoverTimer) clearTimeout(hoverTimer);
-          removeSkillTooltip();
+          // Start hide timer when leaving piece (unless hovering tooltip)
+          if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
+          _tooltipHideTimer = setTimeout(() => {
+            removeSkillTooltip();
+            _tooltipHideTimer = null;
+          }, 500);
         });
       } else {
         // keep square empty but keep classes
@@ -492,9 +519,14 @@ document.addEventListener("DOMContentLoaded", function () {
     updateAllHealthBars();
   }
 
-  // Tooltip helpers
+  // Tooltip helpers with persistence and auto-hide timer
   let _currentSkillTooltip = null;
+  let _tooltipHideTimer = null;
+
   function showSkillTooltip(row, col, square, skillId, skill) {
+    // Clear any pending hide timer
+    if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
+
     removeSkillTooltip();
     if (!skill) return;
     const rect = square.getBoundingClientRect();
@@ -537,9 +569,29 @@ document.addEventListener("DOMContentLoaded", function () {
     tip.appendChild(btn);
     document.body.appendChild(tip);
     _currentSkillTooltip = tip;
+
+    // Persist tooltip when hovering over it; hide after 3s of inactivity
+    tip.addEventListener("mouseenter", () => {
+      if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
+    });
+
+    tip.addEventListener("mouseleave", () => {
+      // Start 3 second timer to hide tooltip
+      _tooltipHideTimer = setTimeout(() => {
+        removeSkillTooltip();
+        _tooltipHideTimer = null;
+      }, 3000);
+    });
+
+    // Initial 3s inactivity timer
+    _tooltipHideTimer = setTimeout(() => {
+      removeSkillTooltip();
+      _tooltipHideTimer = null;
+    }, 3000);
   }
 
   function removeSkillTooltip() {
+    if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
     if (_currentSkillTooltip) {
       _currentSkillTooltip.remove();
       _currentSkillTooltip = null;

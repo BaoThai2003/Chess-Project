@@ -194,19 +194,13 @@ window.gameState = {
   // Update energy display
   updateEnergyDisplay() {
     const epElement = document.getElementById("current-ep");
+    const maxEpElement = document.getElementById("max-ep");
     if (epElement) {
       epElement.textContent = this.energy.white;
     }
-
-    // Update orbs
-    const orbs = document.querySelectorAll(".energy-orb");
-    orbs.forEach((orb, i) => {
-      if (i < this.energy.white) {
-        orb.classList.add("filled");
-      } else {
-        orb.classList.remove("filled");
-      }
-    });
+    if (maxEpElement) {
+      maxEpElement.textContent = this.energy.maxEP;
+    }
   },
 
   // Check if tile is energy tile
@@ -302,14 +296,14 @@ window.gameState = {
       const piece = this.boardState[r] ? this.boardState[r][c] : null;
       if (!piece) continue;
 
-      // If white piece on rows 6-7, regen 0.25 per turn
+      // If white piece on rows 6-7, regen 0.2 per turn
       if (whitePieces.includes(piece) && (r === 6 || r === 7)) {
-        this.pieceHealth[key].current = Math.min(this.pieceHealth[key].max, this.pieceHealth[key].current + 0.25);
+        this.pieceHealth[key].current = Math.min(this.pieceHealth[key].max, this.pieceHealth[key].current + 0.2);
       }
 
-      // If black piece on rows 0-1, regen 0.25 per turn
+      // If black piece on rows 0-1, regen 0.2 per turn
       if (blackPieces.includes(piece) && (r === 0 || r === 1)) {
-        this.pieceHealth[key].current = Math.min(this.pieceHealth[key].max, this.pieceHealth[key].current + 0.25);
+        this.pieceHealth[key].current = Math.min(this.pieceHealth[key].max, this.pieceHealth[key].current + 0.2);
       }
     }
 
@@ -319,8 +313,9 @@ window.gameState = {
   // Apply damage to a piece at (row,col). `source` = 'skill'|'capture' etc.
   // `attacker` should be 'white' or 'black' when awarding EP on kill.
   applyDamage(row, col, amount, source = "skill", attacker = null) {
-    // Cap skill damage at 0.75
-    if (source === "skill") amount = Math.min(amount, 0.75);
+    // Cap skill damage at 0.5 and capture damage at 0.75
+    if (source === "skill") amount = Math.min(amount, 0.5);
+    if (source === "capture") amount = Math.min(amount, 0.75);
 
     const key = `${row}-${col}`;
     const health = this.pieceHealth[key];
@@ -353,6 +348,32 @@ window.gameState = {
     // Update health bar visuals
     if (window.updateAllHealthBars) window.updateAllHealthBars();
     return false; // still alive
+  },
+
+  // Remove any pieces that have zero or less health but still remain on boardState
+  pruneDeadPieces() {
+    const toRemove = [];
+    for (let key in this.pieceHealth) {
+      const health = this.pieceHealth[key];
+      if (!health) continue;
+      if (health.current <= 0) toRemove.push(key);
+    }
+
+    toRemove.forEach((key) => {
+      const [r, c] = key.split("-").map(Number);
+      const piece = this.boardState[r] ? this.boardState[r][c] : null;
+      if (piece) {
+        this.boardState[r][c] = "";
+      }
+      delete this.pieceHealth[key];
+      if (this.pieceSkills && this.pieceSkills[key]) delete this.pieceSkills[key];
+      this.moveLog.push(`Piece eliminated (cleanup): ${piece} at ${this.positionToNotation(r, c)}`);
+    });
+
+    if (toRemove.length > 0) {
+      this.updateMoveLog();
+      if (window.updateAllHealthBars) window.updateAllHealthBars();
+    }
   },
 
   // Assign piece skills according to selected faction mapping

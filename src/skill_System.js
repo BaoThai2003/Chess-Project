@@ -47,7 +47,12 @@ window.skillSystem = {
           const [row, col] = key.split("-").map(Number);
           const piece = window.gameState.boardState[row][col];
           if (whitePieces.includes(piece)) {
-            window.gameState.pieceHealth[key].current = Math.max(0, window.gameState.pieceHealth[key].current - 0.25);
+            // Use centralized applyDamage so death/removal is handled consistently
+            if (window.gameState.applyDamage) {
+              window.gameState.applyDamage(row, col, 0.25, "skill", null);
+            } else {
+              window.gameState.pieceHealth[key].current = Math.max(0, window.gameState.pieceHealth[key].current - 0.25);
+            }
           }
         }
 
