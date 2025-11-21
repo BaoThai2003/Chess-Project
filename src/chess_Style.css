@@ -385,6 +385,7 @@ body {
   flex: 1;
   display: flex;
   gap: 20px;
+  overflow: hidden;
 }
 
 .battle-left-panel,
@@ -687,6 +688,10 @@ body {
   font-size: 1.4rem;
   line-height: 1.8;
   min-height: 100px;
+  direction: ltr;
+  unicode-bidi: bidi-override;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .dialogue-continue {
@@ -939,6 +944,201 @@ body {
 
 .achievement-icon {
   font-size: 2rem;
+}
+
+/* === PLOT MENU === */
+.plot-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 30px;
+}
+
+.plot-item {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.plot-item:hover {
+  background: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  transform: translateY(-5px);
+}
+
+.plot-title {
+  font-size: 1.8rem;
+  color: #d4af37;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.plot-description {
+  font-size: 1.2rem;
+  color: #aaa;
+  margin-bottom: 15px;
+}
+
+.plot-item .btn-primary {
+  padding: 10px 30px;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.plot-item .btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+}
+
+/* === TRADE ASSOCIATION === */
+.trade-content {
+  display: flex;
+  gap: 30px;
+  padding: 20px;
+  min-height: 500px;
+}
+
+.trade-left,
+.trade-right {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 15px;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.trade-left h3,
+.trade-right h3 {
+  color: #d4af37;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+}
+
+.player-money {
+  color: #ffd700;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.opponent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.opponent-card {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #d4af37;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.opponent-card:hover {
+  background: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  transform: translateY(-3px);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.card-name {
+  color: #d4af37;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.card-difficulty {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.btn-challenge {
+  padding: 8px 15px;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-challenge:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.shop-item {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.shop-item:hover {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.shop-item-name {
+  color: #d4af37;
+  font-weight: bold;
+}
+
+.shop-item-price {
+  color: #ffd700;
+  margin: 0 10px;
+}
+
+.btn-buy {
+  padding: 5px 12px;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-buy:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+.btn-buy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .achievement-name {

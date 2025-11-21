@@ -108,13 +108,42 @@ window.battleSystem = {
       hard: 50,
     };
 
+    const moneyRewards = {
+      "miner-1": 1000,
+      "miner-2": 1500,
+      "miner-3": 2000,
+      edras: 5000,
+      wior: 15000,
+      "trade-1": 3000,
+      "trade-2": 5000,
+      "trade-3": 8000,
+      "desert-merchant": 500000,
+    };
+
     const enemyData = window.dialogueSystem.getEnemyData(this.currentOpponent);
     const expGained = expRewards[enemyData.difficulty] || 10;
+    const moneyGained = moneyRewards[this.currentOpponent] || 1000;
 
     // Update player stats
     const playerData = this.getPlayerData();
     playerData.exp += expGained;
     playerData.wins += 1;
+    playerData.money = (playerData.money || 0) + moneyGained;
+
+    // Mark specific battles as completed
+    if (
+      this.currentOpponent.startsWith("miner-") ||
+      this.currentOpponent === "edras" ||
+      this.currentOpponent === "wior"
+    ) {
+      playerData.akhZaharaProgress = playerData.akhZaharaProgress || {};
+      playerData.akhZaharaProgress[this.currentOpponent] = true;
+    }
+
+    // Mark desert merchant as defeated
+    if (this.currentOpponent === "desert-merchant") {
+      playerData.merchantDefeated = true;
+    }
 
     // Check level up
     const oldLevel = playerData.level;
@@ -127,7 +156,7 @@ window.battleSystem = {
     this.savePlayerData(playerData);
 
     // Display rewards
-    document.getElementById("exp-gained").textContent = `+${expGained}`;
+    document.getElementById("exp-gained").textContent = `+${expGained} EXP +${moneyGained.toLocaleString()} Gold`;
     document.getElementById("new-level").textContent = playerData.level;
 
     // Update campaign progress if applicable
@@ -139,11 +168,43 @@ window.battleSystem = {
     document.getElementById("victory-continue").onclick = () => {
       victoryScreen.classList.add("hidden");
 
-      // Return to appropriate screen
-      if (this.currentOpponent.startsWith("fight-") || this.currentOpponent.startsWith("boss-")) {
-        document.getElementById("campaign-screen").classList.remove("hidden");
+      // Show post-battle dialogue
+      if (window.dialogueSystem.victoryDialogues[this.currentOpponent]) {
+        window.dialogueSystem.showVictoryDialogue(this.currentOpponent, () => {
+          // Return to appropriate screen
+          if (
+            this.currentOpponent.startsWith("miner-") ||
+            this.currentOpponent === "edras" ||
+            this.currentOpponent === "wior"
+          ) {
+            document.getElementById("akh-zahara-screen").classList.remove("hidden");
+          } else if (this.currentOpponent.startsWith("trade-")) {
+            document.getElementById("trade-screen").classList.remove("hidden");
+          } else if (this.currentOpponent === "desert-merchant") {
+            document.getElementById("main-menu").classList.remove("hidden");
+          } else if (this.currentOpponent.startsWith("fight-") || this.currentOpponent.startsWith("boss-")) {
+            document.getElementById("campaign-screen").classList.remove("hidden");
+          } else {
+            document.getElementById("arena-screen").classList.remove("hidden");
+          }
+        });
       } else {
-        document.getElementById("arena-screen").classList.remove("hidden");
+        // Return to appropriate screen without dialogue
+        if (
+          this.currentOpponent.startsWith("miner-") ||
+          this.currentOpponent === "edras" ||
+          this.currentOpponent === "wior"
+        ) {
+          document.getElementById("akh-zahara-screen").classList.remove("hidden");
+        } else if (this.currentOpponent.startsWith("trade-")) {
+          document.getElementById("trade-screen").classList.remove("hidden");
+        } else if (this.currentOpponent === "desert-merchant") {
+          document.getElementById("main-menu").classList.remove("hidden");
+        } else if (this.currentOpponent.startsWith("fight-") || this.currentOpponent.startsWith("boss-")) {
+          document.getElementById("campaign-screen").classList.remove("hidden");
+        } else {
+          document.getElementById("arena-screen").classList.remove("hidden");
+        }
       }
     };
   },
@@ -180,7 +241,11 @@ window.battleSystem = {
       expToNext: 100,
       wins: 0,
       losses: 0,
+      money: 9999999,
       campaignProgress: {},
+      akhZaharaProgress: {},
+      merchantDefeated: false,
+      boughtSkills: [],
     };
 
     const saved = localStorage.getItem("chess_player_data");
@@ -261,6 +326,133 @@ window.battleSystem = {
       // Unlock boss if all fights completed
       if (nodeId === "boss-1" && completed >= 4) {
         node.classList.remove("locked");
+      }
+    });
+  },
+
+  // Update Akh'Zahara plot progress
+  updateAkhZaharaProgress() {
+    const playerData = this.getPlayerData();
+    const progress = playerData.akhZaharaProgress || {};
+
+    // Count completed battles
+    let completed = 0;
+    const battles = ["miner-1", "miner-2", "miner-3", "edras", "wior"];
+    battles.forEach((b) => {
+      if (progress[b]) completed++;
+    });
+
+    // Update progress bar
+    const progressBar = document.getElementById("akh-progress");
+    const progressText = document.getElementById("akh-progress-text");
+    if (progressBar) progressBar.style.width = `${(completed / 5) * 100}%`;
+    if (progressText) progressText.textContent = `${completed}/5`;
+
+    // Unlock nodes based on progress
+    document.querySelectorAll("#akh-zahara-screen .map-node").forEach((node) => {
+      const nodeId = node.dataset.node;
+
+      if (progress[nodeId]) {
+        node.classList.add("completed");
+        node.classList.remove("locked");
+      }
+
+      // Progressive unlock logic
+      if (nodeId === "miner-1") {
+        node.classList.remove("locked");
+      } else if (nodeId === "miner-2" && progress["miner-1"]) {
+        node.classList.remove("locked");
+      } else if (nodeId === "miner-3" && progress["miner-2"]) {
+        node.classList.remove("locked");
+      } else if (nodeId === "edras" && progress["miner-3"]) {
+        node.classList.remove("locked");
+      } else if (nodeId === "wior" && progress["edras"]) {
+        node.classList.remove("locked");
+      }
+    });
+  },
+
+  // Initialize Trade Association
+  initTradeAssociation() {
+    const playerData = this.getPlayerData();
+
+    // Update money display
+    const moneyEl = document.getElementById("player-money");
+    if (moneyEl) moneyEl.textContent = playerData.money.toLocaleString();
+
+    // Populate opponents
+    const opponents = document.getElementById("trade-opponents");
+    if (opponents) {
+      opponents.innerHTML = `
+        <div class="opponent-card" data-opponent="trade-1">
+          <div class="card-icon">♟</div>
+          <div class="card-name">Merchant Fighter 1</div>
+          <div class="card-difficulty">Easy</div>
+          <button class="btn-challenge">Challenge</button>
+        </div>
+        <div class="opponent-card" data-opponent="trade-2">
+          <div class="card-icon">♞</div>
+          <div class="card-name">Merchant Fighter 2</div>
+          <div class="card-difficulty">Medium</div>
+          <button class="btn-challenge">Challenge</button>
+        </div>
+        <div class="opponent-card" data-opponent="trade-3">
+          <div class="card-icon">♜</div>
+          <div class="card-name">Merchant Fighter 3</div>
+          <div class="card-difficulty">Hard</div>
+          <button class="btn-challenge">Challenge</button>
+        </div>
+      `;
+
+      // Add click handlers
+      document.querySelectorAll("#trade-opponents .btn-challenge").forEach((btn) => {
+        btn.onclick = () => {
+          const card = btn.closest(".opponent-card");
+          const opponentId = card.dataset.opponent;
+          this.startBattle(opponentId);
+        };
+      });
+    }
+
+    // Populate shop
+    this.updateShop();
+  },
+
+  // Update shop items
+  updateShop() {
+    const shopItems = document.getElementById("shop-items");
+    if (!shopItems) return;
+
+    const playerData = this.getPlayerData();
+    const allSkills = window.skillSystem.getAllSkills() || [];
+
+    shopItems.innerHTML = "";
+    allSkills.forEach((skill) => {
+      if (!playerData.boughtSkills.includes(skill.id)) {
+        const cost = skill.cost * 1000; // Convert cost to money
+        const canAfford = playerData.money >= cost;
+
+        const item = document.createElement("div");
+        item.className = "shop-item";
+        item.innerHTML = `
+          <div class="shop-item-name">${skill.name}</div>
+          <div class="shop-item-price">${cost.toLocaleString()} Gold</div>
+          <button class="btn-buy" ${!canAfford ? "disabled" : ""}>Buy</button>
+        `;
+
+        const buyBtn = item.querySelector(".btn-buy");
+        buyBtn.onclick = () => {
+          if (playerData.money >= cost) {
+            playerData.money -= cost;
+            playerData.boughtSkills.push(skill.id);
+            this.savePlayerData(playerData);
+            alert(`Purchased ${skill.name}!`);
+            this.updateShop();
+            this.initTradeAssociation();
+          }
+        };
+
+        shopItems.appendChild(item);
       }
     });
   },

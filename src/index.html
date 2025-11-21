@@ -75,13 +75,9 @@
 
         <div class="menu-content">
           <div class="menu-left">
-            <button class="menu-btn" data-action="campaign">
-              <span class="btn-icon">⚔️</span>
-              <span class="btn-text">Campaign</span>
-            </button>
-            <button class="menu-btn" data-action="arena">
-              <span class="btn-icon">🏆</span>
-              <span class="btn-text">Arena</span>
+            <button class="menu-btn" data-action="plot">
+              <span class="btn-icon">📖</span>
+              <span class="btn-text">Plot</span>
             </button>
             <button class="menu-btn" data-action="deck">
               <span class="btn-icon">📚</span>
@@ -111,7 +107,112 @@
       </div>
     </div>
 
-    <!-- CAMPAIGN SCREEN -->
+    <!-- PLOT SCREEN - Story selection -->
+    <div id="plot-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Plot - Choose Your Story</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+        <div class="plot-menu">
+          <div class="plot-item" data-plot="akh-zahara">
+            <div class="plot-title">Akh'Zahara - Act 1 Chapter 1</div>
+            <div class="plot-description">Waking up in a new world</div>
+            <button class="btn-primary">Start</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AKH'ZAHARA MENU SCREEN - Choose Main Plot, Guild, or Desert Merchant -->
+    <div id="akh-zahara-menu-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Akh'Zahara - Act 1 Chapter 1: Waking up in a new world</h2>
+          <button class="btn-back" data-back="plot-screen">← Back</button>
+        </div>
+        <div class="plot-menu">
+          <div class="plot-item" data-akh-action="main-plot">
+            <div class="plot-title">Main Plot</div>
+            <div class="plot-description">Follow Bao's journey to find Shizuku</div>
+            <button class="btn-primary">Enter</button>
+          </div>
+          <div class="plot-item" data-akh-action="guild">
+            <div class="plot-title">Guild - Trade Association</div>
+            <div class="plot-description">Earn money through battle | No deck skills available</div>
+            <button class="btn-primary">Enter</button>
+          </div>
+          <div class="plot-item" data-akh-action="merchant">
+            <div class="plot-title">Desert Merchant</div>
+            <div class="plot-description">Mysterious merchant | One-time challenge | Extreme difficulty</div>
+            <button class="btn-primary">Challenge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN PLOT SCREEN - Akh'Zahara battles -->
+    <div id="akh-zahara-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Akh'Zahara - Main Plot</h2>
+          <button class="btn-back" data-back="akh-zahara-menu-screen">← Back</button>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="akh-progress" style="width: 0%"></div>
+        </div>
+        <div class="act-progress-text" id="akh-progress-text">0/5</div>
+        <div class="campaign-map">
+          <div class="map-line"></div>
+          <div class="map-node" data-node="miner-1" data-level="1">
+            <span class="node-icon">⛏️</span>
+            <span class="node-level">Miner 1</span>
+          </div>
+          <div class="map-node locked" data-node="miner-2" data-level="2">
+            <span class="node-icon">⛏️</span>
+            <span class="node-level">Miner 2</span>
+          </div>
+          <div class="map-node locked" data-node="miner-3" data-level="3">
+            <span class="node-icon">⛏️</span>
+            <span class="node-level">Miner 3</span>
+          </div>
+          <div class="map-node locked" data-node="edras" data-level="4">
+            <span class="node-icon">👔</span>
+            <span class="node-level">Manager - Edras</span>
+          </div>
+          <div class="map-node locked" data-node="wior" data-level="5">
+            <span class="node-icon">♚</span>
+            <span class="node-level">Boss - Wior</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUILD - TRADE ASSOCIATION SCREEN (inside Akh'Zahara) -->
+    <div id="guild-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Guild - Trade Association</h2>
+          <button class="btn-back" data-back="akh-zahara-menu-screen">← Back</button>
+          <div class="player-money">
+            Money:
+            <span id="player-money">9999999</span>
+          </div>
+        </div>
+        <div class="trade-content">
+          <div class="trade-left">
+            <h3>Battle for Gold</h3>
+            <div id="trade-opponents" class="opponent-grid"></div>
+          </div>
+          <div class="trade-right">
+            <h3>Shop - Buy Skills & Pieces</h3>
+            <div id="shop-items" class="shop-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGN SCREEN (Hidden for now, kept for backward compatibility) -->
     <div id="campaign-screen" class="fullscreen-overlay hidden">
       <div class="campaign-container">
         <div class="campaign-header">
@@ -148,7 +249,7 @@
       </div>
     </div>
 
-    <!-- ARENA SCREEN -->
+    <!-- ARENA SCREEN (Hidden for now, kept for backward compatibility) -->
     <div id="arena-screen" class="fullscreen-overlay hidden">
       <div class="arena-container">
         <div class="arena-header">
@@ -392,7 +493,6 @@
       </div>
     </div>
 
-    <!-- Scripts -->
     <!-- Load core game state first, then systems, then UI logic -->
     <script src="game_Stage.js"></script>
     <script src="ai_System.js"></script>

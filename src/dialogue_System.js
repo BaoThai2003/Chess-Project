@@ -1,111 +1,213 @@
 window.dialogueSystem = {
   dialogues: {
-    // Campaign Act 1
-    "fight-1": [
+    // === AKH'ZAHARA MAIN PLOT ===
+    "miner-1": [
       {
         speaker: "player",
-        text: "dụi dụi mắt... Đôi mắt từ từ mở ra... một không gian hoàn toàn xa lạ hiện ra ngay trước mắt, một khu mỏ được phủ dầy bởi cát và nắng gió sa mạc...",
+        text: "Mắt từ từ mở ra... Một không gian hoàn toàn xa lạ hiện ra ngay trước mắt. Một khu mỏ rộng lớn được phủ dầy bởi cát và nắng gió sa mạc...",
       },
+      { speaker: "enemy", text: "À! Một người lạ mặt sao? Lạc lối ở sa mạc hả? Thật tội nghiệp cho người này..." },
       {
         speaker: "player",
-        text: "một không gian hoàn toàn xa lạ hiện ra ngay trước mắt, một khu mỏ được phủ dầy bởi cát và nắng gió sa mạc...",
-      },
-      { speaker: "enemy", text: "Lại thêm một lãng khách nữa lạc lối sao? Thật tội nghiệp, thật tội nghiệp..." },
-      {
-        speaker: "player",
-        text: "Ông...ông là ai? Đây là đâu? À mà, ông có thấy một cô gái mặc một bộ kimono, cao khoảng 1m65, mái tóc đen dài ngang vai, mái ngố nào không?",
-      },
-      { speaker: "enemy", text: "Nghe lạ nhỉ, có thể là tôi không biết rồi... À không, có lẽ là biết đấy, nhưng..." },
-      { speaker: "player", text: "... Nhưng? Tại sao lại nhưng, đừng ngập ngừng nữa! Hãy cho tôi biết đi mà!!!" },
-      {
-        speaker: "enemy",
-        text: "Theo luật của thế giới này, nếu cậu muốn biết cái gì đó, hãy đoạt lấy nó bằng một trận đấu cờ vua đi!!!",
-      },
-      {
-        speaker: "player",
-        text: "Cờ vua? Chuyện quái gì đang xảy ra vậy? Tôi không có thời gian cho việc này đâu!",
+        text: "Ông...ông là ai? Đây là đâu? Có lẽ ông có thể giúp tôi? Tôi đang tìm một cô gái, tên là Shizuku...",
       },
       {
         speaker: "enemy",
-        text: "À, thế thì thôi, chào cậu nhé. Chúc may mắn!",
+        text: "Shizuku? Tôi không biết. Nhưng nếu muốn tôi trả lời, hãy đánh bại tôi trong một trận cờ vua!",
       },
+      { speaker: "player", text: "Cờ vua? Được thôi, tôi sẽ đánh bại anh!" },
+    ],
+    "miner-2": [
+      {
+        speaker: "enemy",
+        text: "Anh nói là bạn của thợ mỏ đầu tiên? Thế thì anh cũng là kẻ muốn tìm đường ra khỏi đây sao?",
+      },
+      { speaker: "player", text: "Đúng vậy. Tôi đang tìm người tên Shizuku. Ông có biết gì không?" },
+      {
+        speaker: "enemy",
+        text: "Mình là những nô lệ của chủ mỏ ở đây. Không ai biết Shizuku là ai. Hãy chuẩn bị cho trận đấu!",
+      },
+    ],
+    "miner-3": [
+      { speaker: "enemy", text: "Ba thợ mỏ đã bị đánh bại bởi anh... Chắc anh không phải con người bình thường..." },
       {
         speaker: "player",
-        text: "Haizz, thôi được rồi, có vẻ như đây là cách duy nhất rồi... Tôi sẽ đánh bại ông ta và tìm hiểu mọi chuyện sau vậy!",
+        text: "Các vị có thể giới thiệu tôi với người quản lý không? Tôi cần tìm hiểu thêm về nơi này!",
+      },
+      {
+        speaker: "enemy",
+        text: "Người quản lý là Edras. Anh rất mạnh. Nhưng vì ba bạn tôi đều thua anh, tôi sẽ dẫn anh gặp ông ấy!",
       },
     ],
-    "fight-2": [
-      { speaker: "enemy", text: "You survived the desert? Impressive... for a beginner." },
-      { speaker: "player", text: "Tell me about this place. Where am I?" },
-      { speaker: "enemy", text: "Welcome to Akh'Zahara - where the weak serve and the strong rule through chess." },
-      { speaker: "player", text: "Chess decides everything? That's insane!" },
-      { speaker: "enemy", text: "Insane? This is order! Now, let's see if you can back up those words!" },
+    edras: [
+      {
+        speaker: "enemy",
+        text: "Các thợ mỏ của tôi đã đánh thua? Thực sự là bất ngờ. Tôi tên là Edras, người quản lý của mỏ này.",
+      },
+      { speaker: "player", text: "Rất vui được gặp. Tôi đang tìm một cô gái tên Shizuku. Ông có thể giúp tôi không?" },
+      {
+        speaker: "enemy",
+        text: "Shizuku? Tôi biết cô ấy. Cô ấy ở trong lâu đài của Wior - chủ nhân của cả vùng này. Nhưng trước tiên, bạn phải thắng được tôi!",
+      },
+      { speaker: "player", text: "Tôi sẽ thắng! Đối với tôi, không có bất cứ điều gì không thể!" },
     ],
-    "fight-3": [
-      { speaker: "enemy", text: "You've made it far, stranger. But the Sandlord doesn't tolerate rebels." },
-      { speaker: "player", text: "I'm not here to start a revolution. I just want to find Shizuku and leave." },
-      { speaker: "enemy", text: "Leave? No one leaves Akh'Zahara. We are all prisoners here." },
-      { speaker: "player", text: "Then I'll be the first to break free. Starting with defeating you!" },
-    ],
-    "fight-4": [
-      { speaker: "enemy", text: "You dare challenge the elite? I've crushed countless warriors!" },
-      { speaker: "player", text: "I've beaten everyone else. You're just another obstacle." },
-      { speaker: "enemy", text: "Arrogant fool! The Sandlord will personally destroy you after I'm done!" },
-      { speaker: "player", text: "Good. That's exactly what I'm counting on. Bring it on!" },
-    ],
-    "boss-1": [
-      { speaker: "enemy", text: "So... you're the outsider causing trouble in my domain." },
-      { speaker: "player", text: "You must be the Sandlord. Where is Shizuku?!" },
-      { speaker: "enemy", text: "The chess maiden? She's safe... for now. But you'll never reach her." },
-      { speaker: "player", text: "I'll defeat you and take her back!" },
-      { speaker: "enemy", text: "Bold words. Let's see if your skills match your determination!" },
+    wior: [
+      { speaker: "enemy", text: "Wior đây. Tôi nghe nói có một kẻ lạ mặt chinh phục cả mỏ của tôi..." },
+      { speaker: "player", text: "Tôi là Bao. Tôi cần gặp Shizuku ngay lập tức! Hãy chỉ cho tôi đường đi!" },
+      {
+        speaker: "enemy",
+        text: "Haha! Dũng khí tuy tốt, nhưng thế giới này không phải do dũng khí quyết định. Cờ vua quyết định tất cả. Nếu muốn gặp cô gái, hãy thắng tôi!",
+      },
+      { speaker: "player", text: "Được! Tôi sẽ không thua! Cho tôi cơ hội để cứu Shizuku!" },
     ],
 
-    // Arena opponents
+    // === TRADE ASSOCIATION ===
+    "trade-1": [
+      { speaker: "enemy", text: "Chào mừng đến Hiệp Hội Thương Mại! Hãy kiếm tiền bằng cách thắng các trận đấu!" },
+      { speaker: "player", text: "Tôi sẽ chiến đấu để kiếm tiền mua kỹ năng và quân cờ." },
+    ],
+    "trade-2": [
+      { speaker: "enemy", text: "Một người khác muốn kiểm tra kỹ năng của mình sao?" },
+      { speaker: "player", text: "Vâng, tôi đã sẵn sàng." },
+    ],
+    "trade-3": [
+      { speaker: "enemy", text: "Bạn thực sự rất mạnh. Đây là một đối thủ đáng gặp." },
+      { speaker: "player", text: "Cảm ơn. Tôi sẽ tiếp tục cải thiện." },
+    ],
+
+    // === DESERT MERCHANT ===
+    "desert-merchant": [
+      { speaker: "enemy", text: "Xin chào, du khách. Tôi là một thương nhân bí ẩn của sa mạc này." },
+      { speaker: "player", text: "Ai vậy? Tôi chưa bao giờ gặp ông trước." },
+      {
+        speaker: "enemy",
+        text: "Tôi là một lũy thừa bị giấu kín trong sa mạc. Mỗi người chỉ được thử thách tôi một lần trong đời. Nếu bạn thắng, kỹ năng độc nhất của tôi sẽ là của bạn, cùng với một kho tàng vàng.",
+      },
+      { speaker: "player", text: "Một lũy thừa ẩn giấu? Điều này nghe như một cơ hội không thể bỏ qua!" },
+      { speaker: "enemy", text: "Chúng ta sẽ xem. Nếu bạn không đủ mạnh, bạn sẽ mất tất cả!" },
+    ],
+
+    // === CAMPAIGN ACT 1 (Kept for backward compatibility) ===
+    "fight-1": [
+      { speaker: "player", text: "Mắt từ từ mở ra... Một không gian hoàn toàn xa lạ hiện ra ngay trước mắt..." },
+      { speaker: "enemy", text: "Lại thêm một lãng khách nữa lạc lối sao? Thật tội nghiệp..." },
+      { speaker: "player", text: "Ông có thấy một cô gái mặc kimono cao khoảng 1m65 không?" },
+      { speaker: "enemy", text: "Biết rồi, nhưng hãy đánh bại tôi trước!" },
+    ],
+    "fight-2": [
+      { speaker: "enemy", text: "You survived the desert? Impressive..." },
+      { speaker: "player", text: "Tell me about this place. Where am I?" },
+    ],
+    "fight-3": [
+      { speaker: "enemy", text: "You've made it far, stranger." },
+      { speaker: "player", text: "I just want to find Shizuku and leave." },
+    ],
+    "fight-4": [
+      { speaker: "enemy", text: "You dare challenge the elite?" },
+      { speaker: "player", text: "I've beaten everyone else." },
+    ],
+    "boss-1": [
+      { speaker: "enemy", text: "So... you're the outsider causing trouble." },
+      { speaker: "player", text: "Where is Shizuku?!" },
+    ],
+
+    // === ARENA OPPONENTS (Backward compatibility) ===
     "easy-1": [
-      { speaker: "enemy", text: "First time in the arena? Don't worry, I'll go easy on you... or not!" },
-      { speaker: "player", text: "Just a warm-up. Let's get this over with." },
+      { speaker: "enemy", text: "First time in the arena?" },
+      { speaker: "player", text: "Let's get this over with." },
     ],
     "easy-2": [
-      { speaker: "enemy", text: "Training time! I hope you're ready to learn some lessons!" },
-      { speaker: "player", text: "I learn best under pressure. Show me what you've got." },
+      { speaker: "enemy", text: "Training time! I hope you're ready!" },
+      { speaker: "player", text: "I learn best under pressure." },
     ],
     "medium-1": [
-      { speaker: "enemy", text: "You think you're ready for real competition? Let's find out!" },
-      { speaker: "player", text: "I didn't come here to play. I came to win." },
+      { speaker: "enemy", text: "You think you're ready for real competition?" },
+      { speaker: "player", text: "I didn't come here to play." },
     ],
     "hard-1": [
-      { speaker: "enemy", text: "A challenger approaches the champion? This will be entertaining!" },
-      { speaker: "player", text: "Every champion falls eventually. Today is your day." },
-      { speaker: "enemy", text: "Such confidence! I'll enjoy crushing it!" },
+      { speaker: "enemy", text: "A challenger approaches the champion?" },
+      { speaker: "player", text: "Every champion falls eventually." },
     ],
   },
 
   // Victory dialogues
   victoryDialogues: {
+    "miner-1": [
+      {
+        speaker: "enemy",
+        text: "Anh quá mạnh... Shizuku? Tôi thực sự không biết. Nhưng Edras - người quản lý mỏ, hắn có thể biết...",
+      },
+      { speaker: "player", text: "Cảm ơn! Tôi sẽ gặp Edras ngay!" },
+    ],
+    "miner-2": [
+      { speaker: "enemy", text: "Tôi thua rồi... Anh có thể gặp những người khác ở mỏ này..." },
+      { speaker: "player", text: "Cảm ơn sự hợp tác của anh!" },
+    ],
+    "miner-3": [
+      { speaker: "enemy", text: "Nếu anh thắng được ba chúng tôi, chắc anh đủ mạnh. Đến gặp Edras đi..." },
+      { speaker: "player", text: "Cảm ơn các bạn!" },
+    ],
+    edras: [
+      {
+        speaker: "enemy",
+        text: "Tôi thua... Điều này chưa bao giờ xảy ra. Bạn thực sự mạnh. Wior - chủ nhân, ông ấy đang chờ bạn ở lâu đài...",
+      },
+      { speaker: "player", text: "Cảm ơn Edras! Tôi sẽ gặp Wior!" },
+      { speaker: "enemy", text: "Cẩn thận... Wior mạnh hơn tôi rất nhiều. May mắn cho bạn!" },
+    ],
+    wior: [
+      {
+        speaker: "enemy",
+        text: "Không thể... Tôi đã thua... Shizuku ở tháp phía bắc. Cô ấy đang chờ...Nhưng cẩn thận, đây chỉ là khởi đầu...",
+      },
+      { speaker: "player", text: "Cảm ơn! Tôi sẽ cứu Shizuku!" },
+      {
+        speaker: "enemy",
+        text: "Khi cậu gặp được cô ấy, hãy hỏi cô ấy về AZI faction... Điều gì lắp ẩn đằng sau tất cả...Đây chỉ là cuộc chiến đầu tiên...",
+      },
+    ],
+    "trade-1": [
+      { speaker: "enemy", text: "Bạn mạnh lắm! Đây là tiền thưởng của bạn." },
+      { speaker: "player", text: "Cảm ơn! Tôi sẽ mua kỹ năng mới." },
+    ],
+    "trade-2": [
+      { speaker: "enemy", text: "Bạn lại thắng! Kỹ năng của bạn thực sự tuyệt vời." },
+      { speaker: "player", text: "Tôi sẽ tiếp tục cải thiện." },
+    ],
+    "trade-3": [
+      { speaker: "enemy", text: "Tôi phục! Bạn xứng đáng là một chiến binh tuyệt vời!" },
+      { speaker: "player", text: "Cảm ơn! Tôi sẽ không bao giờ từ bỏ!" },
+    ],
+    "desert-merchant": [
+      { speaker: "enemy", text: "Bạn... bạn đã thắng tôi? Điều này là không thể... Bạn chắc là người tuyệt vời..." },
+      { speaker: "player", text: "Kỹ năng độc nhất của bạn là của tôi bây giờ!" },
+      {
+        speaker: "enemy",
+        text: "Vâng... Lấy nó. Cùng với vàng... Nhưng xin hãy nhớ... Có những lực lượng lớn hơn lao động viên và trí thức... Có một cuộc chiến sắp xảy ra...",
+      },
+      { speaker: "player", text: "Cuộc chiến? Tôi sẽ sẵn sàng cho bất cứ điều gì!" },
+    ],
+
+    // Campaign backwards compat
     "fight-1": [
-      { speaker: "enemy", text: "Impossible... How did you...?" },
-      { speaker: "player", text: "Tell me where to find the Sandlord!" },
-      { speaker: "enemy", text: "Keep... going forward... You'll find him... at the palace..." },
+      { speaker: "enemy", text: "Không thể... Làm sao cậu...?" },
+      { speaker: "player", text: "Hãy cho tôi biết đường tới người lãnh đạo!" },
     ],
     "fight-2": [
-      { speaker: "enemy", text: "You're... stronger than you look..." },
-      { speaker: "player", text: "I have someone I need to protect. That's my strength." },
+      { speaker: "enemy", text: "Cậu mạnh hơn vẻ ngoài..." },
+      { speaker: "player", text: "Tôi có người cần bảo vệ." },
     ],
     "fight-3": [
-      { speaker: "enemy", text: "Maybe... maybe there is hope after all..." },
-      { speaker: "player", text: "Hope? What do you mean?" },
-      { speaker: "enemy", text: "If you can defeat the Sandlord... you could free us all..." },
+      { speaker: "enemy", text: "Có lẽ còn hy vọng..." },
+      { speaker: "player", text: "Tôi sẽ không bao giờ từ bỏ!" },
     ],
     "fight-4": [
-      { speaker: "enemy", text: "The Sandlord... won't go down... as easily..." },
-      { speaker: "player", text: "I'm coming for him next. This ends now!" },
+      { speaker: "enemy", text: "Tôi thua rồi..." },
+      { speaker: "player", text: "Tôi sẽ tiếp tục chiến đấu!" },
     ],
     "boss-1": [
-      { speaker: "enemy", text: "No... this can't be... my power..." },
-      { speaker: "player", text: "Where is Shizuku?! Tell me!" },
-      { speaker: "enemy", text: "She's in... the tower... but be warned... this is only the beginning..." },
-      { speaker: "player", text: "I don't care what comes next. I'm getting her back!" },
+      { speaker: "enemy", text: "Không... điều này không thể..." },
+      { speaker: "player", text: "Shizuku ở đâu?!" },
     ],
   },
 
@@ -194,13 +296,19 @@ window.dialogueSystem = {
       rightPortrait.classList.add("active");
     }
 
-    // Type effect
+    // Type effect - no character reversal, set full text properly
     dialogueText.textContent = "";
     let i = 0;
     const text = dialogue.text;
+    // Ensure text direction is set correctly
+    dialogueText.style.direction = "ltr";
+    dialogueText.style.unicodeBidi = "bidi-override";
+
     const typeInterval = setInterval(() => {
       if (i < text.length) {
-        dialogueText.textContent += text[i];
+        // Append one character at a time without reversing
+        const currentText = text.substring(0, i + 1);
+        dialogueText.textContent = currentText;
         i++;
       } else {
         clearInterval(typeInterval);
@@ -210,6 +318,22 @@ window.dialogueSystem = {
 
   getEnemyData(enemyId) {
     const enemies = {
+      // Main plot - Akh'Zahara
+      "miner-1": { name: "Miner 1", portrait: "⛏️", difficulty: "easy" },
+      "miner-2": { name: "Miner 2", portrait: "⛏️", difficulty: "easy" },
+      "miner-3": { name: "Miner 3", portrait: "⛏️", difficulty: "easy" },
+      edras: { name: "Edras - Manager", portrait: "👔", difficulty: "medium" },
+      wior: { name: "Wior - Boss", portrait: "♚", difficulty: "hard" },
+
+      // Trade Association
+      "trade-1": { name: "Merchant Fighter 1", portrait: "♟", difficulty: "easy" },
+      "trade-2": { name: "Merchant Fighter 2", portrait: "♞", difficulty: "medium" },
+      "trade-3": { name: "Merchant Fighter 3", portrait: "♜", difficulty: "hard" },
+
+      // Desert Merchant
+      "desert-merchant": { name: "Desert Merchant", portrait: "🏜️", difficulty: "hard" },
+
+      // Campaign backwards compat
       "fight-1": { name: "Lost Traveler", portrait: "♟", difficulty: "easy" },
       "fight-2": { name: "Dune Raider", portrait: "♞", difficulty: "easy" },
       "fight-3": { name: "Sandstorm Scout", portrait: "♜", difficulty: "medium" },

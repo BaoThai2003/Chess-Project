@@ -12,11 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
       hideAllScreens();
 
       switch (action) {
-        case "campaign":
-          showCampaign();
-          break;
-        case "arena":
-          showArena();
+        case "plot":
+          showPlot();
           break;
         case "deck":
           showDeckBuilder();
@@ -47,6 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (backTo === "main-menu") {
         document.getElementById("main-menu").classList.remove("hidden");
+      } else if (backTo === "plot-screen") {
+        document.getElementById("plot-screen").classList.remove("hidden");
+      } else if (backTo === "akh-zahara-menu-screen") {
+        document.getElementById("akh-zahara-menu-screen").classList.remove("hidden");
+      } else {
+        // Generic handler for any other back-to values
+        const screenEl = document.getElementById(backTo);
+        if (screenEl) screenEl.classList.remove("hidden");
       }
     });
   });
@@ -182,6 +187,87 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (window.battleSystem) {
       window.battleSystem.updatePlayerUI();
+    }
+  }
+
+  // === PLOT ===
+  function showPlot() {
+    document.getElementById("plot-screen").classList.remove("hidden");
+
+    // Handle plot item clicks
+    document.querySelectorAll("#plot-screen .plot-item").forEach((item) => {
+      item.onclick = () => {
+        const plotId = item.dataset.plot;
+        hideAllScreens();
+        if (plotId === "akh-zahara") {
+          showAkhZaharaMenu();
+        }
+      };
+    });
+  }
+
+  function showAkhZaharaMenu() {
+    document.getElementById("akh-zahara-menu-screen").classList.remove("hidden");
+
+    // Handle Akh'Zahara menu actions
+    document.querySelectorAll("#akh-zahara-menu-screen .plot-item").forEach((item) => {
+      item.onclick = () => {
+        const action = item.dataset.akhAction;
+        hideAllScreens();
+        if (action === "main-plot") {
+          showAkhZaharaMainPlot();
+        } else if (action === "guild") {
+          showGuild();
+        } else if (action === "merchant") {
+          showDesertMerchant();
+        }
+      };
+    });
+  }
+
+  function showAkhZaharaMainPlot() {
+    document.getElementById("akh-zahara-screen").classList.remove("hidden");
+    if (window.battleSystem) {
+      window.battleSystem.updateAkhZaharaProgress();
+    }
+
+    // Handle map node clicks
+    document.querySelectorAll("#akh-zahara-screen .map-node").forEach((node) => {
+      node.onclick = () => {
+        if (node.classList.contains("locked")) {
+          alert("Complete previous battles to unlock this fight!");
+          return;
+        }
+
+        const nodeId = node.dataset.node;
+        window.battleSystem.startBattle(nodeId);
+      };
+    });
+  }
+
+  // === GUILD - TRADE ASSOCIATION ===
+  function showGuild() {
+    document.getElementById("guild-screen").classList.remove("hidden");
+    window.battleSystem.initTradeAssociation();
+  }
+
+  // === DESERT MERCHANT (inside Akh'Zahara) ===
+  function showDesertMerchant() {
+    const playerData = window.battleSystem.getPlayerData();
+
+    if (playerData.merchantDefeated) {
+      alert("You have already defeated the Desert Merchant. This opportunity is gone forever.");
+      document.getElementById("akh-zahara-menu-screen").classList.remove("hidden");
+      return;
+    }
+
+    const confirmed = confirm(
+      "Challenge the Desert Merchant?\n\nWarning: This is an extremely powerful opponent. You can only challenge once!\n\nRewards: Unique skill card + 500,000 Gold"
+    );
+    if (confirmed) {
+      window.battleSystem.startBattle("desert-merchant");
+    } else {
+      document.getElementById("akh-zahara-menu-screen").classList.remove("hidden");
     }
   }
 
