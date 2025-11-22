@@ -256,11 +256,94 @@ window.gameState = {
       this.turnNumber++;
       document.getElementById("battle-turn").textContent = `Turn: ${this.turnNumber}`;
 
+      // Check for 50-turn limit
+      if (this.turnNumber >= 50) {
+        this.handleTurnLimit();
+        return;
+      }
+
       // Draw card every 3 turns
       if (this.turnNumber % 3 === 0) {
         this.drawCard("white");
       }
     }
+  },
+
+  // Handle 50-turn limit and calculate winner
+  handleTurnLimit() {
+    // Freeze the game
+    this.timers.isPaused = true;
+    document.getElementById("battle-turn").textContent = `Turn: ${this.turnNumber} - GAME OVER (Turn Limit)`;
+
+    // Calculate winner based on tiebreaker rules
+    const winner = this.calculateTurnLimitWinner();
+
+    if (winner === "white") {
+      alert("Turn limit reached! White wins based on total piece health!");
+      window.battleSystem.endBattle(true);
+      window.battleSystem.showVictoryScreen();
+    } else if (winner === "black") {
+      alert("Turn limit reached! Black wins based on total piece health!");
+      window.battleSystem.endBattle(false);
+      window.battleSystem.showDefeatScreen();
+    } else {
+      alert("Turn limit reached! It's a draw!");
+      window.battleSystem.endBattle(false);
+      window.battleSystem.showDefeatScreen();
+    }
+  },
+
+  // Calculate winner at turn limit based on health comparison
+  calculateTurnLimitWinner() {
+    const pieceValues = { "♔": 1, "♕": 2, "♖": 3, "♗": 4, "♘": 5, "♙": 6 };
+    const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
+    const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
+
+    // Calculate total health for each side
+    let whiteTotal = 0,
+      blackTotal = 0;
+    let whiteKingHealth = 0,
+      blackKingHealth = 0;
+    let pieceHealthMap = { white: {}, black: {} };
+
+    for (let key in this.pieceHealth) {
+      const health = this.pieceHealth[key];
+      if (health && health.current > 0) {
+        const [row, col] = key.split("-").map(Number);
+        const piece = this.boardState[row][col];
+
+        if (whitePieces.includes(piece)) {
+          whiteTotal += health.current;
+          if (piece === "♔") whiteKingHealth = health.current;
+          if (!pieceHealthMap.white[piece]) pieceHealthMap.white[piece] = 0;
+          pieceHealthMap.white[piece] += health.current;
+        } else if (blackPieces.includes(piece)) {
+          blackTotal += health.current;
+          if (piece === "♚") blackKingHealth = health.current;
+          if (!pieceHealthMap.black[piece]) pieceHealthMap.black[piece] = 0;
+          pieceHealthMap.black[piece] += health.current;
+        }
+      }
+    }
+
+    // Comparison 1: Total health
+    if (whiteTotal > blackTotal) return "white";
+    if (blackTotal > whiteTotal) return "black";
+
+    // Comparison 2: King health
+    if (whiteKingHealth > blackKingHealth) return "white";
+    if (blackKingHealth > whiteKingHealth) return "black";
+
+    // Comparison 3-7: Compare piece types in order: Queen > Rook > Bishop > Knight > Pawn
+    const pieceOrder = ["♕", "♖", "♗", "♘", "♙"];
+    for (let pieceChar of pieceOrder) {
+      const whiteHealth = pieceHealthMap.white[pieceChar] || 0;
+      const blackHealth = pieceHealthMap.black[pieceChar] || 0;
+      if (whiteHealth > blackHealth) return "white";
+      if (blackHealth > whiteHealth) return "black";
+    }
+
+    return "draw";
   },
 
   // Update buffs/debuffs display

@@ -141,6 +141,180 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize timers
     initTimers();
+
+    // Setup Purge button
+    setupPurgeButton();
+  }
+
+  // === SPECIAL BATTLE ACTIONS ===
+  function setupPurgeButton() {
+    const purgeBtn = document.getElementById("purge-btn");
+    if (purgeBtn) {
+      purgeBtn.addEventListener("click", executePurge);
+    }
+  }
+
+  function executePurge() {
+    if (!window.gameState || !window.gameState.boardState) return;
+
+    let purgedCount = 0;
+    const weakPieces = [];
+
+    // Find all pieces with health < 0.25
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const key = `${row}-${col}`;
+        const health = window.gameState.pieceHealth[key];
+        if (health && health.current > 0 && health.current < 0.25) {
+          weakPieces.push({ row, col, key, piece: window.gameState.boardState[row][col] });
+        }
+      }
+    }
+
+    // Deal 1 damage to each weak piece
+    weakPieces.forEach(({ row, col, key, piece }) => {
+      const died = window.gameState.applyDamage(row, col, 1, "purge", "white");
+      if (died) {
+        purgedCount++;
+        window.gameState.moveLog.push(
+          `Purge: ${piece} at ${window.gameState.positionToNotation(row, col)} eliminated!`
+        );
+      }
+    });
+
+    if (purgedCount > 0) {
+      window.gameState.updateMoveLog();
+      window.syncBoardStateWithDOM();
+      window.updateAllHealthBars();
+      alert(`Purge executed! ${purgedCount} weak piece(s) eliminated!`);
+    } else {
+      alert("No weak pieces found (health >= 0.25)!");
+    }
+  }
+
+  // === PAWN PROMOTION & CASTLING ===
+  function checkPawnPromotion(row, col, piece, isWhite) {
+    // White pawns promoted at row 0, black pawns at row 7
+    const promotionRow = isWhite ? 0 : 7;
+
+    if (piece === "♙" && row === promotionRow) {
+      promotePawn(row, col, isWhite);
+    } else if (piece === "♟" && row === promotionRow) {
+      promotePawn(row, col, isWhite);
+    }
+  }
+
+  function promotePawn(row, col, isWhite) {
+    const pieceOptions = isWhite ? ["♕", "♖", "♗", "♘"] : ["♛", "♜", "♝", "♞"];
+    const pieceNames = ["Queen", "Rook", "Bishop", "Knight"];
+
+    let promoted = false;
+    let choice = 0;
+
+    // Simple choice: default to Queen for now
+    // In a full implementation, could show a dialog for player choice
+    choice = 0; // Queen
+
+    const newPiece = pieceOptions[choice];
+    const oldPiece = window.gameState.boardState[row][col];
+
+    // Replace pawn with promoted piece on board
+    window.gameState.boardState[row][col] = newPiece;
+
+    // Create new piece health entry for the promoted piece
+    const key = `${row}-${col}`;
+    const oldHealth = window.gameState.pieceHealth[key];
+    if (oldHealth) {
+      // Promoted piece keeps the pawn's health
+      window.gameState.pieceHealth[key] = { ...oldHealth };
+    }
+
+    window.gameState.moveLog.push(
+      `Pawn promoted to ${pieceNames[choice]} at ${window.gameState.positionToNotation(row, col)}!`
+    );
+
+    if (window.updateAllHealthBars) window.updateAllHealthBars();
+  }
+
+  function isCastlingMove(fromRow, fromCol, toRow, toCol, piece) {
+    // Castling is only for kings and must move 2 squares horizontally
+    if ((piece !== "♔" && piece !== "♚") || fromRow !== toRow) return false;
+    if (Math.abs(toCol - fromCol) !== 2) return false;
+
+    // King must not have moved (simplified check - would need to track move history for full implementation)
+    // For now, just allow if rook is in starting position
+    const isWhite = piece === "♔";
+    const rookRow = isWhite ? 7 : 0;
+
+    // Kingside castling (king moves right)
+    if (toCol === fromCol + 2) {
+      const rookCol = 7;
+      const rook = window.gameState.boardState[rookRow][rookCol];
+      return (isWhite && rook === "♖") || (!isWhite && rook === "♜");
+    }
+
+    // Queenside castling (king moves left)
+    if (toCol === fromCol - 2) {
+      const rookCol = 0;
+      const rook = window.gameState.boardState[rookRow][rookCol];
+      return (isWhite && rook === "♖") || (!isWhite && rook === "♜");
+    }
+
+    return false;
+  }
+
+  function executeCastling(fromRow, fromCol, toRow, toCol) {
+    const piece = window.gameState.boardState[fromRow][fromCol];
+
+    // Move king
+    window.gameState.boardState[toRow][toCol] = piece;
+    window.gameState.boardState[fromRow][fromCol] = "";
+
+    // Update king position and health entries
+    const oldKingKey = `${fromRow}-${fromCol}`;
+    const newKingKey = `${toRow}-${toCol}`;
+    if (window.gameState.pieceHealth[oldKingKey]) {
+      window.gameState.pieceHealth[newKingKey] = window.gameState.pieceHealth[oldKingKey];
+      delete window.gameState.pieceHealth[oldKingKey];
+    }
+
+    // Move rook
+    const isWhite = piece === "♔";
+    const rookRow = isWhite ? 7 : 0;
+    const rook = isWhite ? "♖" : "♜";
+
+    if (toCol === fromCol + 2) {
+      // Kingside castling - rook moves from h-file to f-file
+      const rookFromCol = 7;
+      const rookToCol = 5;
+      window.gameState.boardState[rookRow][rookToCol] = rook;
+      window.gameState.boardState[rookRow][rookFromCol] = "";
+
+      const oldRookKey = `${rookRow}-${rookFromCol}`;
+      const newRookKey = `${rookRow}-${rookToCol}`;
+      if (window.gameState.pieceHealth[oldRookKey]) {
+        window.gameState.pieceHealth[newRookKey] = window.gameState.pieceHealth[oldRookKey];
+        delete window.gameState.pieceHealth[oldRookKey];
+      }
+    } else if (toCol === fromCol - 2) {
+      // Queenside castling - rook moves from a-file to d-file
+      const rookFromCol = 0;
+      const rookToCol = 3;
+      window.gameState.boardState[rookRow][rookToCol] = rook;
+      window.gameState.boardState[rookRow][rookFromCol] = "";
+
+      const oldRookKey = `${rookRow}-${rookFromCol}`;
+      const newRookKey = `${rookRow}-${rookToCol}`;
+      if (window.gameState.pieceHealth[oldRookKey]) {
+        window.gameState.pieceHealth[newRookKey] = window.gameState.pieceHealth[oldRookKey];
+        delete window.gameState.pieceHealth[oldRookKey];
+      }
+    }
+
+    if (piece === "♔") window.gameState.whiteKingPos = [toRow, toCol];
+    if (piece === "♚") window.gameState.blackKingPos = [toRow, toCol];
+
+    window.gameState.moveLog.push(`Castling: ${piece} moves to ${window.gameState.positionToNotation(toRow, toCol)}`);
   }
 
   // === PIECE MOVEMENT LOGIC ===
@@ -363,6 +537,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const isWhiteTurn = window.gameState.timers.currentPlayer === "white";
 
+      // Check for castling move
+      if (isCastlingMove(fromRow, fromCol, row, col, movingPiece)) {
+        executeCastling(fromRow, fromCol, row, col);
+
+        selectedPiece.classList.remove("selected");
+        selectedPiece = null;
+
+        window.gameState.logMove([fromRow, fromCol], [row, col], movingPiece, false);
+        syncBoardStateWithDOM();
+        updateAllHealthBars();
+        switchPlayer();
+        window.battleSystem.checkVictory();
+
+        if (window.gameState.timers.currentPlayer === "black") {
+          setTimeout(() => window.aiSystem.makeMove(), 600);
+        }
+
+        if (window.saveGameAuto) setTimeout(window.saveGameAuto, 100);
+        return;
+      }
+
       if (isValidMove(fromRow, fromCol, row, col, movingPiece, isWhiteTurn)) {
         const captured = piece !== "";
         let defeatPieceSurvived = false;
@@ -417,6 +612,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Log move
         window.gameState.logMove([fromRow, fromCol], [finalRow, finalCol], movingPiece, captured);
+
+        // Check for pawn promotion
+        checkPawnPromotion(finalRow, finalCol, movingPiece, isWhiteTurn);
 
         // Update DOM
         syncBoardStateWithDOM();

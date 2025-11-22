@@ -1144,3 +1144,56 @@ body {
 .achievement-name {
   font-size: 1.2rem;
 }
+
+/* === SPECIAL BATTLE ACTIONS === */
+.btn-special {
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #ff6b6b, #ff4444);
+  color: #fff;
+  border: 2px solid #ff4444;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.btn-special:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff5555, #ff3333);
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-special:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #999, #777);
+  border-color: #666;
+}
+
+/* Turn limit indicator */
+.turn-limit-warning {
+  color: #ff6b6b;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 8px;
+  background: rgba(255, 107, 107, 0.2);
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.turn-limit-critical {
+  animation: pulse-warning 0.5s infinite;
+}
+
+@keyframes pulse-warning {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
