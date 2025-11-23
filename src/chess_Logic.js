@@ -689,33 +689,48 @@ document.addEventListener("DOMContentLoaded", function () {
         icon.style.color = isWhitePiece ? "#fff" : "#000";
 
         // Attach hover handlers to show piece skill tooltip after ~1s
-        let hoverTimer = null;
-        square.addEventListener("mouseenter", function onEnter() {
-          // clear any previous tooltip timers and prepare for display
-          if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
-          _tooltipHideTimer = null;
-          hoverTimer = setTimeout(() => {
-            const key = `${row}-${col}`;
-            const skillId = window.gameState && window.gameState.pieceSkills ? window.gameState.pieceSkills[key] : null;
-            if (skillId && window.skillSystem) {
-              const skill = window.skillSystem.getSkill(skillId);
-              showSkillTooltip(row, col, square, skillId, skill);
-            }
-          }, 1000);
-        });
-
-        square.addEventListener("mouseleave", function onLeave() {
-          if (hoverTimer) clearTimeout(hoverTimer);
-          // Start hide timer when leaving piece (unless hovering tooltip)
-          if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
-          _tooltipHideTimer = setTimeout(() => {
-            removeSkillTooltip();
+        // Avoid attaching duplicate listeners on repeated syncs by marking the square.
+        if (!square.dataset.pieceListenersAttached) {
+          let hoverTimer = null;
+          const onEnter = function onEnter() {
+            if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
             _tooltipHideTimer = null;
-          }, 500);
-        });
+            hoverTimer = setTimeout(() => {
+              const key = `${row}-${col}`;
+              const skillId =
+                window.gameState && window.gameState.pieceSkills ? window.gameState.pieceSkills[key] : null;
+              if (skillId && window.skillSystem) {
+                const skill = window.skillSystem.getSkill(skillId);
+                showSkillTooltip(row, col, square, skillId, skill);
+              }
+            }, 1000);
+          };
+
+          const onLeave = function onLeave() {
+            if (hoverTimer) clearTimeout(hoverTimer);
+            if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
+            _tooltipHideTimer = setTimeout(() => {
+              removeSkillTooltip();
+              _tooltipHideTimer = null;
+            }, 500);
+          };
+
+          square.addEventListener("mouseenter", onEnter);
+          square.addEventListener("mouseleave", onLeave);
+          // remember we attached listeners so we don't add them again
+          square.dataset.pieceListenersAttached = "1";
+        }
       } else {
-        // CRITICAL FIX: Completely clear empty squares
+        // CRITICAL FIX: Completely clear empty squares and reset any visual state
+        // Remove any tooltip listeners flag so when a piece later appears
+        // listeners can be attached fresh if needed.
+        if (square.dataset.pieceListenersAttached) {
+          delete square.dataset.pieceListenersAttached;
+        }
+
         square.innerHTML = "";
+        square.classList.remove("selected");
+        square.classList.remove("energy-tile");
       }
     });
 
