@@ -616,7 +616,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Check for pawn promotion
         checkPawnPromotion(finalRow, finalCol, movingPiece, isWhiteTurn);
 
-        // Update DOM
+        // Update DOM - CRITICAL: Force complete re-render
         syncBoardStateWithDOM();
         updateAllHealthBars();
 
@@ -649,13 +649,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Sync board state with DOM
+  // Sync board state with DOM - FIXED VERSION
   function syncBoardStateWithDOM() {
     const squares = document.querySelectorAll(".chess-square");
+
     // Remove any lingering tooltip when rebuilding
     removeSkillTooltip();
-    // Cleanup any dead pieces left in gameState (in case health reached <= 0 without using applyDamage)
-    if (window.gameState && window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
+
+    // CRITICAL FIX: Clean up dead pieces BEFORE syncing
+    if (window.gameState && window.gameState.pruneDeadPieces) {
+      window.gameState.pruneDeadPieces();
+    }
 
     squares.forEach((square) => {
       const row = parseInt(square.dataset.row);
@@ -663,10 +667,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const piece = window.gameState.boardState[row][col];
 
       // Preserve or toggle energy tile class
-      if (window.gameState.isEnergyTile(row, col)) square.classList.add("energy-tile");
-      else square.classList.remove("energy-tile");
+      if (window.gameState.isEnergyTile(row, col)) {
+        square.classList.add("energy-tile");
+      } else {
+        square.classList.remove("energy-tile");
+      }
 
-      if (piece) {
+      // CRITICAL FIX: Always clear and rebuild content
+      if (piece && piece !== "") {
         const isWhitePiece = whitePieces.includes(piece);
         square.innerHTML = `
           <div class="piece-stack" data-piece="${piece}">
@@ -706,14 +714,17 @@ document.addEventListener("DOMContentLoaded", function () {
           }, 500);
         });
       } else {
-        // keep square empty but keep classes
+        // CRITICAL FIX: Completely clear empty squares
         square.innerHTML = "";
       }
     });
 
     // Ensure piece-skill mapping matches current board
-    if (window.gameState && window.gameState.assignPieceSkills) window.gameState.assignPieceSkills();
+    if (window.gameState && window.gameState.assignPieceSkills) {
+      window.gameState.assignPieceSkills();
+    }
 
+    // Update all health bars after sync
     updateAllHealthBars();
   }
 

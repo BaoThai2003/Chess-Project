@@ -1,4 +1,4 @@
-// Global Game State
+// Global Game State - FIXED VERSION
 window.gameState = {
   // Board state
   boardState: [],
@@ -54,7 +54,7 @@ window.gameState = {
     this.generateEnergyTiles();
     this.initializePieceHealth();
     this.loadPlayerDeck();
-    this.updateEnergyDisplay(); // New: Update on init
+    this.updateEnergyDisplay();
     this.updateEffectsDisplay();
     // Load selected faction and assign piece skills
     this.selectedFaction = localStorage.getItem("selected_faction") || "azw";
@@ -114,7 +114,7 @@ window.gameState = {
     if (deck.length === 0) return;
 
     const randomIndex = Math.floor(Math.random() * deck.length);
-    const card = deck.splice(randomIndex, 1)[0]; // remove from deck when drawn
+    const card = deck.splice(randomIndex, 1)[0];
     hand.push(card);
 
     if (player === "white") {
@@ -393,8 +393,7 @@ window.gameState = {
     this.updateEffectsDisplay();
   },
 
-  // Apply damage to a piece at (row,col). `source` = 'skill'|'capture' etc.
-  // `attacker` should be 'white' or 'black' when awarding EP on kill.
+  // FIXED: Apply damage to a piece at (row,col)
   applyDamage(row, col, amount, source = "skill", attacker = null) {
     // Cap skill damage at 0.5 and capture damage at 0.75
     if (source === "skill") amount = Math.min(amount, 0.5);
@@ -405,57 +404,91 @@ window.gameState = {
     if (!health) return false;
 
     health.current -= amount;
+
+    // CRITICAL FIX: Check if piece died
     if (health.current <= 0) {
-      // Remove piece from board
       const piece = this.boardState[row][col];
+
+      // IMMEDIATE removal from board state
       this.boardState[row][col] = "";
+
+      // Remove health entry
       delete this.pieceHealth[key];
 
-      // Award 2 EP to attacker if provided (cap applied in addEnergy)
+      // Award 2 EP to attacker if provided
       if (attacker) this.addEnergy(attacker, 2);
 
       // Remove piece-skill mapping
-      if (this.pieceSkills && this.pieceSkills[key]) delete this.pieceSkills[key];
+      if (this.pieceSkills && this.pieceSkills[key]) {
+        delete this.pieceSkills[key];
+      }
 
       // Log death
       this.moveLog.push(`Piece eliminated: ${piece} at ${this.positionToNotation(row, col)}`);
       this.updateMoveLog();
 
-      // Update UI
-      if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
-      if (window.updateAllHealthBars) window.updateAllHealthBars();
-      if (window.battleSystem) window.battleSystem.checkVictory();
+      // Force immediate DOM update
+      if (window.syncBoardStateWithDOM) {
+        window.syncBoardStateWithDOM();
+      }
+      if (window.updateAllHealthBars) {
+        window.updateAllHealthBars();
+      }
+
+      // Check victory condition
+      if (window.battleSystem) {
+        window.battleSystem.checkVictory();
+      }
+
       return true; // died
     }
 
-    // Update health bar visuals
-    if (window.updateAllHealthBars) window.updateAllHealthBars();
+    // Update health bar visuals for surviving pieces
+    if (window.updateAllHealthBars) {
+      window.updateAllHealthBars();
+    }
     return false; // still alive
   },
 
-  // Remove any pieces that have zero or less health but still remain on boardState
+  // FIXED: Remove any pieces that have zero or less health
   pruneDeadPieces() {
     const toRemove = [];
+
+    // Find all dead pieces
     for (let key in this.pieceHealth) {
       const health = this.pieceHealth[key];
-      if (!health) continue;
-      if (health.current <= 0) toRemove.push(key);
+      if (!health || health.current <= 0) {
+        toRemove.push(key);
+      }
     }
 
+    // Remove dead pieces
     toRemove.forEach((key) => {
       const [r, c] = key.split("-").map(Number);
-      const piece = this.boardState[r] ? this.boardState[r][c] : null;
-      if (piece) {
+      const piece = this.boardState[r] && this.boardState[r][c] ? this.boardState[r][c] : null;
+
+      if (piece && piece !== "") {
+        // Clear from board
         this.boardState[r][c] = "";
+
+        // Log elimination
+        this.moveLog.push(`Piece eliminated (cleanup): ${piece} at ${this.positionToNotation(r, c)}`);
       }
+
+      // Remove health entry
       delete this.pieceHealth[key];
-      if (this.pieceSkills && this.pieceSkills[key]) delete this.pieceSkills[key];
-      this.moveLog.push(`Piece eliminated (cleanup): ${piece} at ${this.positionToNotation(r, c)}`);
+
+      // Remove skill mapping
+      if (this.pieceSkills && this.pieceSkills[key]) {
+        delete this.pieceSkills[key];
+      }
     });
 
     if (toRemove.length > 0) {
       this.updateMoveLog();
-      if (window.updateAllHealthBars) window.updateAllHealthBars();
+      if (window.updateAllHealthBars) {
+        window.updateAllHealthBars();
+      }
     }
   },
 
