@@ -566,6 +566,9 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  background-color: #1f1f1f; /* Darker energy box for clearer visibility */
+  color: #fff;
+  padding: 6px 8px;
 }
 
 .energy-text {
@@ -573,6 +576,14 @@ body {
   font-weight: bold;
   color: #1e90ff;
   text-shadow: 0 0 8px rgba(30, 144, 255, 0.6);
+}
+
+/* Recent combat highlighting */
+.piece-stack.recent-combat-white {
+  box-shadow: 0 0 0 4px rgba(255, 235, 59, 0.45), inset 0 0 6px rgba(255, 255, 255, 0.05);
+}
+.piece-stack.recent-combat-black {
+  box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.45), inset 0 0 6px rgba(0, 0, 0, 0.15);
 }
 
 .skill-cards-vertical {

@@ -564,6 +564,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Handle capture using centralized applyDamage (awards EP to attacker)
         const attacker = isWhiteTurn ? "white" : "black";
+
+        // Mark last combat for visuals (attacker/defender keys)
+        if (window.gameState) {
+          // clear previous timer
+          if (window.gameState._lastCombatTimer) {
+            clearTimeout(window.gameState._lastCombatTimer);
+            window.gameState._lastCombatTimer = null;
+          }
+          window.gameState.lastCombat = {
+            attacker: `${fromRow}-${fromCol}`,
+            defender: `${row}-${col}`,
+          };
+          // Clear markers after 3 seconds
+          window.gameState._lastCombatTimer = setTimeout(() => {
+            if (window.gameState) window.gameState.lastCombat = { attacker: null, defender: null };
+            window.gameState._lastCombatTimer = null;
+            if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+          }, 3000);
+        }
         if (captured && window.gameState && window.gameState.applyDamage) {
           // applyDamage returns true if the target died
           const died = window.gameState.applyDamage(row, col, 1, "capture", attacker);
@@ -687,6 +706,23 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         const icon = square.querySelector(".piece-icon");
         icon.style.color = isWhitePiece ? "#fff" : "#000";
+
+        // Apply recent combat marker classes if applicable
+        try {
+          const key = `${row}-${col}`;
+          const lc = window.gameState && window.gameState.lastCombat ? window.gameState.lastCombat : null;
+          const stack = square.querySelector(".piece-stack");
+          if (lc && stack) {
+            if (lc.attacker === key || lc.defender === key) {
+              // mark based on side: white -> yellow, black -> red
+              if (whitePieces.includes(piece)) {
+                stack.classList.add("recent-combat-white");
+              } else {
+                stack.classList.add("recent-combat-black");
+              }
+            }
+          }
+        } catch (e) {}
 
         // Attach hover handlers to show piece skill tooltip after ~1s
         // Avoid attaching duplicate listeners on repeated syncs by marking the square.

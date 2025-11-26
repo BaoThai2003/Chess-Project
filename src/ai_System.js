@@ -103,6 +103,20 @@ window.aiSystem = {
     let defeatPieceSurvived = false;
 
     if (captured && window.gameState.applyDamage) {
+      // mark last combat for visuals
+      if (window.gameState) {
+        if (window.gameState._lastCombatTimer) {
+          clearTimeout(window.gameState._lastCombatTimer);
+          window.gameState._lastCombatTimer = null;
+        }
+        window.gameState.lastCombat = { attacker: `${fr}-${fc}`, defender: `${tr}-${tc}` };
+        window.gameState._lastCombatTimer = setTimeout(() => {
+          if (window.gameState) window.gameState.lastCombat = { attacker: null, defender: null };
+          window.gameState._lastCombatTimer = null;
+          if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+        }, 3000);
+      }
+
       // applyDamage returns true if the target died
       const died = window.gameState.applyDamage(tr, tc, 1, "capture", "black");
       defeatPieceSurvived = !died;
@@ -136,6 +150,8 @@ window.aiSystem = {
 
     window.gameState.logMove([fr, fc], [finalRow, finalCol], pieceChar, captured);
 
+    // Ensure any pieces reduced to 0 are pruned and UI updated
+    if (window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
     window.syncBoardStateWithDOM();
     window.updateAllHealthBars();
 
@@ -261,6 +277,10 @@ window.aiSystem = {
           window.gameState.enemyHand.splice(randomSkill, 1);
           window.gameState.skillLog.push(`AI Turn ${window.gameState.turnNumber}: Used ${skill.name}`);
           window.gameState.updateSkillLog();
+          // Prune dead pieces and update UI after AI skill use
+          if (window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
+          if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+          if (window.updateAllHealthBars) window.updateAllHealthBars();
         }
       }
     }

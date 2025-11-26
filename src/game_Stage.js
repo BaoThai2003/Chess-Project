@@ -39,6 +39,10 @@ window.gameState = {
   // Piece-level skills mapping: key = "row-col" -> skillId
   pieceSkills: {},
 
+  // Last combat markers (keys like "r-c") used to visually mark recent attackers/defenders
+  lastCombat: { attacker: null, defender: null },
+  _lastCombatTimer: null,
+
   // Buffs and debuffs
   activeEffects: [],
 
@@ -178,6 +182,11 @@ window.gameState = {
       // Update UI
       this.updateSkillCardsUI();
       this.updateEnergyDisplay();
+
+      // Ensure any pieces reduced to 0 by skill effects are pruned and UI updated
+      if (this.pruneDeadPieces) this.pruneDeadPieces();
+      if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+      if (window.updateAllHealthBars) window.updateAllHealthBars();
     }
   },
 
@@ -391,6 +400,9 @@ window.gameState = {
     }
 
     this.updateEffectsDisplay();
+
+    // Remove any pieces that died from turn effects or regen
+    if (this.pruneDeadPieces) this.pruneDeadPieces();
   },
 
   // FIXED: Apply damage to a piece at (row,col)
@@ -532,6 +544,10 @@ window.gameState = {
       this.updateEnergyDisplay();
       this.skillLog.push(`${player} used ${skill.name} at ${this.positionToNotation(row, col)}`);
       this.updateSkillLog();
+      // Prune dead pieces and update UI after piece skill
+      if (this.pruneDeadPieces) this.pruneDeadPieces();
+      if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+      if (window.updateAllHealthBars) window.updateAllHealthBars();
       return true;
     }
     return false;
