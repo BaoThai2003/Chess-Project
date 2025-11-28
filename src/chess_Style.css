@@ -7,7 +7,7 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); /* Fallback for non-battle screens */
   color: #fff;
   overflow-x: hidden;
 }
@@ -23,12 +23,104 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(15, 12, 41, 0.95), rgba(48, 43, 99, 0.95));
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   overflow-y: auto;
+  background: transparent; /* Changed: No default background to allow images */
+}
+
+/* Battle screen specifics: Allow background-image to shine through */
+#battle-screen.fullscreen-overlay {
+  background: none !important; /* Ensure no fallback */
+}
+
+#battle-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15); /* Reduced opacity for subtle dimming */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure battle content stacks above the pseudo overlay */
+#battle-screen .battle-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Strong overrides to ensure background-image displays and is responsive */
+#battle-screen {
+  /* allow inline style but ensure sensible defaults and override other rules */
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-attachment: fixed !important;
+  background-color: transparent !important;
+}
+
+/* Make inner panels semi-transparent to reveal the map */
+.battle-container,
+.battle-left-panel,
+.battle-right-panel {
+  background: rgba(0, 0, 0, 0.4) !important; /* Semi-transparent black for frosted effect */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(212, 175, 55, 0.5); /* Softer border */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+}
+
+/* Logs, skills, effects: Fully transparent backgrounds */
+.log-box,
+.effects-box,
+.skill-cards-vertical,
+.panel-section {
+  background: transparent !important; /* No background to see map */
+  border: none;
+  color: #fff; /* Ensure text visibility */
+}
+
+/* Chessboard: Keep opaque squares for gameplay clarity */
+.chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 400px;
+  height: 400px;
+  border: 2px solid #d4af37;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  background: transparent; /* Board container transparent, squares handle colors */
+}
+
+.chess-square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  position: relative;
+  /* Square colors remain for board visibility */
+}
+
+/* Other elements: Ensure no solid backgrounds */
+.move-log,
+.skill-log,
+.buffs-debuffs {
+  background: transparent !important;
+}
+
+/* Responsive tweaks: ensure battle container fits small screens without covering map */
+@media (max-width: 900px) {
+  .battle-container {
+    width: 96%;
+    height: auto;
+    max-height: 92vh;
+    padding: 12px;
+  }
+  .battle-left-panel,
+  .battle-right-panel {
+    width: 200px;
+  }
 }
 
 /* === STORY INTRO === */
@@ -334,7 +426,8 @@ body {
   width: 95%;
   max-width: 1600px;
   height: 90vh;
-  background: rgba(0, 0, 0, 0.8);
+  /* Make container semi-transparent so background map is visible */
+  background: rgba(0, 0, 0, 0.32);
   border: 2px solid #d4af37;
   border-radius: 20px;
   padding: 20px;
@@ -391,7 +484,8 @@ body {
 .battle-left-panel,
 .battle-right-panel {
   width: 250px;
-  background: rgba(0, 0, 0, 0.5);
+  /* reduce opacity to allow background to be visible */
+  background: rgba(0, 0, 0, 0.28);
   border: 2px solid #d4af37;
   border-radius: 10px;
   padding: 15px;

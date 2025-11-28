@@ -30,19 +30,15 @@ window.aiSystem = {
 
     if (pieces.length === 0) return;
 
-    // Gather all valid moves
+    // Gather all valid moves and compute a simulated 1-ply evaluation for stronger play
     const allMoves = [];
     pieces.forEach(({ row, col, piece }) => {
       const moves = this.getValidMovesForPiece(row, col, piece);
       moves.forEach(([toRow, toCol]) => {
-        allMoves.push({
-          fromRow: row,
-          fromCol: col,
-          toRow,
-          toCol,
-          piece,
-          score: this.evaluateMove(row, col, toRow, toCol, piece),
-        });
+        const baseScore = this.evaluateMove(row, col, toRow, toCol, piece);
+        // Simulate the move on a cloned board/pieceHealth to get a better estimate
+        const simScore = this.simulateAndEvaluate(row, col, toRow, toCol, piece, baseScore);
+        allMoves.push({ fromRow: row, fromCol: col, toRow, toCol, piece, score: simScore });
       });
     });
 
@@ -226,6 +222,123 @@ window.aiSystem = {
     }
 
     return score;
+  },
+
+  // Simulate the move on cloned state and evaluate resulting board position (1-ply lookahead)
+  simulateAndEvaluate(fromRow, fromCol, toRow, toCol, piece, baseScore) {
+    // shallow clones for board and health
+    const boardClone = window.gameState.boardState.map((r) => [...r]);
+    const phClone = JSON.parse(JSON.stringify(window.gameState.pieceHealth || {}));
+
+    // Apply move on clones
+    const targetKey = `${toRow}-${toCol}`;
+    const srcKey = `${fromRow}-${fromCol}`;
+    const targetPiece = boardClone[toRow][toCol];
+
+    // Simulate capture damage: reduce health by 1
+    if (targetPiece && phClone[targetKey]) {
+      phClone[targetKey].current = Math.max(0, phClone[targetKey].current - 1);
+      if (phClone[targetKey].current <= 0) {
+        boardClone[toRow][toCol] = "";
+        delete phClone[targetKey];
+      }
+    }
+
+    // Move piece
+    boardClone[toRow][toCol] = piece;
+    boardClone[fromRow][fromCol] = "";
+
+    if (phClone[srcKey]) {
+      phClone[`${toRow}-${toCol}`] = phClone[srcKey];
+      delete phClone[srcKey];
+    }
+
+    // Evaluate resulting board: material + health + mobility + center control
+    const values = {
+      "♔": 1000,
+      "♕": 9,
+      "♖": 5,
+      "♗": 3,
+      "♘": 3,
+      "♙": 1,
+      "♚": 1000,
+      "♛": 9,
+      "♜": 5,
+      "♝": 3,
+      "♞": 3,
+      "♟": 1,
+    };
+    let score = 0;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = boardClone[r][c];
+        if (!p) continue;
+        const k = `${r}-${c}`;
+        const health = phClone[k] ? phClone[k].current : 1;
+        const val = values[p] || 1;
+        if (["♚", "♛", "♜", "♝", "♞", "♟"].includes(p)) {
+          score += val * health;
+        } else {
+          score -= val * health;
+        }
+      }
+    }
+
+    // Mobility: count black piece moves
+    let mobility = 0;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = boardClone[r][c];
+        if (p && ["♚", "♛", "♜", "♝", "♞", "♟"].includes(p)) {
+          // temporarily set global state for move calc
+          const oldBoard = window.gameState.boardState;
+          const oldPH = window.gameState.pieceHealth;
+          window.gameState.boardState = boardClone;
+          window.gameState.pieceHealth = phClone;
+          try {
+            const moves = this.getValidMovesForPiece(r, c, p);
+            mobility += moves.length;
+          } catch (e) {
+            mobility += 0;
+          }
+          window.gameState.boardState = oldBoard;
+          window.gameState.pieceHealth = oldPH;
+        }
+      }
+    }
+
+    score += mobility * 0.1;
+
+    // Safety: penalize moves that allow immediate recapture by white
+    // We'll check if any white piece has a capture move to (toRow,toCol)
+    const oldBoard = window.gameState.boardState;
+    const oldPH = window.gameState.pieceHealth;
+    window.gameState.boardState = boardClone;
+    window.gameState.pieceHealth = phClone;
+    let danger = 0;
+    try {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = window.gameState.boardState[r][c];
+          if (p && ["♔", "♕", "♖", "♗", "♘", "♙"].includes(p)) {
+            const moves =
+              window.getValidQueenMoves && p === "♕"
+                ? window.getValidQueenMoves(r, c, p)
+                : this.getValidMovesForPiece(r, c, p);
+            if (moves && moves.some(([mr, mc]) => mr === toRow && mc === toCol)) danger += 1;
+          }
+        }
+      }
+    } catch (e) {
+      danger = 0;
+    }
+    window.gameState.boardState = oldBoard;
+    window.gameState.pieceHealth = oldPH;
+
+    score -= danger * 2.5; // penalize danger
+
+    // Normalize and combine with baseScore
+    return baseScore + score * 0.05;
   },
 
   // Check if move is safe (doesn't put king in check)

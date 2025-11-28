@@ -33,6 +33,60 @@ window.battleSystem = {
     const battleScreen = document.getElementById("battle-screen");
     battleScreen.classList.remove("hidden");
 
+    // Set background map depending on opponent.
+    // We'll attempt several filename variants (with apostrophe, without, and URL-encoded) and
+    // preload images so we only apply a background that actually loads in the browser.
+    (function setBattleBackground() {
+      // Try several folder variants so the background works both when served from a webserver
+      // (root-relative /assets/...) and when opening src/index.html directly via file://
+      const mapFolders = ["/assets/img/map/", "../assets/img/map/", "assets/img/map/", "./assets/img/map/"];
+      let candidates = [];
+
+      if (this.currentOpponent === "desert-merchant") {
+        candidates = ["Akh'Zahara_secret_map.png", "AkhZahara_secret_map.png", "Akh%27Zahara_secret_map.png"];
+      } else if (this.currentOpponent && this.currentOpponent.includes("trade")) {
+        candidates = ["Akh'Zahara_village.png", "AkhZahara_village.png", "Akh%27Zahara_village.png"];
+      } else {
+        candidates = ["Akh'Zahara_map.png", "AkhZahara_map.png", "Akh%27Zahara_map.png"];
+      }
+
+      let applied = false;
+
+      const tryFolderAndFile = (fIdx, cIdx) => {
+        if (applied) return;
+        if (fIdx >= mapFolders.length) {
+          console.warn("No battle map images found. Tried folders:", mapFolders, "and candidates:", candidates);
+          battleScreen.style.backgroundImage = "none";
+          return;
+        }
+        if (cIdx >= candidates.length) {
+          // move to next folder
+          tryFolderAndFile(fIdx + 1, 0);
+          return;
+        }
+
+        const url = mapFolders[fIdx] + candidates[cIdx];
+        const img = new Image();
+        img.onload = () => {
+          if (applied) return;
+          applied = true;
+          console.log("Loaded battle background:", url);
+          battleScreen.style.backgroundImage = `url('${url}')`;
+          battleScreen.style.backgroundSize = "cover";
+          battleScreen.style.backgroundPosition = "center center";
+          battleScreen.style.backgroundRepeat = "no-repeat";
+          battleScreen.style.backgroundAttachment = "fixed";
+          battleScreen.classList.add("battle-bg-loaded");
+        };
+        img.onerror = () => {
+          tryFolderAndFile(fIdx, cIdx + 1);
+        };
+        img.src = url;
+      };
+
+      tryFolderAndFile(0, 0);
+    }).call(this);
+
     // Set enemy name
     document.getElementById("battle-opponent").textContent = `vs ${enemyData.name}`;
 
