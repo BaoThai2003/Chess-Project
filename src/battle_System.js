@@ -69,56 +69,25 @@ window.battleSystem = {
 
   // CRITICAL FIX: Properly set background images
   setBackgroundImage() {
+    // Background images are applied via CSS classes. This avoids manipulating URL paths in JS
+    // and lets the stylesheet control which image is used for each gameplay section.
     const battleScreen = document.getElementById("battle-screen");
-    let imageName;
-
+    battleScreen.classList.remove("map-main", "map-desert", "map-village");
     if (this.currentOpponent === "desert-merchant") {
-      imageName = "Akh'Zahara_secret_map.png";
+      battleScreen.classList.add("map-desert");
     } else if (this.currentOpponent && this.currentOpponent.includes("trade")) {
-      imageName = "Akh'Zahara_village.png";
+      battleScreen.classList.add("map-village");
     } else {
-      imageName = "Akh'Zahara_map.png";
+      battleScreen.classList.add("map-main");
     }
-
-    // Try multiple path variations
-    const paths = [
-      `/assets/img/map/${imageName}`,
-      `../assets/img/map/${imageName}`,
-      `assets/img/map/${imageName}`,
-      `./assets/img/map/${imageName}`,
-    ];
-
-    let loaded = false;
-    const tryLoad = (index) => {
-      if (loaded || index >= paths.length) {
-        if (!loaded) {
-          console.warn("Could not load battle background");
-          battleScreen.style.backgroundImage = "none";
-        }
-        return;
-      }
-
-      const img = new Image();
-      img.onload = () => {
-        if (!loaded) {
-          loaded = true;
-          battleScreen.style.backgroundImage = `url('${paths[index]}')`;
-          battleScreen.style.backgroundSize = "cover";
-          battleScreen.style.backgroundPosition = "center center";
-          battleScreen.style.backgroundRepeat = "no-repeat";
-          battleScreen.style.backgroundAttachment = "fixed";
-          console.log("Loaded background:", paths[index]);
-        }
-      };
-      img.onerror = () => tryLoad(index + 1);
-      img.src = paths[index];
-    };
-
-    tryLoad(0);
   },
 
   endBattle(victory) {
     this.battleActive = false;
+    // Clear persistent attack markers when battle ends
+    try {
+      if (window.gameState && window.gameState.clearAttackedMarkers) window.gameState.clearAttackedMarkers();
+    } catch (e) {}
     document.getElementById("battle-screen").classList.add("hidden");
 
     if (victory) {

@@ -142,6 +142,13 @@ window.aiSystem = {
       delete window.gameState.pieceHealth[oldKey];
     }
 
+    // If this was a capture, mark the AI piece as having attacked (for persistent highlight)
+    try {
+      if (captured && window.gameState && window.gameState.markAttacked) {
+        window.gameState.markAttacked("black", `${finalRow}-${finalCol}`);
+      }
+    } catch (e) {}
+
     if (window.gameState.isEnergyTile(finalRow, finalCol)) window.gameState.addEnergy("black", 1);
 
     window.gameState.logMove([fr, fc], [finalRow, finalCol], pieceChar, captured);
@@ -377,24 +384,47 @@ window.aiSystem = {
 
   // AI uses skill (simple logic)
   useSkill() {
-    if (window.gameState.energy.black < 2) return;
+    if (window.gameState.energy.black < 1) return;
 
-    // AI uses skills randomly when it has energy
-    if (Math.random() < 0.3 && window.gameState.enemyHand.length > 0) {
-      const randomSkill = Math.floor(Math.random() * window.gameState.enemyHand.length);
-      const skillId = window.gameState.enemyHand[randomSkill];
+    const hand = window.gameState.enemyHand || [];
+    if (!hand || hand.length === 0) return;
+
+    // Determine probability of attempting to use a skill based on difficulty
+    let useProb = 0.3; // default
+    if (this.difficulty === "easy") useProb = 0.1;
+    else if (this.difficulty === "medium") useProb = 0.4;
+    else if (this.difficulty === "hard") useProb = 0.9;
+
+    // Boss-like opponents should be more likely to use skills
+    try {
+      const current = window.battleSystem && window.battleSystem.currentOpponent;
+      if (current && ["edras", "wior", "desert-merchant"].includes(current)) {
+        useProb = Math.max(useProb, 0.9);
+      }
+    } catch (e) {}
+
+    if (Math.random() >= useProb) return;
+
+    // Try skills deterministically: prefer ones the AI can afford, iterate to find a usable skill
+    for (let i = 0; i < hand.length; i++) {
+      const skillId = hand[i];
       const skill = window.skillSystem.getSkill(skillId);
-      if (skill && window.gameState.energy.black >= skill.cost) {
-        if (window.skillSystem.executeSkill(skillId, "black")) {
-          window.gameState.energy.black -= skill.cost;
-          window.gameState.enemyHand.splice(randomSkill, 1);
-          window.gameState.skillLog.push(`AI Turn ${window.gameState.turnNumber}: Used ${skill.name}`);
-          window.gameState.updateSkillLog();
-          // Prune dead pieces and update UI after AI skill use
-          if (window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
-          if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
-          if (window.updateAllHealthBars) window.updateAllHealthBars();
-        }
+      if (!skill) continue;
+      if (window.gameState.energy.black < skill.cost) continue;
+
+      // Attempt to execute skill. If it succeeds, consume cost and remove from hand
+      const ok = window.skillSystem.executeSkill(skillId, "black");
+      if (ok) {
+        window.gameState.energy.black = Math.max(0, window.gameState.energy.black - skill.cost);
+        window.gameState.enemyHand.splice(i, 1);
+        window.gameState.skillLog.push(`AI Turn ${window.gameState.turnNumber}: Used ${skill.name}`);
+        window.gameState.updateSkillLog();
+
+        // Prune dead pieces and update UI after AI skill use
+        if (window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
+        if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+        if (window.updateAllHealthBars) window.updateAllHealthBars();
+        break;
       }
     }
   },

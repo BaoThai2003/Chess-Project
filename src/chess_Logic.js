@@ -54,11 +54,11 @@ document.addEventListener("DOMContentLoaded", function () {
     window.gameState.blackKingPos = [0, 4];
     window.gameState.init();
 
-    // Default colors
-    let whiteSquareColor = "#f0d9b5";
-    let blackSquareColor = "#b58863";
+    // Default colors (lighter board for better visual over map)
+    let whiteSquareColor = "#fbf5ea"; /* very light beige */
+    let blackSquareColor = "#d6b889"; /* warm tan */
     let whitePieceColor = "#ffffff";
-    let blackPieceColor = "#000000";
+    let blackPieceColor = "#1a1a1a";
 
     // Create board squares
     for (let row = 0; row < 8; row++) {
@@ -618,6 +618,14 @@ document.addEventListener("DOMContentLoaded", function () {
             delete window.gameState.pieceHealth[oldKey];
           }
 
+          // If this was an attack (capture) mark the attacker as having attacked
+          try {
+            if (captured && window.gameState && window.gameState.markAttacked) {
+              const attackerColor = isWhiteTurn ? "white" : "black";
+              window.gameState.markAttacked(attackerColor, `${finalRow}-${finalCol}`);
+            }
+          } catch (e) {}
+
           // Energy tile (only if actually moved to that square)
           if (window.gameState.isEnergyTile(finalRow, finalCol)) {
             window.gameState.addEnergy(isWhiteTurn ? "white" : "black", 1);
@@ -638,6 +646,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // Update DOM - CRITICAL: Force complete re-render
         syncBoardStateWithDOM();
         updateAllHealthBars();
+
+        // Ensure any pieces reduced to 0 are cleaned up before switching player
+        if (window.gameState && window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
 
         // Switch player and process effects
         switchPlayer();
@@ -721,6 +732,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 stack.classList.add("recent-combat-black");
               }
             }
+          }
+        } catch (e) {}
+
+        // Persistent attacked highlight: if this piece has attacked during the match,
+        // show a colored outline until end of match.
+        try {
+          const key2 = `${row}-${col}`;
+          const attacked = window.gameState && window.gameState.attackedPieces ? window.gameState.attackedPieces : null;
+          const stack2 = square.querySelector(".piece-stack");
+          if (attacked && stack2) {
+            if (attacked.white && attacked.white[key2]) stack2.classList.add("attacked-white");
+            if (attacked.black && attacked.black[key2]) stack2.classList.add("attacked-black");
           }
         } catch (e) {}
 

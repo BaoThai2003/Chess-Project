@@ -243,12 +243,41 @@ window.skillSystem = {
     const skill = this.skills[skillId];
     if (!skill) return false;
 
-    // Pass context if skill implementation accepts it
+    // Execute and annotate any added activeEffects with owner (player)
     try {
-      return skill.execute(player, context);
+      const beforeCount =
+        window.gameState && window.gameState.activeEffects ? window.gameState.activeEffects.length : 0;
+      const result = skill.execute(player, context);
+      const afterCount = window.gameState && window.gameState.activeEffects ? window.gameState.activeEffects.length : 0;
+
+      if (window.gameState && window.gameState.activeEffects && afterCount > beforeCount) {
+        for (let i = beforeCount; i < afterCount; i++) {
+          try {
+            window.gameState.activeEffects[i].owner = player;
+          } catch (e) {}
+        }
+      }
+
+      return result;
     } catch (e) {
       // Fallback: call with only player
-      return skill.execute(player);
+      try {
+        const beforeCount =
+          window.gameState && window.gameState.activeEffects ? window.gameState.activeEffects.length : 0;
+        const result = skill.execute(player);
+        const afterCount =
+          window.gameState && window.gameState.activeEffects ? window.gameState.activeEffects.length : 0;
+        if (window.gameState && window.gameState.activeEffects && afterCount > beforeCount) {
+          for (let i = beforeCount; i < afterCount; i++) {
+            try {
+              window.gameState.activeEffects[i].owner = player;
+            } catch (e) {}
+          }
+        }
+        return result;
+      } catch (err) {
+        return false;
+      }
     }
   },
 

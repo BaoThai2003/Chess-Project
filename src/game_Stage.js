@@ -29,6 +29,8 @@ window.gameState = {
   pieceSkills: {},
   lastCombat: { attacker: null, defender: null },
   _lastCombatTimer: null,
+  // Track pieces that have attacked during the match. Keys are position strings 'r-c'.
+  attackedPieces: { white: {}, black: {} },
   activeEffects: [],
   moveLog: [],
   skillLog: [],
@@ -284,9 +286,21 @@ window.gameState = {
     container.innerHTML = "";
     this.activeEffects.forEach((effect) => {
       const div = document.createElement("div");
-      div.className = `effect-item ${effect.type}`;
+      // Default owner to white when missing
+      const owner = effect.owner || "white";
+      let classes = `effect-item ${effect.type}`;
+      if (owner === "black") {
+        // enemy: use special coloring class
+        if (effect.type === "buff") classes += " enemy-buff";
+        else if (effect.type === "debuff") classes += " enemy-debuff";
+        else classes += " enemy-buff";
+      } else {
+        // player effects keep default styling
+      }
+
+      div.className = classes;
       div.innerHTML = `
-        <strong>${effect.name}</strong>
+        <strong>${owner === "black" ? "Enemy: " : ""}${effect.name}</strong>
         <div>Duration: ${effect.duration} turns</div>
       `;
       container.appendChild(div);
@@ -318,6 +332,27 @@ window.gameState = {
 
     this.updateEffectsDisplay();
     this.pruneDeadPieces();
+  },
+
+  // Mark a piece (by its current position key) as having attacked. The marker persists until
+  // the piece is removed or the battle ends.
+  markAttacked(color, key) {
+    if (!color || !key) return;
+    if (!this.attackedPieces) this.attackedPieces = { white: {}, black: {} };
+    if (color === "white") this.attackedPieces.white[key] = true;
+    else this.attackedPieces.black[key] = true;
+  },
+
+  // Remove attacked marker for a removed piece
+  unmarkAttacked(key) {
+    if (!key) return;
+    if (this.attackedPieces.white && this.attackedPieces.white[key]) delete this.attackedPieces.white[key];
+    if (this.attackedPieces.black && this.attackedPieces.black[key]) delete this.attackedPieces.black[key];
+  },
+
+  // Clear all attacked markers (call at end of battle)
+  clearAttackedMarkers() {
+    this.attackedPieces = { white: {}, black: {} };
   },
 
   // CRITICAL FIX: Apply damage with immediate dead piece removal
@@ -389,6 +424,11 @@ window.gameState = {
       }
 
       delete this.pieceHealth[key];
+
+      // Remove any attacked markers for the removed piece
+      try {
+        this.unmarkAttacked(key);
+      } catch (e) {}
 
       if (this.pieceSkills && this.pieceSkills[key]) {
         delete this.pieceSkills[key];
