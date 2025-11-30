@@ -318,6 +318,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // === PIECE MOVEMENT LOGIC ===
+  // Helper: robust checks for whether a piece at a square is alive and whether it's an enemy
+  function isPieceAlive(r, c) {
+    if (!window.gameState || !window.gameState.pieceHealth) return false;
+    const h = window.gameState.pieceHealth[`${r}-${c}`];
+    return !!(h && h.current > 0);
+  }
+
+  function isEnemyAt(r, c, isWhite) {
+    if (!window.gameState || !window.gameState.boardState) return false;
+    const piece = window.gameState.boardState[r] ? window.gameState.boardState[r][c] : null;
+    if (!piece) return false;
+    if (!isPieceAlive(r, c)) return false;
+    return isWhite ? blackPieces.includes(piece) : whitePieces.includes(piece);
+  }
+
   function getValidQueenMoves(row, col, piece) {
     const moves = [];
     const isWhite = whitePieces.includes(piece);
@@ -337,10 +352,16 @@ document.addEventListener("DOMContentLoaded", function () {
         c = col + dc;
       while (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const target = window.gameState.boardState[r][c];
+        // If there's a piece but it's missing health or dead, treat it as empty (skip)
+        if (target && !isPieceAlive(r, c)) {
+          r += dr;
+          c += dc;
+          continue;
+        }
         if (!target) {
           moves.push([r, c]);
         } else {
-          if (isWhite ? blackPieces.includes(target) : whitePieces.includes(target)) {
+          if (isEnemyAt(r, c, isWhite)) {
             moves.push([r, c]);
           }
           break;
@@ -394,10 +415,15 @@ document.addEventListener("DOMContentLoaded", function () {
         c = col + dc;
       while (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const target = window.gameState.boardState[r][c];
+        if (target && !isPieceAlive(r, c)) {
+          r += dr;
+          c += dc;
+          continue;
+        }
         if (!target) {
           moves.push([r, c]);
         } else {
-          if (isWhite ? blackPieces.includes(target) : whitePieces.includes(target)) {
+          if (isEnemyAt(r, c, isWhite)) {
             moves.push([r, c]);
           }
           break;
@@ -424,10 +450,15 @@ document.addEventListener("DOMContentLoaded", function () {
         c = col + dc;
       while (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const target = window.gameState.boardState[r][c];
+        if (target && !isPieceAlive(r, c)) {
+          r += dr;
+          c += dc;
+          continue;
+        }
         if (!target) {
           moves.push([r, c]);
         } else {
-          if (isWhite ? blackPieces.includes(target) : whitePieces.includes(target)) {
+          if (isEnemyAt(r, c, isWhite)) {
             moves.push([r, c]);
           }
           break;
@@ -458,7 +489,12 @@ document.addEventListener("DOMContentLoaded", function () {
         c = col + dc;
       if (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const target = window.gameState.boardState[r][c];
-        if (!target || (isWhite ? blackPieces.includes(target) : whitePieces.includes(target))) {
+        if (!target) {
+          moves.push([r, c]);
+        } else if (!isPieceAlive(r, c)) {
+          // dead/orphaned piece: treat as empty square (allow landing)
+          moves.push([r, c]);
+        } else if (isEnemyAt(r, c, isWhite)) {
           moves.push([r, c]);
         }
       }
@@ -474,12 +510,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Forward move
     const forwardRow = row + direction;
-    if (forwardRow >= 0 && forwardRow < 8 && !window.gameState.boardState[forwardRow][col]) {
-      moves.push([forwardRow, col]);
-      // Double move from start
-      const doubleRow = row + 2 * direction;
-      if (row === startRow && doubleRow >= 0 && doubleRow < 8 && !window.gameState.boardState[doubleRow][col]) {
-        moves.push([doubleRow, col]);
+    // Forward square allowed if empty or contains a dead/orphaned piece
+    if (forwardRow >= 0 && forwardRow < 8) {
+      const forwardPiece = window.gameState.boardState[forwardRow][col];
+      if (!forwardPiece || !isPieceAlive(forwardRow, col)) {
+        moves.push([forwardRow, col]);
+        // Double move from start
+        const doubleRow = row + 2 * direction;
+        if (row === startRow && doubleRow >= 0 && doubleRow < 8) {
+          const doublePiece = window.gameState.boardState[doubleRow][col];
+          if (!doublePiece || !isPieceAlive(doubleRow, col)) {
+            moves.push([doubleRow, col]);
+          }
+        }
       }
     }
 
@@ -487,8 +530,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const captureCols = [col - 1, col + 1];
     captureCols.forEach((captureCol) => {
       if (captureCol >= 0 && captureCol < 8) {
-        const target = window.gameState.boardState[row + direction][captureCol];
-        if (target && (isWhite ? blackPieces.includes(target) : whitePieces.includes(target))) {
+        if (isEnemyAt(row + direction, captureCol, isWhite)) {
           moves.push([row + direction, captureCol]);
         }
       }
@@ -524,6 +566,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // Handle square click
   let selectedPiece = null;
   function handleSquareClick(square) {
+    // CRITICAL: Clean up dead pieces at the start to prevent blocked moves
+    if (window.gameState && window.gameState.pruneDeadPieces) {
+      window.gameState.pruneDeadPieces();
+    }
+
     const row = parseInt(square.dataset.row);
     const col = parseInt(square.dataset.col);
     const icon = square.querySelector(".piece-icon");
@@ -695,6 +742,25 @@ document.addEventListener("DOMContentLoaded", function () {
       const row = parseInt(square.dataset.row);
       const col = parseInt(square.dataset.col);
       const piece = window.gameState.boardState[row][col];
+
+      // If board has a piece but there is no health entry or health is zero,
+      // treat it as dead/orphaned and clear it so it doesn't block movement.
+      const key = `${row}-${col}`;
+      const healthData = window.gameState.pieceHealth ? window.gameState.pieceHealth[key] : null;
+      if (piece && (!healthData || healthData.current <= 0)) {
+        // cleanup state and continue (render as empty)
+        try {
+          window.gameState.boardState[row][col] = "";
+          if (window.gameState.pieceHealth && window.gameState.pieceHealth[key])
+            delete window.gameState.pieceHealth[key];
+        } catch (e) {}
+        square.innerHTML = "";
+        square.classList.remove("energy-tile");
+        square.classList.remove("selected");
+        // ensure no listeners flag remains so listeners can be reattached later
+        if (square.dataset.pieceListenersAttached) delete square.dataset.pieceListenersAttached;
+        return;
+      }
 
       // Preserve or toggle energy tile class
       if (window.gameState.isEnergyTile(row, col)) {

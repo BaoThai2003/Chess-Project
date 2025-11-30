@@ -7,6 +7,7 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 8px;
   background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
   color: #fff;
   overflow-x: hidden;
@@ -49,14 +50,16 @@ body {
   z-index: 0;
 }
 #battle-screen {
-  position: relative; /* ensure pseudo-element is positioned relative to this container */
-}
-
-#battle-screen {
+  /* Ensure battle screen covers the full viewport so its background can cover everything */
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  z-index: 1000;
   background-repeat: no-repeat !important;
   background-size: cover !important;
   background-position: center center !important;
-  /* Remove background-attachment: fixed to avoid parallax/seam issues across browsers */
 }
 
 /* Map variants (controlled via classes on #battle-screen). Paths are relative to this CSS file (src/). */
