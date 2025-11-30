@@ -137,9 +137,18 @@ window.aiSystem = {
 
     const oldKey = `${fr}-${fc}`;
     const newKey = `${finalRow}-${finalCol}`;
+    // Move or create health entry for the moving piece so it doesn't become an orphan.
+    if (!window.gameState.pieceHealth) window.gameState.pieceHealth = {};
     if (window.gameState.pieceHealth[oldKey]) {
       window.gameState.pieceHealth[newKey] = window.gameState.pieceHealth[oldKey];
       delete window.gameState.pieceHealth[oldKey];
+    } else {
+      // Ensure the piece has a default health entry if missing (prevents immediate cleanup)
+      window.gameState.pieceHealth[newKey] = { current: 1.0, max: 1.0 };
+      if (window.gameState.pieceSkills && window.gameState.pieceSkills[oldKey]) {
+        window.gameState.pieceSkills[newKey] = window.gameState.pieceSkills[oldKey];
+        delete window.gameState.pieceSkills[oldKey];
+      }
     }
 
     // If this was a capture, mark the AI piece as having attacked (for persistent highlight)

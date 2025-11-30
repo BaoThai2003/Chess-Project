@@ -204,29 +204,34 @@ window.skillSystem = {
       id: "king_concentric",
       name: "Đồng tâm",
       cost: 2,
-      description: "Khi số quân AZW còn lại ≤ 6 → Vua tự hồi 0.25 máu mỗi lượt.",
+      description:
+        "When the number of AZW pieces remaining ≤ 6 → The King automatically increases 0.05 damage each turn (maximum +1). The current accumulated bonus is shown on the buffs/debuffs board.",
       execute: function (player) {
+        // This skill registers a stacking king damage bonus effect for the owner's king.
         const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
         let count = 0;
         for (let key in window.gameState.pieceHealth) {
           const [row, col] = key.split("-").map(Number);
-          const piece = window.gameState.boardState[row][col];
-          if (whitePieces.includes(piece)) count++;
+          const piece = window.gameState.boardState[row] ? window.gameState.boardState[row][col] : null;
+          if (piece && whitePieces.includes(piece)) count++;
         }
 
         if (count <= 6) {
+          // Push effect; executeSkill wrapper will annotate owner
           window.gameState.activeEffects.push({
             name: "Concentric",
             type: "buff",
             duration: 999,
-            effect: "king_regen",
-            value: 0.25,
+            effect: "king_damage_increase",
+            value: 0.05,
+            accumulated: 0,
+            max: 1,
           });
           window.gameState.updateEffectsDisplay();
-          alert("Đồng tâm hiệp lực! Ngai vàng mãi vững giữa bão cát khô căn!");
+          alert("Concentric activated: King's damage will increase each turn.");
           return true;
         } else {
-          alert("Need ≤6 pieces to activate Concentric");
+          alert("Need ≤6 AZW pieces to activate Concentric");
           return false;
         }
       },
@@ -321,64 +326,159 @@ document.addEventListener("DOMContentLoaded", () => {
   const deckBuilder = document.getElementById("deck-builder");
   if (!deckBuilder) return;
 
-  // Insert faction selector control (allows choosing piece skill set)
-  const factionDiv = document.createElement("div");
-  factionDiv.id = "faction-selector";
-  factionDiv.style.marginBottom = "8px";
-  factionDiv.innerHTML = `
-    <label style="font-size:14px;color:#fff">Faction: 
-      <select id="faction-select">
-        <option value="azw">AZW (Akh'Zahara Workers)</option>
-      </select>
-    </label>
+  // Build a two-column layout: header + left 70% (piece skills top, skill cards bottom), right 30% (available skills)
+  deckBuilder.innerHTML = `
+    <div class="deck-header">
+      <div class="deck-title"><h2>Deck Builder</h2></div>
+      <div class="deck-controls">
+        <button id="return-main-btn" class="btn-secondary">Return</button>
+        <button id="save-deck-btn" class="btn-primary">Save Deck</button>
+      </div>
+    </div>
+    <div class="deck-builder-grid">
+      <div class="deck-left">
+        <div id="piece-skills-panel" class="piece-skills-panel">
+          <h3 id="piece-skills-toggle" class="toggle">Chess Piece Skills ▸</h3>
+          <div id="piece-skills" class="piece-skills" style="display:none"></div>
+        </div>
+        <div class="skill-cards-panel">
+          <h3>Skill Cards (max 7)</h3>
+          <div id="selected-skills" class="selected-skills"></div>
+        </div>
+      </div>
+      <div class="deck-right">
+        <h3 id="right-panel-title">Available Skills</h3>
+        <div id="available-skills" class="available-skills"></div>
+      </div>
+    </div>
   `;
-  deckBuilder.insertBefore(factionDiv, deckBuilder.firstChild);
-  const factionSelect = document.getElementById("faction-select");
-  const savedFaction = localStorage.getItem("selected_faction") || "azw";
-  factionSelect.value = savedFaction;
-  factionSelect.addEventListener("change", () => {
-    localStorage.setItem("selected_faction", factionSelect.value);
-    if (window.gameState) {
-      window.gameState.selectedFaction = factionSelect.value;
-      if (window.gameState.assignPieceSkills) window.gameState.assignPieceSkills();
-      if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
-    }
-  });
 
-  // Populate available skills
   const availableSkills = document.getElementById("available-skills");
   const selectedSkills = document.getElementById("selected-skills");
+  const pieceSkillsContainer = document.getElementById("piece-skills");
 
-  let currentDeck =
-    JSON.parse(localStorage.getItem("chess_player_deck") || "null") || window.skillSystem.getDefaultDeck();
+  // Load current deck and player piece-skill mapping
+  let currentDeck = JSON.parse(localStorage.getItem("chess_player_deck") || "null") || [];
+  // ensure deck is array
+  if (!Array.isArray(currentDeck)) currentDeck = window.skillSystem.getDefaultDeck();
+  if (currentDeck.length === 0) currentDeck = window.skillSystem.getDefaultDeck();
 
-  function renderSkills() {
-    if (!availableSkills || !selectedSkills) return;
+  let playerPieceSkills = JSON.parse(localStorage.getItem("player_piece_skills") || "null") || {};
 
+  const pieceTypes = [
+    { key: "pawn", symbol: "♙", label: "Pawn" },
+    { key: "knight", symbol: "♘", label: "Knight" },
+    { key: "bishop", symbol: "♗", label: "Bishop" },
+    { key: "rook", symbol: "♖", label: "Rook" },
+    { key: "queen", symbol: "♕", label: "Queen" },
+    { key: "king", symbol: "♔", label: "King" },
+  ];
+
+  // rightMode: 'available' | 'assigned' - toggled when piece skills header clicked
+  let rightMode = "available";
+
+  function renderBuilder() {
     availableSkills.innerHTML = "";
     selectedSkills.innerHTML = "";
+    pieceSkillsContainer.innerHTML = "";
 
     const allSkills = window.skillSystem.getAllSkills();
 
-    // Render available skills
-    allSkills.forEach((skill) => {
-      if (!currentDeck.includes(skill.id)) {
-        const card = createSkillCard(skill, false);
-        availableSkills.appendChild(card);
-      }
+    // Render selected skill cards (deck) - max 7, single copies
+    currentDeck.forEach((skillId, idx) => {
+      const skill = window.skillSystem.getSkill(skillId);
+      if (!skill) return;
+      const card = document.createElement("div");
+      card.className = "deck-skill-card";
+      card.innerHTML = `<div class="skill-name">${skill.name}</div><div class="skill-cost">Cost: ${skill.cost}</div>`;
+      // Remove button
+      const rem = document.createElement("button");
+      rem.textContent = "Remove";
+      rem.onclick = () => {
+        currentDeck.splice(idx, 1);
+        renderBuilder();
+      };
+      card.appendChild(rem);
+      selectedSkills.appendChild(card);
     });
 
-    // Render selected skills
-    currentDeck.forEach((skillId) => {
-      const skill = window.skillSystem.getSkill(skillId);
-      if (skill) {
-        const card = createSkillCard(skill, true);
-        selectedSkills.appendChild(card);
+    // Render piece skills slots (left-top)
+    pieceTypes.forEach((pt) => {
+      const slot = document.createElement("div");
+      slot.className = "piece-skill-slot";
+      const current = playerPieceSkills[pt.key] || null;
+      slot.innerHTML = `<strong>${pt.label} ${pt.symbol}</strong>`;
+      if (current) {
+        const skill = window.skillSystem.getSkill(current);
+        const sdiv = document.createElement("div");
+        sdiv.className = "assigned-skill";
+        sdiv.innerHTML = `<span>${skill ? skill.name : current}</span>`;
+        const x = document.createElement("button");
+        x.textContent = "X";
+        x.className = "assigned-remove-btn";
+        x.setAttribute("data-ptype", pt.key);
+        x.onclick = () => {
+          delete playerPieceSkills[pt.key];
+          localStorage.setItem("player_piece_skills", JSON.stringify(playerPieceSkills));
+          renderBuilder();
+        };
+        sdiv.appendChild(x);
+        slot.appendChild(sdiv);
+      } else {
+        const hint = document.createElement("div");
+        hint.className = "no-skill";
+        hint.textContent = "(no skill attached)";
+        slot.appendChild(hint);
       }
+      pieceSkillsContainer.appendChild(slot);
+    });
+
+    // Render right pane depending on mode
+    const rightTitle = document.getElementById("right-panel-title");
+    rightTitle.textContent = rightMode === "available" ? "Available Skills" : "Assigned Piece Skills";
+
+    // If available, list all skills that are not in deck or assigned as piece-skill
+    if (rightMode === "available") {
+      allSkills.forEach((skill) => {
+        const isAssignedAsPiece = Object.values(playerPieceSkills).includes(skill.id);
+        const inDeck = currentDeck.includes(skill.id);
+        if (!inDeck && !isAssignedAsPiece) {
+          const card = createAvailableSkillCard(skill);
+          availableSkills.appendChild(card);
+        }
+      });
+    } else {
+      // show assigned piece skills on right for quick management
+      Object.keys(playerPieceSkills).forEach((ptype) => {
+        const skillId = playerPieceSkills[ptype];
+        if (!skillId) return;
+        const skill = window.skillSystem.getSkill(skillId);
+        if (!skill) return;
+        const sym = pieceTypes.find((pt) => pt.key === ptype).symbol;
+        const card = document.createElement("div");
+        card.className = "deck-skill-card assigned-card";
+        card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><strong>${sym} - ${ptype}</strong><button class='remove-assigned' data-ptype='${ptype}'>X</button></div><div>${skill.name}</div><div class='skill-desc'>${skill.description}</div>`;
+        availableSkills.appendChild(card);
+      });
+    }
+
+    // Attach a delegated click handler for remove-assigned in right pane
+    availableSkills.querySelectorAll(".remove-assigned").forEach((btn) => {
+      btn.onclick = (e) => {
+        const p = btn.getAttribute("data-ptype");
+        if (p && playerPieceSkills[p]) {
+          delete playerPieceSkills[p];
+          localStorage.setItem("player_piece_skills", JSON.stringify(playerPieceSkills));
+          renderBuilder();
+        }
+      };
     });
   }
 
-  function createSkillCard(skill, isSelected) {
+  // Expose renderBuilder so other modules can trigger a refresh
+  window.renderDeckBuilder = renderBuilder;
+
+  function createAvailableSkillCard(skill) {
     const card = document.createElement("div");
     card.className = "deck-skill-card";
     card.innerHTML = `
@@ -386,23 +486,42 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="skill-cost">Cost: ${skill.cost} EP</div>
       <div class="skill-desc">${skill.description}</div>
     `;
-
     card.onclick = () => {
-      if (isSelected) {
-        // Remove from deck
-        currentDeck = currentDeck.filter((id) => id !== skill.id);
-      } else {
-        // Add to deck (max 5)
-        if (currentDeck.length < 5) {
-          currentDeck.push(skill.id);
-        } else {
-          alert("Deck is full! (Max 5 skills)");
+      // Prompt: equip to piece or add to deck
+      const choice = confirm(
+        "OK = Equip to a piece (single per piece type). Cancel = Add to skill deck (max 7).\n(Use Cancel to add to deck)"
+      );
+      if (choice) {
+        // Equip to piece: ask which piece type
+        const typesStr = pieceTypes.map((p) => p.key).join(", ");
+        const pick = prompt(`Enter piece type to equip (${typesStr}):`);
+        if (!pick) return;
+        const normalized = pick.trim().toLowerCase();
+        const valid = pieceTypes.find((p) => p.key === normalized);
+        if (!valid) {
+          alert("Invalid piece type");
           return;
         }
+        // Ensure only one skill per piece type
+        playerPieceSkills[normalized] = skill.id;
+        localStorage.setItem("player_piece_skills", JSON.stringify(playerPieceSkills));
+        // Assign to gameState.pieceSkills so pieces on board gain the mapping
+        if (window.gameState && window.gameState.assignPieceSkills) window.gameState.assignPieceSkills();
+        renderBuilder();
+      } else {
+        // Add to deck
+        if (currentDeck.includes(skill.id)) {
+          alert("This card is already in your deck (one copy max).");
+          return;
+        }
+        if (currentDeck.length >= 7) {
+          alert("Deck full (max 7 skill cards).");
+          return;
+        }
+        currentDeck.push(skill.id);
+        renderBuilder();
       }
-      renderSkills();
     };
-
     return card;
   }
 
@@ -410,19 +529,72 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveDeckBtn = document.getElementById("save-deck-btn");
   if (saveDeckBtn) {
     saveDeckBtn.addEventListener("click", () => {
-      if (currentDeck.length !== 5) {
-        alert("Deck must have exactly 5 skills!");
-        return;
-      }
+      // Persist both deck and piece skills
       localStorage.setItem("chess_player_deck", JSON.stringify(currentDeck));
-      alert("Deck saved successfully!");
+      localStorage.setItem("player_piece_skills", JSON.stringify(playerPieceSkills));
+      // Apply piece skills to current gameState if present
+      if (window.gameState) {
+        if (!window.gameState.pieceSkills) window.gameState.pieceSkills = {};
+        // Map per-position for current board based on playerPieceSkills
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const p = window.gameState.boardState[r][c];
+            if (!p) continue;
+            const mapping = window.skillSystem.getPieceSkillMapping(window.gameState.selectedFaction || "azw") || {};
+            // If player has customized mapping for white pieces, apply
+            const typeKey = Object.keys(playerPieceSkills).find((k) => {
+              const sym = pieceTypes.find((pt) => pt.key === k).symbol;
+              return sym === p;
+            });
+            // alternative: map by symbol
+            const bySymbol = Object.entries(playerPieceSkills).reduce((acc, [k, v]) => {
+              const sym = pieceTypes.find((pt) => pt.key === k).symbol;
+              acc[sym] = v;
+              return acc;
+            }, {});
+            if (bySymbol[p]) window.gameState.pieceSkills[`${r}-${c}`] = bySymbol[p];
+          }
+        }
+        if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
+      }
+      alert("Deck and piece skills saved.");
     });
   }
 
-  // Initialize deck builder when shown
+  // Return/Main button behavior
+  const returnBtn = document.getElementById("return-main-btn");
+  if (returnBtn) {
+    returnBtn.addEventListener("click", () => {
+      // Hide deck builder and attempt to show main menu if available
+      deckBuilder.classList.add("hidden");
+      if (window.hideAllScreens) window.hideAllScreens();
+      if (window.showMainMenu) window.showMainMenu();
+    });
+  }
+
+  // Toggle piece-skills panel and switch right pane mode
+  const pieceToggle = document.getElementById("piece-skills-toggle");
+  const piecePanel = document.getElementById("piece-skills");
+  if (pieceToggle && piecePanel) {
+    pieceToggle.addEventListener("click", () => {
+      const isHidden = piecePanel.style.display === "none" || !piecePanel.style.display;
+      if (isHidden) {
+        piecePanel.style.display = "block";
+        pieceToggle.textContent = "Chess Piece Skills ▾";
+        rightMode = "assigned";
+      } else {
+        piecePanel.style.display = "none";
+        pieceToggle.textContent = "Chess Piece Skills ▸";
+        rightMode = "available";
+      }
+      renderBuilder();
+    });
+  }
+
+  // Initial render when deck builder opened
   const observer = new MutationObserver(() => {
     if (!deckBuilder.classList.contains("hidden")) {
-      renderSkills();
+      renderBuilder();
     }
   });
 

@@ -299,9 +299,15 @@ window.gameState = {
       }
 
       div.className = classes;
+      let extra = "";
+      if (effect.effect === "king_damage_increase") {
+        const acc = (effect.accumulated || 0).toFixed(2);
+        extra = `<div>King damage bonus: +${acc}</div>`;
+      }
       div.innerHTML = `
         <strong>${owner === "black" ? "Enemy: " : ""}${effect.name}</strong>
         <div>Duration: ${effect.duration} turns</div>
+        ${extra}
       `;
       container.appendChild(div);
     });
@@ -329,6 +335,38 @@ window.gameState = {
         this.pieceHealth[key].current = Math.min(this.pieceHealth[key].max, this.pieceHealth[key].current + 0.2);
       }
     }
+
+    // Special handling: king damage stacking effect increases each turn
+    try {
+      // If AZW piece count <= 6 and there's no existing white king_damage_increase effect, auto-add it
+      const wp = ["♔", "♕", "♖", "♗", "♘", "♙"];
+      let whiteCount = 0;
+      for (let key in this.pieceHealth) {
+        const [r, c] = key.split("-").map(Number);
+        const p = this.boardState[r] ? this.boardState[r][c] : null;
+        if (p && wp.includes(p)) whiteCount++;
+      }
+      const hasKingDamage = this.activeEffects.some((e) => e.effect === "king_damage_increase" && e.owner === "white");
+      if (whiteCount <= 6 && !hasKingDamage) {
+        this.activeEffects.push({
+          name: "Concentric",
+          type: "buff",
+          duration: 999,
+          effect: "king_damage_increase",
+          value: 0.05,
+          accumulated: 0,
+          max: 1,
+          owner: "white",
+        });
+      }
+
+      // Increment accumulated damage for existing king_damage_increase effects
+      this.activeEffects.forEach((e) => {
+        if (e.effect === "king_damage_increase") {
+          e.accumulated = Math.min(e.max || 1, (e.accumulated || 0) + (e.value || 0));
+        }
+      });
+    } catch (e) {}
 
     this.updateEffectsDisplay();
     this.pruneDeadPieces();
@@ -359,6 +397,24 @@ window.gameState = {
   applyDamage(row, col, amount, source = "skill", attacker = null) {
     if (source === "skill") amount = Math.min(amount, 0.5);
     if (source === "capture") amount = Math.min(amount, 0.75);
+
+    // King damage increase: if the lastCombat attacker is a king and has a stacking bonus,
+    // add its accumulated bonus to the damage dealt.
+    try {
+      if (this.lastCombat && this.lastCombat.attacker) {
+        const aKey = this.lastCombat.attacker;
+        const [ar, ac] = aKey.split("-").map(Number);
+        const attackerPiece = this.boardState[ar] ? this.boardState[ar][ac] : null;
+        if (attackerPiece === "♔" || attackerPiece === "♚") {
+          // Find matching active effect owned by the attacker's side
+          const owner = attacker === "black" ? "black" : "white";
+          const eff = this.activeEffects.find((e) => e.effect === "king_damage_increase" && e.owner === owner);
+          if (eff && eff.accumulated) {
+            amount += eff.accumulated;
+          }
+        }
+      }
+    } catch (e) {}
 
     const key = `${row}-${col}`;
     const health = this.pieceHealth[key];

@@ -13,6 +13,9 @@ body {
   overflow-x: hidden;
 }
 
+/* Reduce the overall design area by 25% (scale down) to make layout tidier */
+/* removed global scale: causing layout problems for some browsers/hosts */
+
 .hidden {
   display: none !important;
 }
@@ -814,6 +817,108 @@ body {
   color: #ffd700;
 }
 
+/* Deck builder layout */
+.deck-builder-grid {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.deck-left {
+  flex: 0 0 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.deck-right {
+  flex: 0 0 30%;
+}
+.piece-skills-panel,
+.skill-cards-panel {
+  background: rgba(0, 0, 0, 0.45);
+  padding: 8px;
+  border-radius: 6px;
+}
+.piece-skill-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+}
+.assigned-skill {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.assigned-skill button {
+  margin-left: 8px;
+}
+.selected-skills,
+.available-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.deck-skill-card {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px;
+  border-radius: 6px;
+  min-width: 120px;
+}
+.deck-skill-card button {
+  margin-top: 6px;
+}
+
+/* Deck header and controls */
+.deck-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.deck-title h2 {
+  margin: 0;
+  color: #d4af37;
+}
+.deck-controls button {
+  margin-left: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid rgba(212, 175, 55, 0.2);
+}
+.btn-primary {
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border-color: #d4af37;
+}
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.assigned-skill {
+  position: relative;
+  padding-right: 28px;
+}
+.assigned-skill button,
+.remove-assigned {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.assigned-card .skill-desc {
+  max-width: 260px;
+}
+
 .skill-desc {
   font-size: 0.9rem;
   margin-top: 5px;
@@ -1064,7 +1169,100 @@ body {
   background: linear-gradient(135deg, #4caf50, #8bc34a);
   color: #fff;
   border: none;
-  border-radius: 10px;
+  .deck-builder-grid {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 18px auto;
+    padding: 8px;
+  }
+  .deck-left {
+    flex: 1 1 65%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 280px;
+  }
+  .deck-right {
+    flex: 0 0 35%;
+    min-width: 260px;
+    max-width: 420px;
+  }
+  .piece-skills-panel,
+  .skill-cards-panel {
+    background: rgba(0, 0, 0, 0.45);
+    padding: 12px;
+    border-radius: 8px;
+  }
+  .piece-skill-slot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  }
+  .assigned-skill {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .assigned-skill button {
+    margin-left: 8px;
+  }
+  .selected-skills,
+  .available-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .deck-skill-card {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 10px;
+    border-radius: 8px;
+    min-width: 120px;
+    max-width: 100%;
+    box-sizing: border-box;
+    flex: 1 1 45%;
+  }
+  .deck-skill-card button {
+    margin-top: 6px;
+  }
+
+  /* Make panels scrollable to avoid vertical overflow */
+  .piece-skills-panel {
+    max-height: calc(50vh - 40px);
+    overflow: auto;
+  }
+  .skill-cards-panel {
+    max-height: calc(50vh - 40px);
+    overflow: auto;
+  }
+  .deck-right {
+    max-height: calc(90vh - 40px);
+    overflow: auto;
+  }
+
+  /* Ensure card descriptions wrap and don't force layout wider */
+  .deck-skill-card .skill-desc {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  @media (max-width: 900px) {
+    .deck-builder-grid {
+      flex-direction: column;
+      max-width: 92%;
+    }
+    .deck-right {
+      max-width: none;
+      width: 100%;
+    }
+    .deck-left {
+      width: 100%;
+    }
+  }
   font-size: 1.3rem;
   font-weight: bold;
   cursor: pointer;

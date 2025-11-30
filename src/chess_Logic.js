@@ -660,9 +660,17 @@ document.addEventListener("DOMContentLoaded", function () {
           // Update health key mapping
           const oldKey = `${fromRow}-${fromCol}`;
           const newKey = `${finalRow}-${finalCol}`;
+          if (!window.gameState.pieceHealth) window.gameState.pieceHealth = {};
           if (window.gameState.pieceHealth[oldKey]) {
             window.gameState.pieceHealth[newKey] = window.gameState.pieceHealth[oldKey];
             delete window.gameState.pieceHealth[oldKey];
+          } else {
+            // Ensure a default health entry exists to avoid being cleared by sync
+            window.gameState.pieceHealth[newKey] = { current: 1.0, max: 1.0 };
+            if (window.gameState.pieceSkills && window.gameState.pieceSkills[oldKey]) {
+              window.gameState.pieceSkills[newKey] = window.gameState.pieceSkills[oldKey];
+              delete window.gameState.pieceSkills[oldKey];
+            }
           }
 
           // If this was an attack (capture) mark the attacker as having attacked

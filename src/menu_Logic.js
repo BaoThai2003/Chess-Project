@@ -109,19 +109,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderDeckBuilder() {
+    // If the skill system provides a deck builder renderer, use it (we replaced the old one)
+    if (window.renderDeckBuilder && typeof window.renderDeckBuilder === "function") {
+      window.renderDeckBuilder();
+      return;
+    }
+
+    // Fallback to old simple builder if new one not available
     const availableSkills = document.getElementById("available-skills");
     const selectedSkills = document.getElementById("selected-skills");
-
     if (!availableSkills || !selectedSkills) return;
-
-    // Get current deck
     let currentDeck =
       JSON.parse(localStorage.getItem("chess_player_deck") || "null") || window.skillSystem.getDefaultDeck();
-
-    // Render available skills
     availableSkills.innerHTML = "";
     const allSkills = window.skillSystem.getAllSkills();
-
     allSkills.forEach((skill) => {
       if (!currentDeck.includes(skill.id)) {
         const card = createDeckSkillCard(skill, false);
@@ -136,8 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
         availableSkills.appendChild(card);
       }
     });
-
-    // Render selected skills
     selectedSkills.innerHTML = "";
     currentDeck.forEach((skillId, index) => {
       const skill = window.skillSystem.getSkill(skillId);
@@ -150,19 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedSkills.appendChild(card);
       }
     });
-
-    // Save deck button
-    const saveBtn = document.getElementById("save-deck-btn");
-    if (saveBtn) {
-      saveBtn.onclick = () => {
-        if (currentDeck.length !== 5) {
-          alert("Deck must have exactly 5 skills!");
-          return;
-        }
-        localStorage.setItem("chess_player_deck", JSON.stringify(currentDeck));
-        alert("Deck saved successfully!");
-      };
-    }
   }
 
   function createDeckSkillCard(skill, isSelected) {
