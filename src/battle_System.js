@@ -1,96 +1,34 @@
-// Battle System - Manages battle flow
+// FIXED Battle System - Complete rewrite with proper background loading and dead piece handling
 window.battleSystem = {
   currentOpponent: null,
   battleActive: false,
 
-  // Start a battle
   startBattle(opponentId) {
     console.log("Starting battle with:", opponentId);
     this.currentOpponent = opponentId;
     this.battleActive = true;
 
-    // Get opponent data
     const enemyData = window.dialogueSystem.getEnemyData(opponentId);
-
-    // Set AI difficulty
     window.aiSystem.setDifficulty(enemyData.difficulty);
 
-    // Show dialogue first
     window.dialogueSystem.showDialogue(opponentId, () => {
-      // After dialogue, show battle screen
       this.showBattleScreen(enemyData);
     });
   },
 
-  // Show battle screen and initialize board
   showBattleScreen(enemyData) {
-    // Hide all screens
     document.querySelectorAll(".fullscreen-overlay").forEach((el) => {
       el.classList.add("hidden");
     });
 
-    // Show battle screen
     const battleScreen = document.getElementById("battle-screen");
     battleScreen.classList.remove("hidden");
 
-    // Set background map depending on opponent.
-    // We'll attempt several filename variants (with apostrophe, without, and URL-encoded) and
-    // preload images so we only apply a background that actually loads in the browser.
-    (function setBattleBackground() {
-      // Try several folder variants so the background works both when served from a webserver
-      // (root-relative /assets/...) and when opening src/index.html directly via file://
-      const mapFolders = ["/assets/img/map/", "../assets/img/map/", "assets/img/map/", "./assets/img/map/"];
-      let candidates = [];
+    // CRITICAL FIX: Set background image with proper paths
+    this.setBackgroundImage();
 
-      if (this.currentOpponent === "desert-merchant") {
-        candidates = ["Akh'Zahara_secret_map.png", "AkhZahara_secret_map.png", "Akh%27Zahara_secret_map.png"];
-      } else if (this.currentOpponent && this.currentOpponent.includes("trade")) {
-        candidates = ["Akh'Zahara_village.png", "AkhZahara_village.png", "Akh%27Zahara_village.png"];
-      } else {
-        candidates = ["Akh'Zahara_map.png", "AkhZahara_map.png", "Akh%27Zahara_map.png"];
-      }
-
-      let applied = false;
-
-      const tryFolderAndFile = (fIdx, cIdx) => {
-        if (applied) return;
-        if (fIdx >= mapFolders.length) {
-          console.warn("No battle map images found. Tried folders:", mapFolders, "and candidates:", candidates);
-          battleScreen.style.backgroundImage = "none";
-          return;
-        }
-        if (cIdx >= candidates.length) {
-          // move to next folder
-          tryFolderAndFile(fIdx + 1, 0);
-          return;
-        }
-
-        const url = mapFolders[fIdx] + candidates[cIdx];
-        const img = new Image();
-        img.onload = () => {
-          if (applied) return;
-          applied = true;
-          console.log("Loaded battle background:", url);
-          battleScreen.style.backgroundImage = `url('${url}')`;
-          battleScreen.style.backgroundSize = "cover";
-          battleScreen.style.backgroundPosition = "center center";
-          battleScreen.style.backgroundRepeat = "no-repeat";
-          battleScreen.style.backgroundAttachment = "fixed";
-          battleScreen.classList.add("battle-bg-loaded");
-        };
-        img.onerror = () => {
-          tryFolderAndFile(fIdx, cIdx + 1);
-        };
-        img.src = url;
-      };
-
-      tryFolderAndFile(0, 0);
-    }).call(this);
-
-    // Set enemy name
     document.getElementById("battle-opponent").textContent = `vs ${enemyData.name}`;
 
-    // Initialize game state
     if (window.gameState) {
       window.gameState.turnNumber = 1;
       window.gameState.energy.white = 1;
@@ -105,7 +43,6 @@ window.battleSystem = {
       window.gameState.enemyHand = [];
     }
 
-    // Create chess board with retry
     const renderBoard = () => {
       if (window.createChessBoard) {
         window.createChessBoard();
@@ -113,15 +50,13 @@ window.battleSystem = {
         window.gameState.updateEnergyDisplay();
         window.gameState.updateEffectsDisplay();
       } else {
-        setTimeout(renderBoard, 500); // Retry if not ready
+        setTimeout(renderBoard, 500);
       }
     };
     renderBoard();
 
-    // Update turn display
     document.getElementById("battle-turn").textContent = "Turn: 1";
 
-    // Surrender button
     const surrenderBtn = document.querySelector(".btn-surrender");
     if (surrenderBtn) {
       surrenderBtn.onclick = () => {
@@ -132,36 +67,74 @@ window.battleSystem = {
     }
   },
 
-  // End battle
+  // CRITICAL FIX: Properly set background images
+  setBackgroundImage() {
+    const battleScreen = document.getElementById("battle-screen");
+    let imageName;
+
+    if (this.currentOpponent === "desert-merchant") {
+      imageName = "Akh'Zahara_secret_map.png";
+    } else if (this.currentOpponent && this.currentOpponent.includes("trade")) {
+      imageName = "Akh'Zahara_village.png";
+    } else {
+      imageName = "Akh'Zahara_map.png";
+    }
+
+    // Try multiple path variations
+    const paths = [
+      `/assets/img/map/${imageName}`,
+      `../assets/img/map/${imageName}`,
+      `assets/img/map/${imageName}`,
+      `./assets/img/map/${imageName}`,
+    ];
+
+    let loaded = false;
+    const tryLoad = (index) => {
+      if (loaded || index >= paths.length) {
+        if (!loaded) {
+          console.warn("Could not load battle background");
+          battleScreen.style.backgroundImage = "none";
+        }
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        if (!loaded) {
+          loaded = true;
+          battleScreen.style.backgroundImage = `url('${paths[index]}')`;
+          battleScreen.style.backgroundSize = "cover";
+          battleScreen.style.backgroundPosition = "center center";
+          battleScreen.style.backgroundRepeat = "no-repeat";
+          battleScreen.style.backgroundAttachment = "fixed";
+          console.log("Loaded background:", paths[index]);
+        }
+      };
+      img.onerror = () => tryLoad(index + 1);
+      img.src = paths[index];
+    };
+
+    tryLoad(0);
+  },
+
   endBattle(victory) {
     this.battleActive = false;
-
-    // Hide battle screen
     document.getElementById("battle-screen").classList.add("hidden");
 
     if (victory) {
-      // Show victory dialogue
       window.dialogueSystem.showVictoryDialogue(this.currentOpponent, () => {
         this.showVictoryScreen();
       });
     } else {
-      // Show defeat screen
       this.showDefeatScreen();
     }
   },
 
-  // Show victory screen
   showVictoryScreen() {
     const victoryScreen = document.getElementById("victory-screen");
     victoryScreen.classList.remove("hidden");
 
-    // Calculate rewards
-    const expRewards = {
-      easy: 10,
-      medium: 25,
-      hard: 50,
-    };
-
+    const expRewards = { easy: 10, medium: 25, hard: 50 };
     const moneyRewards = {
       "miner-1": 1000,
       "miner-2": 1500,
@@ -178,13 +151,11 @@ window.battleSystem = {
     const expGained = expRewards[enemyData.difficulty] || 10;
     const moneyGained = moneyRewards[this.currentOpponent] || 1000;
 
-    // Update player stats
     const playerData = this.getPlayerData();
     playerData.exp += expGained;
     playerData.wins += 1;
     playerData.money = (playerData.money || 0) + moneyGained;
 
-    // Mark specific battles as completed
     if (
       this.currentOpponent.startsWith("miner-") ||
       this.currentOpponent === "edras" ||
@@ -194,12 +165,10 @@ window.battleSystem = {
       playerData.akhZaharaProgress[this.currentOpponent] = true;
     }
 
-    // Mark desert merchant as defeated
     if (this.currentOpponent === "desert-merchant") {
       playerData.merchantDefeated = true;
     }
 
-    // Check level up
     const oldLevel = playerData.level;
     while (playerData.exp >= playerData.expToNext) {
       playerData.exp -= playerData.expToNext;
@@ -209,84 +178,63 @@ window.battleSystem = {
 
     this.savePlayerData(playerData);
 
-    // Display rewards
     document.getElementById("exp-gained").textContent = `+${expGained} EXP +${moneyGained.toLocaleString()} Gold`;
     document.getElementById("new-level").textContent = playerData.level;
 
-    // Update campaign progress if applicable
     if (this.currentOpponent.startsWith("fight-") || this.currentOpponent.startsWith("boss-")) {
       this.updateCampaignProgress(this.currentOpponent);
     }
 
-    // Continue button
     document.getElementById("victory-continue").onclick = () => {
       victoryScreen.classList.add("hidden");
 
-      // Show post-battle dialogue
       if (window.dialogueSystem.victoryDialogues[this.currentOpponent]) {
         window.dialogueSystem.showVictoryDialogue(this.currentOpponent, () => {
-          // Return to appropriate screen
-          if (
-            this.currentOpponent.startsWith("miner-") ||
-            this.currentOpponent === "edras" ||
-            this.currentOpponent === "wior"
-          ) {
-            document.getElementById("akh-zahara-screen").classList.remove("hidden");
-          } else if (this.currentOpponent.startsWith("trade-")) {
-            document.getElementById("trade-screen").classList.remove("hidden");
-          } else if (this.currentOpponent === "desert-merchant") {
-            document.getElementById("main-menu").classList.remove("hidden");
-          } else if (this.currentOpponent.startsWith("fight-") || this.currentOpponent.startsWith("boss-")) {
-            document.getElementById("campaign-screen").classList.remove("hidden");
-          } else {
-            document.getElementById("arena-screen").classList.remove("hidden");
-          }
+          this.returnToAppropriateScreen();
         });
       } else {
-        // Return to appropriate screen without dialogue
-        if (
-          this.currentOpponent.startsWith("miner-") ||
-          this.currentOpponent === "edras" ||
-          this.currentOpponent === "wior"
-        ) {
-          document.getElementById("akh-zahara-screen").classList.remove("hidden");
-        } else if (this.currentOpponent.startsWith("trade-")) {
-          document.getElementById("trade-screen").classList.remove("hidden");
-        } else if (this.currentOpponent === "desert-merchant") {
-          document.getElementById("main-menu").classList.remove("hidden");
-        } else if (this.currentOpponent.startsWith("fight-") || this.currentOpponent.startsWith("boss-")) {
-          document.getElementById("campaign-screen").classList.remove("hidden");
-        } else {
-          document.getElementById("arena-screen").classList.remove("hidden");
-        }
+        this.returnToAppropriateScreen();
       }
     };
   },
 
-  // Show defeat screen
+  returnToAppropriateScreen() {
+    if (
+      this.currentOpponent.startsWith("miner-") ||
+      this.currentOpponent === "edras" ||
+      this.currentOpponent === "wior"
+    ) {
+      document.getElementById("akh-zahara-screen").classList.remove("hidden");
+    } else if (this.currentOpponent.startsWith("trade-")) {
+      document.getElementById("guild-screen").classList.remove("hidden");
+    } else if (this.currentOpponent === "desert-merchant") {
+      document.getElementById("main-menu").classList.remove("hidden");
+    } else if (this.currentOpponent.startsWith("fight-") || this.currentOpponent.startsWith("boss-")) {
+      document.getElementById("campaign-screen").classList.remove("hidden");
+    } else {
+      document.getElementById("arena-screen").classList.remove("hidden");
+    }
+  },
+
   showDefeatScreen() {
     const defeatScreen = document.getElementById("defeat-screen");
     defeatScreen.classList.remove("hidden");
 
-    // Update stats
     const playerData = this.getPlayerData();
     playerData.losses += 1;
     this.savePlayerData(playerData);
 
-    // Retry button
     document.getElementById("defeat-retry").onclick = () => {
       defeatScreen.classList.add("hidden");
       this.startBattle(this.currentOpponent);
     };
 
-    // Menu button
     document.getElementById("defeat-menu").onclick = () => {
       defeatScreen.classList.add("hidden");
       document.getElementById("main-menu").classList.remove("hidden");
     };
   },
 
-  // Get player data
   getPlayerData() {
     const defaultData = {
       name: "Bao",
@@ -306,17 +254,14 @@ window.battleSystem = {
     return saved ? JSON.parse(saved) : defaultData;
   },
 
-  // Save player data
   savePlayerData(data) {
     localStorage.setItem("chess_player_data", JSON.stringify(data));
     this.updatePlayerUI();
   },
 
-  // Update player UI
   updatePlayerUI() {
     const data = this.getPlayerData();
 
-    // Main menu
     const nameEl = document.getElementById("player-name");
     const levelEl = document.getElementById("player-level");
     const expEl = document.getElementById("player-exp");
@@ -327,7 +272,6 @@ window.battleSystem = {
     if (expEl) expEl.textContent = data.exp;
     if (expMaxEl) expMaxEl.textContent = data.expToNext;
 
-    // Profile screen
     document.getElementById("profile-name").textContent = data.name;
     document.getElementById("profile-level").textContent = data.level;
     document.getElementById("profile-exp").textContent = data.exp;
@@ -339,36 +283,29 @@ window.battleSystem = {
     document.getElementById("profile-winrate").textContent = `${winRate}%`;
   },
 
-  // Update campaign progress
   updateCampaignProgress(nodeId) {
     const playerData = this.getPlayerData();
     if (!playerData.campaignProgress) playerData.campaignProgress = {};
 
     playerData.campaignProgress[nodeId] = true;
     this.savePlayerData(playerData);
-
-    // Update node visuals
     this.updateCampaignUI();
   },
 
-  // Update campaign UI
   updateCampaignUI() {
     const playerData = this.getPlayerData();
     const progress = playerData.campaignProgress || {};
 
-    // Count completed fights
     let completed = 0;
     for (let i = 1; i <= 4; i++) {
       if (progress[`fight-${i}`]) completed++;
     }
 
-    // Update progress bar
     const progressBar = document.getElementById("act-progress");
     const progressText = document.getElementById("act-progress-text");
     if (progressBar) progressBar.style.width = `${(completed / 5) * 100}%`;
     if (progressText) progressText.textContent = `${completed}/5`;
 
-    // Unlock nodes
     document.querySelectorAll(".map-node").forEach((node) => {
       const nodeId = node.dataset.node;
 
@@ -377,32 +314,27 @@ window.battleSystem = {
         node.classList.remove("locked");
       }
 
-      // Unlock boss if all fights completed
       if (nodeId === "boss-1" && completed >= 4) {
         node.classList.remove("locked");
       }
     });
   },
 
-  // Update Akh'Zahara plot progress
   updateAkhZaharaProgress() {
     const playerData = this.getPlayerData();
     const progress = playerData.akhZaharaProgress || {};
 
-    // Count completed battles
     let completed = 0;
     const battles = ["miner-1", "miner-2", "miner-3", "edras", "wior"];
     battles.forEach((b) => {
       if (progress[b]) completed++;
     });
 
-    // Update progress bar
     const progressBar = document.getElementById("akh-progress");
     const progressText = document.getElementById("akh-progress-text");
     if (progressBar) progressBar.style.width = `${(completed / 5) * 100}%`;
     if (progressText) progressText.textContent = `${completed}/5`;
 
-    // Unlock nodes based on progress
     document.querySelectorAll("#akh-zahara-screen .map-node").forEach((node) => {
       const nodeId = node.dataset.node;
 
@@ -411,7 +343,6 @@ window.battleSystem = {
         node.classList.remove("locked");
       }
 
-      // Progressive unlock logic
       if (nodeId === "miner-1") {
         node.classList.remove("locked");
       } else if (nodeId === "miner-2" && progress["miner-1"]) {
@@ -426,15 +357,12 @@ window.battleSystem = {
     });
   },
 
-  // Initialize Trade Association
   initTradeAssociation() {
     const playerData = this.getPlayerData();
 
-    // Update money display
     const moneyEl = document.getElementById("player-money");
     if (moneyEl) moneyEl.textContent = playerData.money.toLocaleString();
 
-    // Populate opponents
     const opponents = document.getElementById("trade-opponents");
     if (opponents) {
       opponents.innerHTML = `
@@ -458,7 +386,6 @@ window.battleSystem = {
         </div>
       `;
 
-      // Add click handlers
       document.querySelectorAll("#trade-opponents .btn-challenge").forEach((btn) => {
         btn.onclick = () => {
           const card = btn.closest(".opponent-card");
@@ -468,11 +395,9 @@ window.battleSystem = {
       });
     }
 
-    // Populate shop
     this.updateShop();
   },
 
-  // Update shop items
   updateShop() {
     const shopItems = document.getElementById("shop-items");
     if (!shopItems) return;
@@ -483,7 +408,7 @@ window.battleSystem = {
     shopItems.innerHTML = "";
     allSkills.forEach((skill) => {
       if (!playerData.boughtSkills.includes(skill.id)) {
-        const cost = skill.cost * 1000; // Convert cost to money
+        const cost = skill.cost * 1000;
         const canAfford = playerData.money >= cost;
 
         const item = document.createElement("div");
@@ -511,19 +436,22 @@ window.battleSystem = {
     });
   },
 
-  // Check victory condition
+  // CRITICAL FIX: Check victory with proper dead piece handling
   checkVictory() {
     if (!window.gameState || !this.battleActive) return;
+
+    // Force prune dead pieces before checking
+    if (window.gameState.pruneDeadPieces) {
+      window.gameState.pruneDeadPieces();
+    }
 
     const whiteKingHealth = this.getKingHealth("white");
     const blackKingHealth = this.getKingHealth("black");
 
     if (blackKingHealth <= 0) {
-      // Player wins
       this.endBattle(true);
       return true;
     } else if (whiteKingHealth <= 0) {
-      // Player loses
       this.endBattle(false);
       return true;
     }
@@ -531,7 +459,6 @@ window.battleSystem = {
     return false;
   },
 
-  // Get king health
   getKingHealth(color) {
     const kingPos = color === "white" ? window.gameState.whiteKingPos : window.gameState.blackKingPos;
     const key = `${kingPos[0]}-${kingPos[1]}`;
@@ -540,9 +467,7 @@ window.battleSystem = {
   },
 };
 
-// Initialize on load
 document.addEventListener("DOMContentLoaded", () => {
-  // Update player UI
   if (window.battleSystem) {
     window.battleSystem.updatePlayerUI();
     window.battleSystem.updateCampaignUI();
