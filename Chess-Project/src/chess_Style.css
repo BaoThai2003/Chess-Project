@@ -1,0 +1,1412 @@
+/* === RESET & BASE === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 8px;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  color: #fff;
+  overflow-x: hidden;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* === FULLSCREEN OVERLAY === */
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+}
+
+/* === BATTLE SCREEN - CRITICAL FIX FOR BACKGROUND === */
+#battle-screen.fullscreen-overlay {
+  background: none !important;
+}
+
+#battle-screen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* even lighter darkening so the map is clearer */
+  background: rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+  z-index: 0;
+}
+#battle-screen {
+  /* Ensure battle screen covers the full viewport so its background can cover everything */
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  z-index: 1000;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center center !important;
+}
+
+/* Map variants (controlled via classes on #battle-screen). Paths are relative to this CSS file (src/). */
+#battle-screen.map-main {
+  background-image: url("../assets/img/map/Akh'Zahara_map.png") !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+#battle-screen.map-desert {
+  background-image: url("../assets/img/map/Akh'Zahara_secret_map.png") !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+#battle-screen.map-village {
+  background-image: url("../assets/img/map/Akh'Zahara_village.png") !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+.battle-container {
+  position: relative;
+  z-index: 1;
+  width: 95%;
+  max-width: 1600px;
+  height: 90vh;
+  background: rgba(0, 0, 0, 0.16) !important;
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.battle-left-panel,
+.battle-right-panel {
+  width: 250px;
+  background: rgba(0, 0, 0, 0.12) !important;
+  border: 2px solid rgba(212, 175, 55, 0.6);
+  border-radius: 10px;
+  padding: 15px;
+  overflow-y: auto;
+  backdrop-filter: blur(4px);
+}
+
+.log-box,
+.effects-box,
+.skill-cards-vertical,
+.panel-section {
+  background: transparent !important;
+  border: none;
+  color: #fff;
+}
+
+/* Chessboard: Keep opaque squares for gameplay clarity */
+.battle-board {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, 60px);
+  grid-template-rows: repeat(8, 60px);
+  width: 480px;
+  height: 480px;
+  border: 2px solid rgba(212, 175, 55, 0.6);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 0 30px rgba(212, 175, 55, 0.04);
+  background: rgba(255, 255, 255, 0.03);
+  position: relative;
+}
+
+.chess-square {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  position: relative;
+}
+
+/* Other elements: Ensure no solid backgrounds */
+.move-log,
+.skill-log,
+.buffs-debuffs {
+  background: transparent !important;
+}
+
+/* Responsive tweaks: ensure battle container fits small screens without covering map */
+@media (max-width: 900px) {
+  .battle-container {
+    width: 96%;
+    height: auto;
+    max-height: 92vh;
+    padding: 12px;
+  }
+  .battle-left-panel,
+  .battle-right-panel {
+    width: 200px;
+  }
+}
+
+.piece-stack.shielded {
+  box-shadow: 0 0 12px 4px rgba(255, 235, 59, 0.45) inset, 0 0 16px rgba(255, 235, 59, 0.25);
+  border-radius: 6px;
+}
+.piece-stack.on-fire {
+  box-shadow: 0 0 10px 2px rgba(244, 67, 54, 0.45) inset;
+  background: linear-gradient(0deg, rgba(244, 67, 54, 0.06), transparent);
+}
+.chess-square.sandstorm-area,
+.piece-stack.sandstorm-affected {
+  outline: 2px dashed rgba(255, 193, 7, 0.45);
+}
+
+/* === STORY INTRO === */
+.story-panel {
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid #d4af37;
+  border-radius: 15px;
+  padding: 40px;
+  max-width: 800px;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title-gold {
+  font-size: 3.5rem;
+  color: #d4af37;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.story-text {
+  font-size: 1.2rem;
+  line-height: 2;
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.story-text p {
+  margin-bottom: 15px;
+}
+
+.story-text .highlight {
+  color: #d4af37;
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.story-text strong {
+  color: #ffd700;
+}
+
+.btn-primary-large {
+  font-size: 1.8rem;
+  padding: 15px 50px;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary-large:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.8);
+}
+
+/* === MAIN MENU (Edopro Style) === */
+.menu-container {
+  width: 90%;
+  max-width: 1200px;
+  height: 80vh;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+}
+
+.menu-header {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  padding: 20px;
+  border-bottom: 2px solid #d4af37;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  color: #d4af37;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.player-info {
+  text-align: right;
+  font-size: 1.1rem;
+}
+
+.player-name,
+.player-level,
+.player-exp {
+  margin: 5px 0;
+  color: #ffd700;
+}
+
+.menu-content {
+  display: flex;
+  height: calc(100% - 100px);
+}
+
+.menu-left {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 30px;
+  background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+}
+
+.menu-btn:hover {
+  background: linear-gradient(135deg, #3d3d3d, #2a2a2a);
+  transform: translateX(10px);
+  box-shadow: 0 5px 20px rgba(212, 175, 55, 0.5);
+}
+
+.menu-btn.btn-danger {
+  border-color: #f44336;
+}
+
+.menu-btn.btn-danger:hover {
+  box-shadow: 0 5px 20px rgba(244, 67, 54, 0.5);
+}
+
+.btn-icon {
+  font-size: 2rem;
+}
+
+.btn-text {
+  flex: 1;
+}
+
+.menu-right {
+  flex: 1;
+  padding: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.character-display {
+  text-align: center;
+}
+
+.character-silhouette {
+  font-size: 15rem;
+  color: #d4af37;
+  text-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+}
+
+.character-name {
+  font-size: 2rem;
+  color: #ffd700;
+  margin-top: 20px;
+}
+
+/* === CAMPAIGN MAP (Shadow Fight 2 Style) === */
+.campaign-container {
+  width: 90%;
+  max-width: 1200px;
+  height: 80vh;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.campaign-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.campaign-header h2 {
+  font-size: 2rem;
+  color: #d4af37;
+}
+
+.btn-back {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #d4af37;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-back:hover {
+  background: rgba(212, 175, 55, 0.3);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  transition: width 0.5s;
+}
+
+.campaign-map {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+  background: url("desert-background.jpg") center/cover; /* Thay bằng hình sa mạc */
+}
+
+.map-line {
+  position: absolute;
+  width: 80%;
+  height: 5px;
+  background: #d4af37;
+  top: 50%;
+  left: 10%;
+}
+
+.map-node {
+  width: 80px;
+  height: 80px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 3px solid #d4af37;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+}
+
+.map-node:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+}
+
+.map-node.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.map-node.completed {
+  border-color: #4caf50;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+}
+
+.node-icon {
+  font-size: 2.5rem;
+}
+
+.node-level {
+  font-size: 1rem;
+  color: #ffd700;
+}
+
+/* === BATTLE SCREEN (Shadow Fight 2 Style) === */
+.battle-container {
+  width: 95%;
+  max-width: 1600px;
+  height: 90vh;
+  /* default for non-battle screens: semi-opaque container */
+  background: rgba(0, 0, 0, 0.32);
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* When inside #battle-screen, allow the map to be the visual highlight. */
+#battle-screen .battle-container {
+  background: rgba(0, 0, 0, 0.12) !important; /* much lighter overlay */
+  border: 1px solid rgba(212, 175, 55, 0.18) !important;
+}
+
+.battle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #d4af37;
+}
+
+.opponent-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.opponent-name {
+  font-size: 1.8rem;
+  color: #d4af37;
+}
+
+.turn-info {
+  font-size: 1.5rem;
+  color: #ffd700;
+}
+
+.btn-surrender {
+  padding: 10px 20px;
+  background: #f44336;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-surrender:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(244, 67, 54, 0.5);
+}
+
+.battle-content {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.battle-left-panel,
+.battle-right-panel {
+  width: 250px;
+  /* reduce opacity to allow background to be visible */
+  background: rgba(0, 0, 0, 0.28);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+/* Make side panels even more translucent specifically in battle screen */
+#battle-screen .battle-left-panel,
+#battle-screen .battle-right-panel {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(212, 175, 55, 0.12) !important;
+}
+
+.panel-section {
+  margin-bottom: 20px;
+}
+
+.panel-section h4 {
+  color: #d4af37;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #d4af37;
+  padding-bottom: 5px;
+}
+
+.log-container {
+  height: 150px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.log-entry {
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.buff-debuff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.effect-item {
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.effect-item.buff {
+  background: rgba(76, 175, 80, 0.3);
+  border: 1px solid #4caf50;
+}
+
+.effect-item.debuff {
+  background: rgba(244, 67, 54, 0.3);
+  border: 1px solid #f44336;
+}
+
+/* Enemy-specific effect styling: enemy buffs (blue), enemy debuffs (purple) */
+.effect-item.enemy-buff {
+  background: rgba(0, 112, 243, 0.12);
+  border-left: 4px solid #0070f3;
+}
+
+.effect-item.enemy-debuff {
+  background: rgba(136, 0, 255, 0.12);
+  border-left: 4px solid #8800ff;
+}
+
+.battle-board {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  min-height: 500px;
+}
+
+.chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, 60px);
+  grid-template-rows: repeat(8, 60px);
+  width: 480px;
+  height: 480px;
+  border: 2px solid #d4af37;
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+  animation: boardFadeIn 1s ease-in-out;
+  position: relative;
+  margin: auto;
+}
+
+@keyframes boardFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.chess-square {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.chess-square.selected {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+}
+
+.chess-square.highlighted {
+  background-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+.piece-icon {
+  transition: transform 0.3s;
+}
+
+.chess-square:hover .piece-icon {
+  transform: scale(1.1);
+}
+
+.health-bar-container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.health-bar {
+  height: 100%;
+  transition: width 0.3s, background-color 0.3s;
+}
+
+.energy-tile {
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.15), rgba(30, 144, 255, 0.08));
+  box-shadow: inset 0 0 8px rgba(30, 144, 255, 0.12);
+}
+
+/* Blood overlay on pieces to indicate damage */
+.piece-stack {
+  position: relative;
+  display: inline-block;
+}
+.blood {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 18%;
+  background: radial-gradient(circle at 50% 50%, rgba(200, 20, 20, 0.9), rgba(150, 10, 10, 0.6));
+  border-radius: 50% 50% 40% 40%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.file-labels,
+.rank-labels {
+  position: absolute;
+  font-size: 1rem;
+  color: #d4af37;
+}
+
+.file-labels {
+  bottom: -20px;
+  display: flex;
+  width: 480px;
+  justify-content: space-around;
+}
+
+.rank-labels {
+  left: -20px;
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+  justify-content: space-around;
+}
+
+/* Energy display - DARKER */
+.energy-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #0a0a0a !important;
+  color: #fff;
+  padding: 8px 10px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 5px;
+}
+
+.energy-text {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1e90ff;
+  text-shadow: 0 0 8px rgba(30, 144, 255, 0.6);
+}
+
+/* Recent combat highlighting */
+.piece-stack.recent-combat-white {
+  box-shadow: 0 0 0 4px rgba(255, 235, 59, 0.45), inset 0 0 6px rgba(255, 255, 255, 0.05);
+}
+.piece-stack.recent-combat-black {
+  box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.45), inset 0 0 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Persistent attacked markers */
+.piece-stack.attacked-white {
+  outline: 3px solid rgba(76, 175, 80, 0.85);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.12) !important;
+}
+.piece-stack.attacked-black {
+  outline: 3px solid rgba(244, 67, 54, 0.85);
+  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.12) !important;
+}
+
+/* Add a small lightning icon in the energy display */
+.energy-display::before {
+  content: "⚡";
+  font-size: 1.2rem;
+  margin-right: 6px;
+  color: #ffd54f;
+}
+
+.skill-cards-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.skill-card {
+  background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.skill-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(212, 175, 55, 0.5);
+}
+
+.skill-card.usable {
+  border-color: #4caf50;
+}
+
+.skill-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.skill-name {
+  font-size: 1.2rem;
+  color: #d4af37;
+}
+
+.skill-cost {
+  font-size: 0.9rem;
+  color: #ffd700;
+}
+
+.skill-desc {
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* === DIALOGUE SCREEN === */
+.dialogue-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.dialogue-container {
+  width: 80%;
+  max-width: 1000px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 3px solid #d4af37;
+  border-radius: 15px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dialogue-portraits {
+  display: flex;
+  justify-content: space-between;
+  height: 300px;
+}
+
+.dialogue-portrait {
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15rem;
+  transition: all 0.3s;
+  opacity: 0.5;
+}
+
+.dialogue-portrait.active {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.dialogue-portrait.left {
+  color: #4caf50;
+}
+
+.dialogue-portrait.right {
+  color: #f44336;
+}
+
+.dialogue-content {
+  text-align: center;
+}
+
+.dialogue-name {
+  font-size: 1.8rem;
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.dialogue-text {
+  font-size: 1.4rem;
+  line-height: 1.8;
+  min-height: 100px;
+  direction: ltr;
+  unicode-bidi: bidi-override;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.dialogue-continue {
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  align-self: center;
+}
+
+.dialogue-continue:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(212, 175, 55, 0.8);
+}
+
+/* === VICTORY/DEFEAT SCREENS === */
+.result-panel {
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid;
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 0 50px;
+  max-width: 600px;
+}
+
+.result-panel.victory {
+  border-color: #4caf50;
+}
+
+.result-panel.defeat {
+  border-color: #f44336;
+}
+
+.result-panel h1 {
+  font-size: 4rem;
+  margin-bottom: 30px;
+  text-shadow: 0 0 20px currentColor;
+}
+
+.result-panel.victory h1 {
+  color: #4caf50;
+}
+
+.result-panel.defeat h1 {
+  color: #f44336;
+}
+
+.result-rewards {
+  font-size: 1.5rem;
+  margin: 30px 0;
+}
+
+.result-rewards p {
+  margin: 15px 0;
+}
+
+.reward-value {
+  color: #d4af37;
+  font-weight: bold;
+  font-size: 1.8rem;
+}
+
+.result-text {
+  font-size: 1.3rem;
+  margin: 20px 0;
+}
+
+.btn-secondary {
+  margin-top: 15px;
+  padding: 12px 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #d4af37;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  background: rgba(212, 175, 55, 0.3);
+}
+
+/* === DECK BUILDER === */
+.deck-container {
+  width: 90%;
+  max-width: 1400px;
+  height: 85vh;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.deck-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #d4af37;
+}
+
+.deck-content {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+}
+
+.deck-left,
+.deck-right {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.deck-left h3,
+.deck-right h3 {
+  color: #d4af37;
+  margin-bottom: 15px;
+}
+
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.skill-list-large {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.deck-skill-card {
+  background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.deck-skill-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(212, 175, 55, 0.5);
+}
+
+.add-indicator,
+.remove-indicator {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #d4af37;
+  font-style: italic;
+}
+
+.btn-save-deck {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-save-deck:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(76, 175, 80, 0.5);
+}
+
+/* === PROFILE === */
+.profile-container {
+  width: 90%;
+  max-width: 1000px;
+  height: 80vh;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #d4af37;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-content {
+  flex: 1;
+  display: flex;
+  gap: 30px;
+  padding: 30px;
+}
+
+.profile-stats,
+.profile-achievements {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 30px;
+}
+
+.profile-stats h3,
+.profile-achievements h3 {
+  color: #d4af37;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #d4af37;
+  padding-bottom: 10px;
+}
+
+.stat-line {
+  font-size: 1.3rem;
+  margin: 15px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat-line span {
+  color: #d4af37;
+  font-weight: bold;
+}
+
+.achievement {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 2px solid #d4af37;
+}
+
+.achievement.locked {
+  opacity: 0.5;
+  border-color: #666;
+}
+
+.achievement-icon {
+  font-size: 2rem;
+}
+
+/* === PLOT MENU === */
+.plot-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 30px;
+}
+
+.plot-item {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.plot-item:hover {
+  background: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  transform: translateY(-5px);
+}
+
+.plot-title {
+  font-size: 1.8rem;
+  color: #d4af37;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.plot-description {
+  font-size: 1.2rem;
+  color: #aaa;
+  margin-bottom: 15px;
+}
+
+.plot-item .btn-primary {
+  padding: 10px 30px;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.plot-item .btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+}
+
+/* === TRADE ASSOCIATION === */
+.trade-content {
+  display: flex;
+  gap: 30px;
+  padding: 20px;
+  min-height: 500px;
+}
+
+.trade-left,
+.trade-right {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  padding: 15px;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.trade-left h3,
+.trade-right h3 {
+  color: #d4af37;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+}
+
+.player-money {
+  color: #ffd700;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.opponent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.opponent-card {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #d4af37;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.opponent-card:hover {
+  background: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  transform: translateY(-3px);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.card-name {
+  color: #d4af37;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.card-difficulty {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.btn-challenge {
+  padding: 8px 15px;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-challenge:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.shop-item {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.shop-item:hover {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.shop-item-name {
+  color: #d4af37;
+  font-weight: bold;
+}
+
+.shop-item-price {
+  color: #ffd700;
+  margin: 0 10px;
+}
+
+.btn-buy {
+  padding: 5px 12px;
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #000;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-buy:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+.btn-buy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.achievement-name {
+  font-size: 1.2rem;
+}
+
+/* === SPECIAL BATTLE ACTIONS === */
+.btn-special {
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #ff6b6b, #ff4444);
+  color: #fff;
+  border: 2px solid #ff4444;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.btn-special:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff5555, #ff3333);
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-special:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #999, #777);
+  border-color: #666;
+}
+
+/* Turn limit indicator */
+.turn-limit-warning {
+  color: #ff6b6b;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 8px;
+  background: rgba(255, 107, 107, 0.2);
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.turn-limit-critical {
+  animation: pulse-warning 0.5s infinite;
+}
+
+@keyframes pulse-warning {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

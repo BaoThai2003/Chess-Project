@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="apple-touch-icon" sizes="57x57" href="./img/ico/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="./img/ico/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="./img/ico/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="./img/ico/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="./img/ico/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="./img/ico/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="./img/ico/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="./img/ico/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./img/ico/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./img/ico/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./img/ico/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="./img/ico/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./img/ico/favicon-16x16.png" />
+    <link rel="manifest" href="./img/ico/manifest.json" />
+    <link rel="stylesheet" href="chess_Style.css" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Chess Project - Akh'Zahara</title>
+  </head>
+  <body>
+    <!-- STORY INTRO -->
+    <div id="story-intro" class="fullscreen-overlay">
+      <div class="story-panel">
+        <h1 class="title-gold">Chess Project</h1>
+        <div class="story-text">
+          <p>
+            Bảo, một anh chàng sinh viên IT, anh có một tình yêu xuyên biên giới với Shizuku, một nữ kỳ thủ nghiệp dư
+            của Nhật Bản, năm dài tháng rộng, họ hiểu nhau hơn, tiến tới tình yêu
+          </p>
+          <p>
+            Rồi, Bảo đến thăm Shizuku trong mùa hè tháng 6, họ cùng nhau chu du khắp Nhật Bản, cùng nhau nắm tay đi
+            trong lễ hội mùa hè
+          </p>
+          <p>
+            Trong đêm pháo hoa rực sáng, họ cùng nhau đi đến một đền cổ trên núi để cùng nhau cầu nguyện sẽ hạnh phúc
+            mãi về sau...
+          </p>
+          <p>
+            Tuy nhiên, một bàn cờ vua sáng rực bỗng hiện ra, kéo Shizuku vào trong, Bảo nỗ lực nắm tay Shizuku để kéo ra
+            ngoài nhưng cuối cùng cũng bị hút vào trong
+          </p>
+          <p class="highlight">
+            Bảo mở mắt ra, anh đã đến một thế giới khác, nhưng
+            <strong>không có Shizuku bên cạnh</strong>
+            Không có một manh mối nào, Bảo sẽ phải làm gì đây?
+          </p>
+          <p>Shizuku... Shizuku... Bảo dần im lặng đi không nói nữa</p>
+          <p>"Nắm tay ấy, dần dần siết chặt lại...Bằng mọi giá, anh sẽ tìm ra em!"</p>
+        </div>
+        <button id="start-story-btn" class="btn-primary-large">Mau đi thôi!</button>
+      </div>
+    </div>
+
+    <!-- MAIN MENU -->
+    <div id="main-menu" class="fullscreen-overlay hidden">
+      <div class="menu-container">
+        <div class="menu-header">
+          <h1 class="game-title">Chess Project</h1>
+          <div class="player-info">
+            <div class="player-name">
+              Player:
+              <span id="player-name">Bao</span>
+            </div>
+            <div class="player-level">
+              Level:
+              <span id="player-level">1</span>
+            </div>
+            <div class="player-exp">
+              EXP:
+              <span id="player-exp">0</span>
+              /
+              <span id="player-exp-max">100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-content">
+          <div class="menu-left">
+            <button class="menu-btn" data-action="plot">
+              <span class="btn-icon">📖</span>
+              <span class="btn-text">Plot</span>
+            </button>
+            <button class="menu-btn" data-action="deck">
+              <span class="btn-icon">📚</span>
+              <span class="btn-text">Deck Builder</span>
+            </button>
+            <button class="menu-btn" data-action="profile">
+              <span class="btn-icon">👤</span>
+              <span class="btn-text">Profile</span>
+            </button>
+            <button class="menu-btn" data-action="options">
+              <span class="btn-icon">⚙️</span>
+              <span class="btn-text">Options</span>
+            </button>
+            <button class="menu-btn btn-danger" data-action="quit">
+              <span class="btn-icon">🚪</span>
+              <span class="btn-text">Exit</span>
+            </button>
+          </div>
+
+          <div class="menu-right">
+            <div class="character-display">
+              <div class="character-silhouette">♔</div>
+              <div class="character-name">Bao - The Wanderer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLOT SCREEN - Story selection -->
+    <div id="plot-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Cốt truyện - Con đường định mệnh</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+        <div class="plot-menu">
+          <div class="plot-item" data-plot="akh-zahara">
+            <div class="plot-title">Akh'Zahara - Act 1 Chapter 1</div>
+            <div class="plot-description">Tỉnh dậy ở thế giới mới</div>
+            <button class="btn-primary">Start</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AKH'ZAHARA MENU SCREEN - Choose Main Plot, Guild, or Desert Merchant -->
+    <div id="akh-zahara-menu-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Akh'Zahara - Act 1 Chapter 1: Tỉnh dậy ở thế giới mới</h2>
+          <button class="btn-back" data-back="plot-screen">← Back</button>
+        </div>
+        <div class="plot-menu">
+          <div class="plot-item" data-akh-action="main-plot">
+            <div class="plot-title">Cốt truyện chính</div>
+            <div class="plot-description">Hành trình đi tìm Shizuku cùng Bảo</div>
+            <button class="btn-primary">Enter</button>
+          </div>
+          <div class="plot-item" data-akh-action="guild">
+            <div class="plot-title">Thương hội</div>
+            <div class="plot-description">Tích lũy tiền | Không được dùng kỹ năng</div>
+            <button class="btn-primary">Enter</button>
+          </div>
+          <div class="plot-item" data-akh-action="merchant">
+            <div class="plot-title">Thương nhân sa mạc bí ẩn</div>
+            <div class="plot-description">Thương nhân sa mạc bí ẩn| Một lần duy nhất | Cực kỳ khó !!!</div>
+            <button class="btn-primary">Challenge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN PLOT SCREEN - Akh'Zahara battles -->
+    <div id="akh-zahara-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Akh'Zahara - Con đường định mệnh</h2>
+          <button class="btn-back" data-back="akh-zahara-menu-screen">← Back</button>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="akh-progress" style="width: 0%"></div>
+        </div>
+        <div class="act-progress-text" id="akh-progress-text">0/5</div>
+        <div class="campaign-map">
+          <div class="map-line"></div>
+          <div class="map-node" data-node="miner-1" data-level="1">
+            <span class="node-icon">⛏️</span>
+            <span class="node-level">Thợ mỏ 1</span>
+          </div>
+          <div class="map-node locked" data-node="miner-2" data-level="2">
+            <span class="node-icon">⛏️</span>
+            <span class="node-level">Thợ mỏ 2</span>
+          </div>
+          <div class="map-node locked" data-node="miner-3" data-level="3">
+            <span class="node-icon">⛏️</span>
+            <span class="node-level">Thợ mỏ 3</span>
+          </div>
+          <div class="map-node locked" data-node="edras" data-level="4">
+            <span class="node-icon">👔</span>
+            <span class="node-level">Quản lý - Edras</span>
+          </div>
+          <div class="map-node locked" data-node="wior" data-level="5">
+            <span class="node-icon">♚</span>
+            <span class="node-level">Boss - Wior</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUILD - TRADE ASSOCIATION SCREEN (inside Akh'Zahara) -->
+    <div id="guild-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Thương hội</h2>
+          <button class="btn-back" data-back="akh-zahara-menu-screen">← Back</button>
+          <div class="player-money">
+            Money:
+            <span id="player-money">0</span>
+          </div>
+        </div>
+        <div class="trade-content">
+          <div class="trade-left">
+            <h3>Trận chiến vì đồng tiền</h3>
+            <div id="trade-opponents" class="opponent-grid"></div>
+          </div>
+          <div class="trade-right">
+            <h3>Shop</h3>
+            <div id="shop-items" class="shop-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGN SCREEN -->
+    <div id="campaign-screen" class="fullscreen-overlay hidden">
+      <div class="campaign-container">
+        <div class="campaign-header">
+          <h2>Campain - Act I: Sa mạc Tuyệt vọng</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="act-progress" style="width: 0%"></div>
+        </div>
+        <div class="act-progress-text" id="act-progress-text">0/5</div>
+        <div class="campaign-map">
+          <div class="map-line"></div>
+          <div class="map-node" data-node="fight-1" data-level="1">
+            <span class="node-icon">♟</span>
+            <span class="node-level">Lvl 1</span>
+          </div>
+          <div class="map-node locked" data-node="fight-2" data-level="2">
+            <span class="node-icon">♞</span>
+            <span class="node-level">Lvl 2</span>
+          </div>
+          <div class="map-node locked" data-node="fight-3" data-level="3">
+            <span class="node-icon">♜</span>
+            <span class="node-level">Lvl 3</span>
+          </div>
+          <div class="map-node locked" data-node="fight-4" data-level="4">
+            <span class="node-icon">♛</span>
+            <span class="node-level">Lvl 4</span>
+          </div>
+          <div class="map-node locked" data-node="boss-1" data-level="5">
+            <span class="node-icon">♚</span>
+            <span class="node-level">Boss</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARENA SCREEN -->
+    <div id="arena-screen" class="fullscreen-overlay hidden">
+      <div class="arena-container">
+        <div class="arena-header">
+          <h2>Thử thách đấu trường</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+        <div class="opponent-grid">
+          <div class="opponent-card" data-opponent="easy-1">
+            <div class="card-icon">♟</div>
+            <div class="card-name">Tân binh</div>
+            <div class="card-difficulty">Tập sự</div>
+            <button class="btn-challenge">Đấu sĩ</button>
+          </div>
+          <div class="opponent-card" data-opponent="easy-2">
+            <div class="card-icon">♞</div>
+            <div class="card-name">Training Dummy</div>
+            <div class="card-difficulty">Easy</div>
+            <button class="btn-challenge">Challenge</button>
+          </div>
+          <div class="opponent-card" data-opponent="medium-1">
+            <div class="card-icon">♜</div>
+            <div class="card-name">Arena Fighter</div>
+            <div class="card-difficulty">Medium</div>
+            <button class="btn-challenge">Challenge</button>
+          </div>
+          <div class="opponent-card" data-opponent="hard-1">
+            <div class="card-icon">♛</div>
+            <div class="card-name">Champion</div>
+            <div class="card-difficulty">Hard</div>
+            <button class="btn-challenge">Challenge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIALOGUE SCREEN -->
+    <div id="dialogue-screen" class="fullscreen-overlay hidden">
+      <div class="dialogue-container">
+        <div class="dialogue-portraits">
+          <div class="dialogue-portrait left">♔</div>
+          <div class="dialogue-portrait right" id="enemy-portrait">♚</div>
+        </div>
+        <div class="dialogue-content">
+          <div class="dialogue-name" id="dialogue-name">Opponent</div>
+          <div class="dialogue-text" id="dialogue-text"></div>
+        </div>
+        <button id="dialogue-continue" class="btn-primary-large">Continue</button>
+      </div>
+    </div>
+
+    <!-- BATTLE SCREEN -->
+    <div id="battle-screen" class="fullscreen-overlay hidden map-main">
+      <div class="battle-container">
+        <!-- Top Panel: Opponent & Turn -->
+        <div class="battle-header">
+          <div class="opponent-info">
+            <div class="opponent-name" id="battle-opponent">vs Sandlord</div>
+            <div class="opponent-timer" id="opponent-timer">10:00</div>
+          </div>
+          <div class="turn-info" id="battle-turn">Turn: 1</div>
+          <button class="btn-surrender btn-danger">Đầu hàng</button>
+        </div>
+
+        <!-- Main Battle Area -->
+        <div class="battle-content">
+          <!-- Left Panel: Logs & Effects -->
+          <div class="battle-left-panel">
+            <div class="panel-section">
+              <h4>Move Log</h4>
+              <div id="move-log" class="log-container"></div>
+            </div>
+            <div class="panel-section">
+              <h4>Skill Log</h4>
+              <div id="skill-log" class="log-container"></div>
+            </div>
+            <div class="panel-section">
+              <h4>Buffs/Debuffs</h4>
+              <div id="buff-debuff-list"></div>
+            </div>
+          </div>
+
+          <!-- Center: Chess Board -->
+          <div class="battle-board">
+            <div class="file-labels">
+              <div>a</div>
+              <div>b</div>
+              <div>c</div>
+              <div>d</div>
+              <div>e</div>
+              <div>f</div>
+              <div>g</div>
+              <div>h</div>
+            </div>
+            <div id="chess-board" class="chess-board"></div>
+            <div class="rank-labels">
+              <div>8</div>
+              <div>7</div>
+              <div>6</div>
+              <div>5</div>
+              <div>4</div>
+              <div>3</div>
+              <div>2</div>
+              <div>1</div>
+            </div>
+            <div class="player-status player">
+              <div class="status-name">You (Bao)</div>
+              <div class="status-timer" id="player-timer">10:00</div>
+            </div>
+          </div>
+
+          <!-- Right Panel: Energy & Skills -->
+          <div class="battle-right-panel">
+            <div class="panel-section">
+              <h4>Energy</h4>
+              <div class="energy-display">
+                <div class="energy-text">
+                  <span id="current-ep">1</span>
+                  /
+                  <span id="max-ep">12</span>
+                  EP
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-section">
+              <h4>Your Skills</h4>
+              <div id="battle-skills" class="skill-cards-vertical"></div>
+            </div>
+
+            <div class="panel-section">
+              <h4>Special Actions</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VICTORY SCREEN -->
+    <div id="victory-screen" class="fullscreen-overlay hidden">
+      <div class="result-panel victory">
+        <h1>VICTORY!</h1>
+        <div class="result-rewards">
+          <p>
+            Kinh nghiệm nhận được:
+            <span class="reward-value" id="exp-gained">+25</span>
+          </p>
+          <p>
+            Lên cấp:
+            <span class="reward-value" id="new-level">2</span>
+          </p>
+        </div>
+        <button class="btn-primary-large" id="victory-continue">Continue</button>
+      </div>
+    </div>
+
+    <!-- DEFEAT SCREEN -->
+    <div id="defeat-screen" class="fullscreen-overlay hidden">
+      <div class="result-panel defeat">
+        <h1>Thất bại</h1>
+        <div class="result-text">
+          <p>Bạn đã bị đánh bại trong trận chiến...</p>
+          <p>Hãy luyện tập kỹ hơn và thử lại!</p>
+        </div>
+        <button class="btn-primary-large" id="defeat-retry">Thử lại</button>
+        <button class="btn-secondary" id="defeat-menu">Trở về Menu</button>
+      </div>
+    </div>
+
+    <!-- DECK BUILDER -->
+    <div id="deck-builder" class="fullscreen-overlay hidden">
+      <div class="deck-container">
+        <div class="deck-header">
+          <h2>Deck Builder</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+
+        <div class="deck-content">
+          <div class="deck-left">
+            <h3>Available Skills</h3>
+            <div id="available-skills" class="skill-grid"></div>
+          </div>
+
+          <div class="deck-right">
+            <h3>Your Deck (5/5)</h3>
+            <div id="selected-skills" class="skill-list-large"></div>
+            <button class="btn-save-deck" id="save-deck-btn">Save Deck</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div id="profile-screen" class="fullscreen-overlay hidden">
+      <div class="profile-container">
+        <div class="profile-header">
+          <h2>Player Profile</h2>
+          <button class="btn-back" data-back="main-menu">← Back</button>
+        </div>
+
+        <div class="profile-content">
+          <div class="profile-stats">
+            <h3>Statistics</h3>
+            <div class="stat-line">
+              Name:
+              <span id="profile-name">Bao</span>
+            </div>
+            <div class="stat-line">
+              Level:
+              <span id="profile-level">1</span>
+            </div>
+            <div class="stat-line">
+              Experience:
+              <span id="profile-exp">0</span>
+            </div>
+            <div class="stat-line">
+              Battles Won:
+              <span id="profile-wins">0</span>
+            </div>
+            <div class="stat-line">
+              Battles Lost:
+              <span id="profile-losses">0</span>
+            </div>
+            <div class="stat-line">
+              Win Rate:
+              <span id="profile-winrate">0%</span>
+            </div>
+          </div>
+
+          <div class="profile-achievements">
+            <h3>Achievements</h3>
+            <div class="achievement locked">
+              <span class="achievement-icon">🏆</span>
+              <span class="achievement-name">First Victory</span>
+            </div>
+            <div class="achievement locked">
+              <span class="achievement-icon">⚔️</span>
+              <span class="achievement-name">Arena Champion</span>
+            </div>
+            <div class="achievement locked">
+              <span class="achievement-icon">👑</span>
+              <span class="achievement-name">Boss Slayer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load core game state first, then systems, then UI logic -->
+    <script src="game_Stage.js"></script>
+    <script src="ai_System.js"></script>
+    <script src="dialogue_System.js"></script>
+    <script src="skill_System.js"></script>
+    <script src="chess_Logic.js"></script>
+    <script src="menu_Logic.js"></script>
+    <script src="battle_System.js"></script>
+  </body>
+</html>
