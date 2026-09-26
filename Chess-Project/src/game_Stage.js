@@ -74,8 +74,19 @@ window.gameState = {
   },
 
   loadPlayerDeck() {
-    const savedDeck = JSON.parse(localStorage.getItem("chess_player_deck") || "null");
-    if (savedDeck && savedDeck.length === 5) {
+    let savedDeck = null;
+    try {
+      savedDeck = JSON.parse(localStorage.getItem("chess_player_deck") || "null");
+    } catch (error) {
+      localStorage.removeItem("chess_player_deck");
+    }
+
+    const validSkillIds = new Set(Object.keys(window.skillSystem?.skills || {}));
+    if (
+      Array.isArray(savedDeck) &&
+      savedDeck.length === 5 &&
+      savedDeck.every((skillId) => validSkillIds.has(skillId))
+    ) {
       this.playerDeck = savedDeck;
     } else {
       this.playerDeck = ["azw_attack", "azw_shield", "azw_hard_work", "azw_unity", "azw_sandstorm"];
@@ -108,19 +119,25 @@ window.gameState = {
       const skill = window.skillSystem.getSkill(skillId);
       if (!skill) return;
 
-      const card = document.createElement("div");
+      const card = document.createElement("button");
       card.className = "skill-card";
+      card.type = "button";
+      card.setAttribute("aria-label", `${skill.name}, costs ${skill.cost} energy`);
       card.innerHTML = `
-        <div class="skill-name">${skill.name}</div>
-        <div class="skill-cost">Cost: ${skill.cost} EP</div>
+        <span class="skill-card-top"><span class="skill-name">${skill.name}</span><span class="skill-state">READY</span></span>
+        <span class="skill-cost">${skill.cost} EP</span>
         <div class="skill-desc">${skill.description}</div>
       `;
 
-      if (this.energy.white >= skill.cost) {
+      const isPlayerTurn = this.timers.currentPlayer === "white";
+      const canUse = isPlayerTurn && this.energy.white >= skill.cost;
+      if (canUse) {
         card.classList.add("usable");
         card.onclick = () => this.useSkill(index);
       } else {
         card.classList.add("disabled");
+        card.querySelector(".skill-state").textContent = isPlayerTurn ? "NEEDS EP" : "WAIT";
+        card.setAttribute("aria-disabled", "true");
       }
 
       container.appendChild(card);
@@ -143,8 +160,9 @@ window.gameState = {
       this.playerHand.splice(handIndex, 1);
       this.skillLog.push(`Turn ${this.turnNumber}: Used ${skill.name}`);
       this.updateSkillLog();
-      this.updateSkillCardsUI();
       this.updateEnergyDisplay();
+      this.updateSkillCardsUI();
+      this.showBattleNotification(`${skill.name} activated`, "success");
 
       // CRITICAL: Prune and update after skill
       this.pruneDeadPieces();
@@ -167,6 +185,52 @@ window.gameState = {
     const maxEpElement = document.getElementById("max-ep");
     if (epElement) epElement.textContent = this.energy.white;
     if (maxEpElement) maxEpElement.textContent = this.energy.maxEP;
+    const track = document.querySelector(".energy-track span");
+    if (track) track.style.width = `${Math.max(0, Math.min(100, (this.energy.white / this.energy.maxEP) * 100))}%`;
+    const hint = document.getElementById("energy-hint");
+    if (hint)
+      hint.textContent =
+        this.energy.white === 0 ? "No energy. Capture energy tiles or end a turn." : "Use energy to activate skills.";
+    this.updateBattleHud();
+  },
+
+  getKingHealthStats(color) {
+    const position = color === "white" ? this.whiteKingPos : this.blackKingPos;
+    const health = this.pieceHealth[`${position[0]}-${position[1]}`] || { current: 0, max: 1 };
+    return { current: Math.max(0, health.current), max: Math.max(health.max, 1) };
+  },
+
+  updateBattleHud() {
+    const updateHealth = (color, prefix) => {
+      const stats = this.getKingHealthStats(color);
+      const current = Math.round(stats.current * 100);
+      const max = Math.round(stats.max * 100);
+      const value = document.getElementById(`${prefix}-hp`);
+      const maxValue = document.getElementById(`${prefix}-hp-max`);
+      const fill = document.getElementById(`${prefix}-hp-fill`);
+      if (value) value.textContent = current;
+      if (maxValue) maxValue.textContent = max;
+      if (fill) {
+        fill.style.width = `${Math.max(0, Math.min(100, (stats.current / stats.max) * 100))}%`;
+        fill.parentElement?.parentElement?.classList.toggle("critical", stats.current / stats.max <= 0.33);
+      }
+    };
+    updateHealth("white", "player");
+    updateHealth("black", "opponent");
+  },
+
+  showBattleNotification(message, type = "info") {
+    const notification = document.getElementById("battle-notification");
+    if (!notification) return;
+    notification.textContent = message;
+    notification.dataset.type = type;
+    notification.classList.remove("is-visible");
+    requestAnimationFrame(() => notification.classList.add("is-visible"));
+    clearTimeout(this._notificationTimer);
+    this._notificationTimer = setTimeout(
+      () => notification.classList.remove("is-visible"),
+      type === "critical" ? 3200 : 2200,
+    );
   },
 
   isEnergyTile(row, col) {
@@ -370,6 +434,12 @@ window.gameState = {
     }
 
     health.current -= amount;
+    if (window.battleSystem && window.battleSystem.showBattleNotification) {
+      window.battleSystem.showBattleNotification(
+        `${Math.round(amount * 100)} damage`,
+        amount >= 0.5 ? "critical" : "info",
+      );
+    }
 
     if (health.current <= 0) {
       const piece = this.boardState[row][col];
@@ -474,7 +544,7 @@ window.gameState = {
     if (!skill) return false;
 
     if (this.energy[player] < skill.cost) {
-      alert("Not enough EP to use piece skill");
+      this.showBattleNotification("Not enough energy for that skill", "warning");
       return false;
     }
 
@@ -482,6 +552,7 @@ window.gameState = {
     if (ok) {
       this.energy[player] = Math.max(0, this.energy[player] - skill.cost);
       this.updateEnergyDisplay();
+      this.showBattleNotification(`${skill.name} activated`, "success");
       this.skillLog.push(`${player} used ${skill.name} at ${this.positionToNotation(row, col)}`);
       this.updateSkillLog();
 

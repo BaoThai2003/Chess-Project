@@ -14,7 +14,7 @@ window.skillSystem = {
         // Begin multi-step selection: first select a friendly piece
         window.skillSystem.pending = { id: this.id, player: player, step: 0, data: {} };
         alert(
-          "AZW - Tấn công: Chọn một quân cờ đồng minh để đẩy. Sau khi chọn, bạn sẽ chọn hướng (thẳng, chéo trái, chéo phải)."
+          "AZW - Tấn công: Chọn một quân cờ đồng minh để đẩy. Sau khi chọn, bạn sẽ chọn hướng (thẳng, chéo trái, chéo phải).",
         );
         return true;
       },
@@ -53,7 +53,7 @@ window.skillSystem = {
 
         window.gameState.updateEffectsDisplay();
         alert(
-          "Lá chắn đang hoạt động cho đội của bạn trong 3 lượt. Một hiệu ứng hình ảnh lá chắn màu vàng nhạt đã được áp dụng."
+          "Lá chắn đang hoạt động cho đội của bạn trong 3 lượt. Một hiệu ứng hình ảnh lá chắn màu vàng nhạt đã được áp dụng.",
         );
         return true;
       },
@@ -97,7 +97,7 @@ window.skillSystem = {
         window.gameState.updateEffectsDisplay();
         if (window.updateAllHealthBars) window.updateAllHealthBars();
         alert(
-          'Kỹ năng "Phấn đấu chăm chỉ" được kích hoạt: các quân cờ đồng minh chịu 0.25 sát thương và sẽ gây thêm +0.25 sát thương trong 3 lượt.'
+          'Kỹ năng "Phấn đấu chăm chỉ" được kích hoạt: các quân cờ đồng minh chịu 0.25 sát thương và sẽ gây thêm +0.25 sát thương trong 3 lượt.',
         );
         return true;
       },
@@ -396,8 +396,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const availableSkills = document.getElementById("available-skills");
   const selectedSkills = document.getElementById("selected-skills");
 
-  let currentDeck =
-    JSON.parse(localStorage.getItem("chess_player_deck") || "null") || window.skillSystem.getDefaultDeck();
+  let currentDeck;
+  try {
+    currentDeck = JSON.parse(localStorage.getItem("chess_player_deck") || "null");
+  } catch (error) {
+    currentDeck = null;
+  }
+  if (!Array.isArray(currentDeck)) currentDeck = window.skillSystem.getDefaultDeck();
 
   function renderSkills() {
     if (!availableSkills || !selectedSkills) return;

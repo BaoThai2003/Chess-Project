@@ -113,8 +113,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!availableSkills || !selectedSkills) return;
 
     // Get current deck
-    let currentDeck =
-      JSON.parse(localStorage.getItem("chess_player_deck") || "null") || window.skillSystem.getDefaultDeck();
+    let currentDeck;
+    try {
+      currentDeck = JSON.parse(localStorage.getItem("chess_player_deck") || "null");
+    } catch (error) {
+      currentDeck = null;
+    }
+    if (!Array.isArray(currentDeck)) currentDeck = window.skillSystem.getDefaultDeck();
 
     // Render available skills
     availableSkills.innerHTML = "";
@@ -260,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const confirmed = confirm(
-      "Challenge the Desert Merchant?\n\nWarning: This is an extremely powerful opponent. You can only challenge once!\n\nRewards: Unique skill card + 500,000 Gold"
+      "Challenge the Desert Merchant?\n\nWarning: This is an extremely powerful opponent. You can only challenge once!\n\nRewards: Unique skill card + 500,000 Gold",
     );
     if (confirmed) {
       window.battleSystem.startBattle("desert-merchant");

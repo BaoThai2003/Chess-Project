@@ -1,6 +1,6 @@
 // He thong AI cho doi thu
 window.aiSystem = {
-  difficulty: "easy", 
+  difficulty: "easy",
 
   // Dat do kho tuy theo doi thu
   setDifficulty(level) {
@@ -170,26 +170,22 @@ window.aiSystem = {
 
   // Get valid moves for a piece
   getValidMovesForPiece(row, col, piece) {
-    let moves = [];
-
-    if (piece === "♛") {
-      moves = window.getValidQueenMoves(row, col, piece); // Use global from chess_Logic
-    } else if (piece === "♚") {
-      moves = window.getValidKingMoves(row, col, piece);
-    } else if (piece === "♝") {
-      moves = window.getValidBishopMoves(row, col, piece);
-    } else if (piece === "♜") {
-      moves = window.getValidRookMoves(row, col, piece);
-    } else if (piece === "♟") {
-      moves = window.getValidPawnMoves(row, col, piece);
-    } else if (piece === "♞") {
-      moves = window.getValidKnightMoves(row, col, piece);
-    }
+    const moves = this.getPseudoLegalMoves(row, col, piece);
 
     // Filter out moves that put king in check
     return moves.filter(([toRow, toCol]) => {
       return this.isMoveSafe(row, col, toRow, toCol, piece);
     });
+  },
+
+  getPseudoLegalMoves(row, col, piece) {
+    if (piece === "♛") return window.getValidQueenMoves(row, col, piece);
+    if (piece === "♚") return window.getValidKingMoves(row, col, piece);
+    if (piece === "♝") return window.getValidBishopMoves(row, col, piece);
+    if (piece === "♜") return window.getValidRookMoves(row, col, piece);
+    if (piece === "♟") return window.getValidPawnMoves(row, col, piece);
+    if (piece === "♞") return window.getValidKnightMoves(row, col, piece);
+    return [];
   },
 
   // Evaluate move quality (higher = better)
@@ -372,7 +368,9 @@ window.aiSystem = {
       for (let col = 0; col < 8; col++) {
         const piece = window.gameState.boardState[row][col];
         if (opponentPieces.includes(piece)) {
-          const moves = this.getValidMovesForPiece(row, col, piece);
+          // Attack detection must use pseudo-legal moves. Calling the full
+          // safety filter here would recursively call isKingInCheck again.
+          const moves = this.getPseudoLegalMoves(row, col, piece);
           if (moves.some(([r, c]) => r === kingRow && c === kingCol)) {
             return true;
           }

@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     window.gameState.moveLog.push(
-      `Pawn promoted to ${pieceNames[choice]} at ${window.gameState.positionToNotation(row, col)}!`
+      `Pawn promoted to ${pieceNames[choice]} at ${window.gameState.positionToNotation(row, col)}!`,
     );
 
     if (window.updateAllHealthBars) window.updateAllHealthBars();
@@ -199,18 +199,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const isWhite = piece === "♔";
     const rookRow = isWhite ? 7 : 0;
 
+    // Every square between the king and rook, including the destination,
+    // must be empty before castling can be performed.
+    const step = toCol > fromCol ? 1 : -1;
+    for (let col = fromCol + step; col !== (toCol > fromCol ? 8 : -1); col += step) {
+      if (col === toCol) break;
+      if (window.gameState.boardState[rookRow][col]) return false;
+    }
+
     // Kingside castling (king moves right)
     if (toCol === fromCol + 2) {
       const rookCol = 7;
       const rook = window.gameState.boardState[rookRow][rookCol];
-      return (isWhite && rook === "♖") || (!isWhite && rook === "♜");
+      return !window.gameState.boardState[rookRow][toCol] && ((isWhite && rook === "♖") || (!isWhite && rook === "♜"));
     }
 
     // Queenside castling (king moves left)
     if (toCol === fromCol - 2) {
       const rookCol = 0;
       const rook = window.gameState.boardState[rookRow][rookCol];
-      return (isWhite && rook === "♖") || (!isWhite && rook === "♜");
+      return !window.gameState.boardState[rookRow][toCol] && ((isWhite && rook === "♖") || (!isWhite && rook === "♜"));
     }
 
     return false;
@@ -614,8 +622,8 @@ document.addEventListener("DOMContentLoaded", function () {
             window.gameState.moveLog.push(
               `Skill ${pending.id}: moved ${sel.piece} ${window.gameState.positionToNotation(
                 sel.r,
-                sel.c
-              )} -> ${window.gameState.positionToNotation(targetR, targetC)}`
+                sel.c,
+              )} -> ${window.gameState.positionToNotation(targetR, targetC)}`,
             );
             window.skillSystem.pending = null;
             syncBoardStateWithDOM();
@@ -695,8 +703,8 @@ document.addEventListener("DOMContentLoaded", function () {
           window.gameState.moveLog.push(
             `Skill ${pending.id}: swapped ${pa} and ${pb} at ${window.gameState.positionToNotation(
               a.r,
-              a.c
-            )} <-> ${window.gameState.positionToNotation(b.r, b.c)}`
+              a.c,
+            )} <-> ${window.gameState.positionToNotation(b.r, b.c)}`,
           );
           window.skillSystem.pending = null;
           syncBoardStateWithDOM();
@@ -887,7 +895,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   delete window.gameState.pieceHealth[oldKey2];
                 }
                 window.gameState.moveLog.push(
-                  `Sandstorm backlash moved ${movedPiece} back to ${window.gameState.positionToNotation(backR, backC)}`
+                  `Sandstorm backlash moved ${movedPiece} back to ${window.gameState.positionToNotation(backR, backC)}`,
                 );
               }
             }
@@ -1213,6 +1221,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // Switch player and timer
   function switchPlayer() {
     window.gameState.timers.currentPlayer = window.gameState.timers.currentPlayer === "white" ? "black" : "white";
+    const statusText = document.querySelector("#battle-screen .board-status span:nth-child(2)");
+    const statusHint = document.querySelector("#battle-screen .board-status small");
+    const isPlayerTurn = window.gameState.timers.currentPlayer === "white";
+    if (statusText) statusText.textContent = isPlayerTurn ? "Your turn" : "Opponent's turn";
+    if (statusHint) statusHint.textContent = isPlayerTurn ? "Choose a piece to begin" : "Reading the board...";
+    if (window.gameState.updateBattleHud) window.gameState.updateBattleHud();
+    if (window.gameState.updateSkillCardsUI) window.gameState.updateSkillCardsUI();
+    if (window.battleSystem?.showBattleNotification) {
+      window.battleSystem.showBattleNotification(isPlayerTurn ? "Your turn" : "Opponent's turn", "info");
+    }
     window.gameState.incrementTurn();
     window.gameState.processTurnEffects();
   }

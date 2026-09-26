@@ -29,9 +29,12 @@ window.battleSystem = {
 
     // CRITICAL FIX: Set background image with proper paths
     this.setBackgroundImage();
+    this.ensureBattleHud();
 
     const opponentEl = document.getElementById("battle-opponent");
     if (opponentEl) opponentEl.textContent = `vs ${enemyData.name}`;
+    const opponentLabelEl = document.getElementById("battle-opponent-label");
+    if (opponentLabelEl) opponentLabelEl.textContent = enemyData.name;
 
     if (window.gameState) {
       window.gameState.turnNumber = 1;
@@ -40,6 +43,7 @@ window.battleSystem = {
       window.gameState.timers.white = 600;
       window.gameState.timers.black = 600;
       window.gameState.timers.currentPlayer = "white";
+      window.gameState.timers.isPaused = false;
       window.gameState.moveLog = [];
       window.gameState.skillLog = [];
       window.gameState.activeEffects = [];
@@ -53,6 +57,7 @@ window.battleSystem = {
         if (window.gameState && window.gameState.updateSkillCardsUI) window.gameState.updateSkillCardsUI();
         if (window.gameState && window.gameState.updateEnergyDisplay) window.gameState.updateEnergyDisplay();
         if (window.gameState && window.gameState.updateEffectsDisplay) window.gameState.updateEffectsDisplay();
+        if (window.gameState && window.gameState.updateBattleHud) window.gameState.updateBattleHud();
       } else {
         setTimeout(renderBoard, 500);
       }
@@ -69,6 +74,39 @@ window.battleSystem = {
           this.endBattle(false);
         }
       };
+    }
+  },
+
+  ensureBattleHud() {
+    const createHealthBlock = (panel, prefix) => {
+      if (!panel || document.getElementById(`${prefix}-hp`)) return;
+      const block = document.createElement("div");
+      block.className = "battle-stat";
+      block.setAttribute("aria-label", `${prefix === "player" ? "Your" : "Opponent"} health`);
+      block.innerHTML = `<div class="stat-label"><span>HP</span><strong><span id="${prefix}-hp">100</span> / <span id="${prefix}-hp-max">100</span></strong></div><div class="stat-track hp-track"><span id="${prefix}-hp-fill"></span></div>`;
+      panel.insertBefore(block, panel.querySelector(".clock"));
+    };
+
+    createHealthBlock(document.querySelector("#battle-screen .opponent-panel"), "opponent");
+    createHealthBlock(document.querySelector("#battle-screen .player-panel-bottom"), "player");
+
+    const boardStage = document.querySelector("#battle-screen .board-stage");
+    if (boardStage && !document.getElementById("battle-notification")) {
+      const notification = document.createElement("div");
+      notification.id = "battle-notification";
+      notification.className = "battle-notification";
+      notification.setAttribute("role", "status");
+      notification.setAttribute("aria-live", "polite");
+      boardStage.insertBefore(notification, boardStage.querySelector(".board-frame"));
+    }
+
+    const energyPanel = document.querySelector("#battle-screen .energy-panel");
+    if (energyPanel && !document.getElementById("energy-hint")) {
+      const hint = document.createElement("small");
+      hint.id = "energy-hint";
+      hint.className = "energy-hint";
+      hint.textContent = "Use energy to activate skills.";
+      energyPanel.appendChild(hint);
     }
   },
 
@@ -89,6 +127,11 @@ window.battleSystem = {
 
   endBattle(victory) {
     this.battleActive = false;
+    if (window.gameState?.timers) {
+      window.gameState.timers.isPaused = true;
+      clearInterval(window.gameState.timers.interval);
+      window.gameState.timers.interval = null;
+    }
     // Clear persistent attack markers when battle ends
     try {
       if (window.gameState && window.gameState.clearAttackedMarkers) window.gameState.clearAttackedMarkers();
@@ -225,7 +268,39 @@ window.battleSystem = {
     };
 
     const saved = localStorage.getItem("chess_player_data");
-    return saved ? JSON.parse(saved) : defaultData;
+    if (!saved) return { ...defaultData };
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { ...defaultData };
+      const data = {
+        ...defaultData,
+        ...parsed,
+        campaignProgress:
+          parsed.campaignProgress && typeof parsed.campaignProgress === "object" ? parsed.campaignProgress : {},
+        akhZaharaProgress:
+          parsed.akhZaharaProgress && typeof parsed.akhZaharaProgress === "object" ? parsed.akhZaharaProgress : {},
+        boughtSkills: Array.isArray(parsed.boughtSkills) ? parsed.boughtSkills : [],
+      };
+      const numericDefaults = {
+        level: defaultData.level,
+        exp: defaultData.exp,
+        expToNext: defaultData.expToNext,
+        wins: defaultData.wins,
+        losses: defaultData.losses,
+        money: defaultData.money,
+      };
+      Object.entries(numericDefaults).forEach(([key, fallback]) => {
+        if (typeof data[key] !== "number" || !Number.isFinite(data[key]) || data[key] < 0) {
+          data[key] = fallback;
+        }
+      });
+      if (!data.name || typeof data.name !== "string") data.name = defaultData.name;
+      return data;
+    } catch (error) {
+      localStorage.removeItem("chess_player_data");
+      return { ...defaultData };
+    }
   },
 
   savePlayerData(data) {
