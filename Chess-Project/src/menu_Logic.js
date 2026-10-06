@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Menu Logic loaded");
 
-  // Main menu buttons
   document.querySelectorAll(".menu-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.dataset.action;
@@ -34,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Back buttons
   document.querySelectorAll(".btn-back").forEach((btn) => {
     btn.addEventListener("click", () => {
       const backTo = btn.dataset.back;
@@ -47,21 +45,19 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (backTo === "akh-zahara-menu-screen") {
         document.getElementById("akh-zahara-menu-screen").classList.remove("hidden");
       } else {
-        // Generic handler for any other back-to values
         const screenEl = document.getElementById(backTo);
         if (screenEl) screenEl.classList.remove("hidden");
       }
     });
   });
 
-  // === CAMPAIGN ===
+  // CAMPAIN
   function showCampaign() {
     document.getElementById("campaign-screen").classList.remove("hidden");
     if (window.battleSystem) {
       window.battleSystem.updateCampaignUI();
     }
 
-    // Campaign node clicks
     document.querySelectorAll(".map-node").forEach((node) => {
       node.onclick = () => {
         if (node.classList.contains("locked")) {
@@ -72,24 +68,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const nodeId = node.dataset.node;
         const nodeLevel = parseInt(node.dataset.level);
 
-        // Check player level requirement
         const playerData = window.battleSystem.getPlayerData();
         if (playerData.level < nodeLevel) {
           alert(`You need to be level ${nodeLevel} to fight this opponent!`);
           return;
         }
 
-        // Start battle
         window.battleSystem.startBattle(nodeId);
       };
     });
   }
 
-  // === ARENA ===
+  // ARENA
   function showArena() {
     document.getElementById("arena-screen").classList.remove("hidden");
 
-    // Challenge buttons
     document.querySelectorAll(".btn-challenge").forEach((btn) => {
       btn.onclick = () => {
         const card = btn.closest(".opponent-card");
@@ -100,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === DECK BUILDER ===
+  // DECK BUILDER
   function showDeckBuilder() {
     document.getElementById("deck-builder").classList.remove("hidden");
     renderDeckBuilder();
@@ -112,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!availableSkills || !selectedSkills) return;
 
-    // Get current deck
     let currentDeck;
     try {
       currentDeck = JSON.parse(localStorage.getItem("chess_player_deck") || "null");
@@ -121,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (!Array.isArray(currentDeck)) currentDeck = window.skillSystem.getDefaultDeck();
 
-    // Render available skills
     availableSkills.innerHTML = "";
     const allSkills = window.skillSystem.getAllSkills();
 
@@ -140,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Render selected skills
     selectedSkills.innerHTML = "";
     currentDeck.forEach((skillId, index) => {
       const skill = window.skillSystem.getSkill(skillId);
@@ -154,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Save deck button
+    // Save deck
     const saveBtn = document.getElementById("save-deck-btn");
     if (saveBtn) {
       saveBtn.onclick = () => {
@@ -184,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return card;
   }
 
-  // === PROFILE ===
+  // PROFILE
   function showProfile() {
     document.getElementById("profile-screen").classList.remove("hidden");
 
@@ -193,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // === PLOT ===
+  // PLOT
   function showPlot() {
     document.getElementById("plot-screen").classList.remove("hidden");
 
@@ -212,7 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function showAkhZaharaMenu() {
     document.getElementById("akh-zahara-menu-screen").classList.remove("hidden");
 
-    // Handle Akh'Zahara menu actions
     document.querySelectorAll("#akh-zahara-menu-screen .plot-item").forEach((item) => {
       item.onclick = () => {
         const action = item.dataset.akhAction;
@@ -248,13 +237,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === GUILD - TRADE ASSOCIATION ===
+  // GUILD - TRADE ASSOCIATION
   function showGuild() {
     document.getElementById("guild-screen").classList.remove("hidden");
     window.battleSystem.initTradeAssociation();
   }
 
-  // === DESERT MERCHANT (inside Akh'Zahara) ===
+  // DESERT MERCHANT
   function showDesertMerchant() {
     const playerData = window.battleSystem.getPlayerData();
 
@@ -274,14 +263,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // === UTILITY ===
+  // UTILITY
   function hideAllScreens() {
     document.querySelectorAll(".fullscreen-overlay").forEach((screen) => {
       screen.classList.add("hidden");
     });
   }
 
-  // === SAVE/LOAD SYSTEM ===
+  // SAVE/LOAD SYSTEM
 
   window.saveGameAuto = () => {
     if (!window.gameState || !window.gameState.boardState) return;
@@ -313,7 +302,6 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const data = JSON.parse(saved);
 
-      // Restore game state
       window.gameState.boardState = data.boardState.map((r) => [...r]);
       window.gameState.whiteKingPos = [...data.whiteKingPos];
       window.gameState.blackKingPos = [...data.blackKingPos];
@@ -336,18 +324,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Check for autosave on load
   setTimeout(() => {
     const autosave = localStorage.getItem("chess_battle_autosave");
     if (autosave) {
       const data = JSON.parse(autosave);
       const timeSince = Date.now() - new Date(data.timestamp).getTime();
 
-      // If less than 1 hour, offer to continue
       if (timeSince < 3600000) {
         if (confirm("Continue your last battle?")) {
           if (window.loadGameAuto()) {
-            // Resume battle
             const enemyData = window.dialogueSystem.getEnemyData(window.battleSystem.currentOpponent);
             hideAllScreens();
             window.battleSystem.showBattleScreen(enemyData);
