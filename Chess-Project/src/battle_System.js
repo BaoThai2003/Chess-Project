@@ -27,7 +27,6 @@ window.battleSystem = {
     }
     battleScreen.classList.remove("hidden");
 
-    // CRITICAL FIX: Set background image with proper paths
     this.setBackgroundImage();
     this.ensureBattleHud();
 
@@ -110,10 +109,7 @@ window.battleSystem = {
     }
   },
 
-  // CRITICAL FIX: Properly set background images
   setBackgroundImage() {
-    // Background images are applied via CSS classes. This avoids manipulating URL paths in JS
-    // and lets the stylesheet control which image is used for each gameplay section.
     const battleScreen = document.getElementById("battle-screen");
     battleScreen.classList.remove("map-main", "map-desert", "map-village");
     if (this.currentOpponent === "desert-merchant") {
@@ -132,7 +128,6 @@ window.battleSystem = {
       clearInterval(window.gameState.timers.interval);
       window.gameState.timers.interval = null;
     }
-    // Clear persistent attack markers when battle ends
     try {
       if (window.gameState && window.gameState.clearAttackedMarkers) window.gameState.clearAttackedMarkers();
     } catch (e) {}
@@ -485,7 +480,6 @@ window.battleSystem = {
     });
   },
 
-  // CRITICAL FIX: Check victory with proper dead piece handling
   checkVictory() {
     if (!window.gameState || !this.battleActive) return;
 
