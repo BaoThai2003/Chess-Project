@@ -1,9 +1,6 @@
-// Skill System
 window.skillSystem = {
-  // pending multi-step skill state
   pending: null,
   skills: {
-    // === AZW Faction Skills ===
     azw_attack: {
       id: "azw_attack",
       name: "AZW - Tiến công",
@@ -11,7 +8,6 @@ window.skillSystem = {
       description:
         "Chọn 1 quân cờ đồng minh, sau đó chọn hướng di chuyển (thẳng/chéo trái/chéo phải). Đẩy quân cờ đó lên 2 ô.",
       execute: function (player) {
-        // Begin multi-step selection: first select a friendly piece
         window.skillSystem.pending = { id: this.id, player: player, step: 0, data: {} };
         alert(
           "AZW - Tấn công: Chọn một quân cờ đồng minh để đẩy. Sau khi chọn, bạn sẽ chọn hướng (thẳng, chéo trái, chéo phải).",
@@ -68,7 +64,6 @@ window.skillSystem = {
       execute: function (player) {
         if (!window.gameState) return false;
 
-        // Damage all friendly pieces and mark visual
         const friendly = player === "white" ? ["♔", "♕", "♖", "♗", "♘", "♙"] : ["♚", "♛", "♜", "♝", "♞", "♟"];
         const damagedPositions = [];
         for (let key in window.gameState.pieceHealth) {
@@ -83,7 +78,6 @@ window.skillSystem = {
           }
         }
 
-        // Add buff that increases team damage
         const effect = {
           name: "Phấn đấu chăm chỉ",
           type: "buff",
@@ -131,7 +125,6 @@ window.skillSystem = {
         "Triệu hồi một cơn bão cát bao phủ 2 hàng trong 3 lượt. Các quân địch trong phạm vi ảnh hưởng bị giảm 1 điểm di chuyển.",
       execute: function (player) {
         if (!window.gameState) return false;
-        //kiểm tra người chơi chọn hàng hợp lệ
         let input = prompt("Enter the top row index for the sandstorm (0-6). Rows covered will be R and R+1.");
         if (input === null) return false;
         const r = parseInt(input);
@@ -156,7 +149,6 @@ window.skillSystem = {
       },
     },
 
-    // New skill
     azw_sand_rage: {
       id: "azw_sand_rage",
       name: "AZW - Bão cát cuồng nộ",
@@ -164,14 +156,12 @@ window.skillSystem = {
       description:
         "Hoán đổi 2 quân địch trên cùng một hàng; gây 0.25 sát thương cho quân địch vừa hoán đổi và 0.25 sát thương cho các quân địch khác trên hàng đó.",
       execute: function (player) {
-        // Begin multi-step selection: choose two enemy pieces
         window.skillSystem.pending = { id: this.id, player: player, step: 0, data: { picks: [] } };
         alert("Sand Rage: Select two enemy pieces on the same row, column, or diagonal to swap.");
         return true;
       },
     },
 
-    // === Individual Piece Skills ===
     pawn_volcanic: {
       id: "pawn_volcanic",
       name: "Bão cát nóng chảy",
@@ -280,17 +270,14 @@ window.skillSystem = {
     },
   },
 
-  // Get skill by ID
   getSkill(skillId) {
     return this.skills[skillId];
   },
 
-  // Execute a skill
   executeSkill(skillId, player, context) {
     const skill = this.skills[skillId];
     if (!skill) return false;
 
-    // Execute and annotate any added activeEffects with owner (player)
     try {
       const beforeCount =
         window.gameState && window.gameState.activeEffects ? window.gameState.activeEffects.length : 0;
@@ -307,7 +294,6 @@ window.skillSystem = {
 
       return result;
     } catch (e) {
-      // Fallback: call with only player
       try {
         const beforeCount =
           window.gameState && window.gameState.activeEffects ? window.gameState.activeEffects.length : 0;
@@ -328,20 +314,16 @@ window.skillSystem = {
     }
   },
 
-  // Get all available skills for deck building
   getAllSkills() {
     return Object.values(this.skills);
   },
 
-  // Get default AZW faction skills
   getDefaultDeck() {
     return ["azw_attack", "azw_shield", "azw_hard_work", "azw_unity", "azw_sandstorm"];
   },
 
-  // Get piece-skill mapping for factions. Keys are piece symbols placed on board.
   getPieceSkillMapping(faction) {
     if (!faction || faction === "azw") {
-      // Map both white and black symbols to AZW piece skills
       return {
         // White pieces
         "♙": "pawn_volcanic",
@@ -363,12 +345,10 @@ window.skillSystem = {
   },
 };
 
-// Deck builder functionality
 document.addEventListener("DOMContentLoaded", () => {
   const deckBuilder = document.getElementById("deck-builder");
   if (!deckBuilder) return;
 
-  // Insert faction selector control (allows choosing piece skill set)
   const factionDiv = document.createElement("div");
   factionDiv.id = "faction-selector";
   factionDiv.style.marginBottom = "8px";
@@ -392,7 +372,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Populate available skills
   const availableSkills = document.getElementById("available-skills");
   const selectedSkills = document.getElementById("selected-skills");
 
@@ -412,7 +391,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const allSkills = window.skillSystem.getAllSkills();
 
-    // Render available skills
     allSkills.forEach((skill) => {
       if (!currentDeck.includes(skill.id)) {
         const card = createSkillCard(skill, false);
@@ -420,7 +398,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Render selected skills
     currentDeck.forEach((skillId) => {
       const skill = window.skillSystem.getSkill(skillId);
       if (skill) {
@@ -441,10 +418,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     card.onclick = () => {
       if (isSelected) {
-        // Remove from deck
         currentDeck = currentDeck.filter((id) => id !== skill.id);
       } else {
-        // Add to deck (max 5)
         if (currentDeck.length < 5) {
           currentDeck.push(skill.id);
         } else {
@@ -458,7 +433,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return card;
   }
 
-  // Save deck button
   const saveDeckBtn = document.getElementById("save-deck-btn");
   if (saveDeckBtn) {
     saveDeckBtn.addEventListener("click", () => {
@@ -471,7 +445,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Initialize deck builder when shown
   const observer = new MutationObserver(() => {
     if (!deckBuilder.classList.contains("hidden")) {
       renderSkills();
