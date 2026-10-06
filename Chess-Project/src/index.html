@@ -12,51 +12,680 @@
     <div class="site-noise" aria-hidden="true"></div>
 
     <main id="story-intro" class="screen fullscreen-overlay screen-intro">
-      <div class="intro-art" aria-hidden="true"><div class="intro-sun"></div><div class="intro-silhouette">♞</div></div>
+      <div class="intro-art" aria-hidden="true">
+        <div class="intro-sun"></div>
+        <div class="intro-silhouette">♞</div>
+      </div>
       <section class="intro-panel" aria-labelledby="intro-title">
         <div class="eyebrow">AKH'ZAHARA / PROLOGUE</div>
-        <h1 id="intro-title">The board remembers<br /><em>every move.</em></h1>
-        <p class="intro-lede">Một thế giới xa lạ. Một lời hứa chưa hoàn thành. Hành trình tìm Shizuku bắt đầu từ đây.</p>
-        <div class="intro-rule"><span></span><span>✦</span><span></span></div>
-        <p class="intro-copy">Bảo bị kéo vào một bàn cờ rực sáng giữa đêm lễ hội. Không có manh mối, không có đường lui, chỉ còn những nước cờ dẫn anh về phía trước.</p>
-        <button id="start-story-btn" class="button button-primary button-large"><span>Mau đi thôi</span><span aria-hidden="true">↗</span></button>
+        <h1 id="intro-title">
+          The board remembers
+          <br />
+          <em>every move.</em>
+        </h1>
+        <p class="intro-lede">
+          Một thế giới xa lạ. Một lời hứa chưa hoàn thành. Hành trình tìm Shizuku bắt đầu từ đây.
+        </p>
+        <div class="intro-rule">
+          <span></span>
+          <span>✦</span>
+          <span></span>
+        </div>
+        <p class="intro-copy">
+          Bảo bị kéo vào một bàn cờ rực sáng giữa đêm lễ hội. Không có manh mối, không có đường lui, chỉ còn những nước
+          cờ dẫn anh về phía trước.
+        </p>
+        <button id="start-story-btn" class="button button-primary button-large">
+          <span>Mau đi thôi</span>
+          <span aria-hidden="true">↗</span>
+        </button>
       </section>
-      <div class="intro-footer"><span>CHESS PROJECT</span><span>ACT I · DESERT OF DESPAIR</span></div>
+      <div class="intro-footer">
+        <span>CHESS PROJECT</span>
+        <span>ACT I · DESERT OF DESPAIR</span>
+      </div>
     </main>
 
     <main id="main-menu" class="screen fullscreen-overlay screen-menu hidden">
-      <header class="app-header"><a class="brand" href="#" aria-label="Chess Project home"><span class="brand-mark">♞</span><span><strong>Chess</strong> Project</span></a><div class="header-meta"><span class="status-dot"></span><span>Local session</span><span class="header-divider"></span><span class="muted">Akh'Zahara</span></div></header>
+      <header class="app-header">
+        <a class="brand" href="#" aria-label="Chess Project home">
+          <span class="brand-mark">♞</span>
+          <span>
+            <strong>Chess</strong>
+            Project
+          </span>
+        </a>
+        <div class="header-meta">
+          <span class="status-dot"></span>
+          <span>Local session</span>
+          <span class="header-divider"></span>
+          <span class="muted">Akh'Zahara</span>
+        </div>
+      </header>
       <section class="menu-dashboard">
-        <div class="menu-hero"><div class="eyebrow">WELCOME BACK, TRAVELER</div><h1>Make your move.</h1><p>Choose a path through Akh'Zahara and find the one who is waiting beyond the board.</p><div class="hero-stats"><div><span>01</span><small>ACT</small></div><div><span>05</span><small>DUELS</small></div><div><span>∞</span><small>WAYS FORWARD</small></div></div></div>
-        <div class="menu-card player-card"><div class="card-kicker">YOUR PROFILE</div><div class="player-row"><div class="avatar avatar-gold">♔</div><div><h2 id="player-name">Bao</h2><p>The Wanderer · Level <span id="player-level">1</span></p></div></div><div class="xp-label"><span>Experience</span><strong><span id="player-exp">0</span> / <span id="player-exp-max">100</span></strong></div><div class="xp-track"><span></span></div></div>
-        <nav class="menu-actions" aria-label="Main navigation"><button class="menu-btn menu-btn-featured" data-action="plot"><span class="action-icon">◈</span><span><strong>Continue journey</strong><small>Enter the story of Akh'Zahara</small></span><b>→</b></button><button class="menu-btn" data-action="deck"><span class="action-icon">▤</span><span><strong>Deck builder</strong><small>Shape your five-card strategy</small></span><b>→</b></button><button class="menu-btn" data-action="profile"><span class="action-icon">◉</span><span><strong>Profile</strong><small>Review your campaign record</small></span><b>→</b></button><button class="menu-btn" data-action="options"><span class="action-icon">⊙</span><span><strong>Options</strong><small>Preferences and display</small></span><b>→</b></button><button class="menu-btn menu-btn-quiet" data-action="quit"><span class="action-icon">↪</span><span><strong>Exit game</strong><small>Close this session</small></span><b>→</b></button></nav>
-        <aside class="menu-art" aria-label="Akh'Zahara illustration"><div class="art-caption"><span>THE DESERT</span><strong>holds its breath.</strong></div></aside>
+        <div class="menu-hero">
+          <div class="eyebrow">WELCOME BACK, TRAVELER</div>
+          <h1>Make your move.</h1>
+          <p>Choose a path through Akh'Zahara and find the one who is waiting beyond the board.</p>
+          <div class="hero-stats">
+            <div>
+              <span>01</span>
+              <small>ACT</small>
+            </div>
+            <div>
+              <span>05</span>
+              <small>DUELS</small>
+            </div>
+            <div>
+              <span>∞</span>
+              <small>WAYS FORWARD</small>
+            </div>
+          </div>
+        </div>
+        <div class="menu-card player-card">
+          <div class="card-kicker">YOUR PROFILE</div>
+          <div class="player-row">
+            <div class="avatar avatar-gold">♔</div>
+            <div>
+              <h2 id="player-name">Bao</h2>
+              <p>
+                The Wanderer · Level
+                <span id="player-level">1</span>
+              </p>
+            </div>
+          </div>
+          <div class="xp-label">
+            <span>Experience</span>
+            <strong>
+              <span id="player-exp">0</span>
+              /
+              <span id="player-exp-max">100</span>
+            </strong>
+          </div>
+          <div class="xp-track"><span></span></div>
+        </div>
+        <nav class="menu-actions" aria-label="Main navigation">
+          <button class="menu-btn menu-btn-featured" data-action="plot">
+            <span class="action-icon">◈</span>
+            <span>
+              <strong>Continue journey</strong>
+              <small>Enter the story of Akh'Zahara</small>
+            </span>
+            <b>→</b>
+          </button>
+          <button class="menu-btn" data-action="deck">
+            <span class="action-icon">▤</span>
+            <span>
+              <strong>Deck builder</strong>
+              <small>Shape your five-card strategy</small>
+            </span>
+            <b>→</b>
+          </button>
+          <button class="menu-btn" data-action="profile">
+            <span class="action-icon">◉</span>
+            <span>
+              <strong>Profile</strong>
+              <small>Review your campaign record</small>
+            </span>
+            <b>→</b>
+          </button>
+          <button class="menu-btn" data-action="options">
+            <span class="action-icon">⊙</span>
+            <span>
+              <strong>Options</strong>
+              <small>Preferences and display</small>
+            </span>
+            <b>→</b>
+          </button>
+          <button class="menu-btn menu-btn-quiet" data-action="quit">
+            <span class="action-icon">↪</span>
+            <span>
+              <strong>Exit game</strong>
+              <small>Close this session</small>
+            </span>
+            <b>→</b>
+          </button>
+        </nav>
+        <aside class="menu-art" aria-label="Akh'Zahara illustration">
+          <div class="art-caption">
+            <span>THE DESERT</span>
+            <strong>holds its breath.</strong>
+          </div>
+        </aside>
       </section>
     </main>
 
-    <main id="plot-screen" class="screen fullscreen-overlay screen-content hidden"><section class="content-shell"><header class="screen-header"><div><div class="eyebrow">STORY SELECT</div><h1>Choose your road</h1><p>Every chapter brings you closer to Shizuku.</p></div><button class="btn-back button button-ghost" data-back="main-menu">← Back</button></header><div class="story-choice plot-menu"><article class="choice-card plot-item" data-plot="akh-zahara"><div class="choice-index">01</div><div><div class="card-kicker">ACT I · CHAPTER I</div><h2>Akh'Zahara</h2><p>Wake in a new world, cross the desert, and follow the trail of a vanished traveler.</p><button class="button button-primary">Begin chapter <span>→</span></button></div><div class="choice-glyph">♞</div></article></div></section></main>
+    <main id="plot-screen" class="screen fullscreen-overlay screen-content hidden">
+      <section class="content-shell">
+        <header class="screen-header">
+          <div>
+            <div class="eyebrow">STORY SELECT</div>
+            <h1>Choose your road</h1>
+            <p>Every chapter brings you closer to Shizuku.</p>
+          </div>
+          <button class="btn-back button button-ghost" data-back="main-menu">← Back</button>
+        </header>
+        <div class="story-choice plot-menu">
+          <article class="choice-card plot-item" data-plot="akh-zahara">
+            <div class="choice-index">01</div>
+            <div>
+              <div class="card-kicker">ACT I · CHAPTER I</div>
+              <h2>Akh'Zahara</h2>
+              <p>Wake in a new world, cross the desert, and follow the trail of a vanished traveler.</p>
+              <button class="button button-primary">
+                Begin chapter
+                <span>→</span>
+              </button>
+            </div>
+            <div class="choice-glyph">♞</div>
+          </article>
+        </div>
+      </section>
+    </main>
 
-    <main id="akh-zahara-menu-screen" class="screen fullscreen-overlay screen-content screen-map hidden"><section class="content-shell"><header class="screen-header"><div><div class="eyebrow">AKH'ZAHARA · ACT I</div><h1>The desert opens</h1><p>Choose how you want to spend this chapter.</p></div><button class="btn-back button button-ghost" data-back="plot-screen">← Back</button></header><div class="mode-grid"><article class="mode-card plot-item" data-akh-action="main-plot"><span class="mode-number">01</span><span class="mode-icon">♚</span><div><h2>Destiny road</h2><p>Follow the main story and find the keeper of the mine.</p></div><button class="button button-outline">Enter →</button></article><article class="mode-card plot-item" data-akh-action="guild"><span class="mode-number">02</span><span class="mode-icon">◈</span><div><h2>Trade association</h2><p>Win matches, earn gold, refine your deck.</p></div><button class="button button-outline">Enter →</button></article><article class="mode-card mode-card-warning plot-item" data-akh-action="merchant"><span class="mode-number">03</span><span class="mode-icon">✦</span><div><h2>Secret merchant</h2><p>One attempt. Extreme difficulty. A unique reward.</p></div><button class="button button-outline">Challenge →</button></article></div></section></main>
+    <main id="akh-zahara-menu-screen" class="screen fullscreen-overlay screen-content screen-map hidden">
+      <section class="content-shell">
+        <header class="screen-header">
+          <div>
+            <div class="eyebrow">AKH'ZAHARA · ACT I</div>
+            <h1>The desert opens</h1>
+            <p>Choose how you want to spend this chapter.</p>
+          </div>
+          <button class="btn-back button button-ghost" data-back="plot-screen">← Back</button>
+        </header>
+        <div class="mode-grid">
+          <article class="mode-card plot-item" data-akh-action="main-plot">
+            <span class="mode-number">01</span>
+            <span class="mode-icon">♚</span>
+            <div>
+              <h2>Destiny road</h2>
+              <p>Follow the main story and find the keeper of the mine.</p>
+            </div>
+            <button class="button button-outline">Enter →</button>
+          </article>
+          <article class="mode-card plot-item" data-akh-action="guild">
+            <span class="mode-number">02</span>
+            <span class="mode-icon">◈</span>
+            <div>
+              <h2>Trade association</h2>
+              <p>Win matches, earn gold, refine your deck.</p>
+            </div>
+            <button class="button button-outline">Enter →</button>
+          </article>
+          <article class="mode-card mode-card-warning plot-item" data-akh-action="merchant">
+            <span class="mode-number">03</span>
+            <span class="mode-icon">✦</span>
+            <div>
+              <h2>Secret merchant</h2>
+              <p>One attempt. Extreme difficulty. A unique reward.</p>
+            </div>
+            <button class="button button-outline">Challenge →</button>
+          </article>
+        </div>
+      </section>
+    </main>
 
-    <main id="akh-zahara-screen" class="screen fullscreen-overlay screen-content hidden"><section class="content-shell"><header class="screen-header"><div><div class="eyebrow">DESTINY ROAD · ACT I</div><h1>Through the mine</h1><p>Defeat each guardian to unlock the next gate.</p></div><button class="btn-back button button-ghost" data-back="akh-zahara-menu-screen">← Back</button></header><div class="progress-summary"><div><span>CAMPAIGN PROGRESS</span><strong id="akh-progress-text">0/5</strong></div><div class="progress-bar"><div class="progress-fill" id="akh-progress" style="width: 0%"></div></div></div><div class="campaign-map"><div class="map-line"></div><button class="map-node" data-node="miner-1" data-level="1"><span class="node-icon">⛏</span><span class="node-level">Miner I</span></button><button class="map-node locked" data-node="miner-2" data-level="2"><span class="node-icon">⛏</span><span class="node-level">Miner II</span></button><button class="map-node locked" data-node="miner-3" data-level="3"><span class="node-icon">⛏</span><span class="node-level">Miner III</span></button><button class="map-node locked" data-node="edras" data-level="4"><span class="node-icon">♜</span><span class="node-level">Edras</span></button><button class="map-node locked" data-node="wior" data-level="5"><span class="node-icon">♚</span><span class="node-level">Wior</span></button></div></section></main>
+    <main id="akh-zahara-screen" class="screen fullscreen-overlay screen-content hidden">
+      <section class="content-shell">
+        <header class="screen-header">
+          <div>
+            <div class="eyebrow">DESTINY ROAD · ACT I</div>
+            <h1>Through the mine</h1>
+            <p>Defeat each guardian to unlock the next gate.</p>
+          </div>
+          <button class="btn-back button button-ghost" data-back="akh-zahara-menu-screen">← Back</button>
+        </header>
+        <div class="progress-summary">
+          <div>
+            <span>CAMPAIGN PROGRESS</span>
+            <strong id="akh-progress-text">0/5</strong>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="akh-progress" style="width: 0%"></div></div>
+        </div>
+        <div class="campaign-map">
+          <div class="map-line"></div>
+          <button class="map-node" data-node="miner-1" data-level="1">
+            <span class="node-icon">⛏</span>
+            <span class="node-level">Miner I</span>
+          </button>
+          <button class="map-node locked" data-node="miner-2" data-level="2">
+            <span class="node-icon">⛏</span>
+            <span class="node-level">Miner II</span>
+          </button>
+          <button class="map-node locked" data-node="miner-3" data-level="3">
+            <span class="node-icon">⛏</span>
+            <span class="node-level">Miner III</span>
+          </button>
+          <button class="map-node locked" data-node="edras" data-level="4">
+            <span class="node-icon">♜</span>
+            <span class="node-level">Edras</span>
+          </button>
+          <button class="map-node locked" data-node="wior" data-level="5">
+            <span class="node-icon">♚</span>
+            <span class="node-level">Wior</span>
+          </button>
+        </div>
+      </section>
+    </main>
 
-    <main id="guild-screen" class="screen fullscreen-overlay screen-content hidden"><section class="content-shell"><header class="screen-header"><div><div class="eyebrow">AKH'ZAHARA · ECONOMY</div><h1>Trade association</h1><p>Win matches, earn gold, refine your deck.</p></div><div class="header-actions"><div class="wallet">◈ <span id="player-money">0</span></div><button class="btn-back button button-ghost" data-back="akh-zahara-menu-screen">← Back</button></div></header><div class="trade-content"><section class="surface-panel trade-left"><div class="panel-heading"><div><span class="card-kicker">THE LADDER</span><h2>Earn your way up</h2></div></div><div id="trade-opponents" class="opponent-grid"></div></section><section class="surface-panel trade-right"><div class="panel-heading"><div><span class="card-kicker">THE SHOP</span><h2>Invest in strategy</h2></div></div><div id="shop-items" class="shop-grid"></div></section></div></section></main>
+    <main id="guild-screen" class="screen fullscreen-overlay screen-content hidden">
+      <section class="content-shell">
+        <header class="screen-header">
+          <div>
+            <div class="eyebrow">AKH'ZAHARA · ECONOMY</div>
+            <h1>Trade association</h1>
+            <p>Win matches, earn gold, refine your deck.</p>
+          </div>
+          <div class="header-actions">
+            <div class="wallet">
+              ◈
+              <span id="player-money">0</span>
+            </div>
+            <button class="btn-back button button-ghost" data-back="akh-zahara-menu-screen">← Back</button>
+          </div>
+        </header>
+        <div class="trade-content">
+          <section class="surface-panel trade-left">
+            <div class="panel-heading">
+              <div>
+                <span class="card-kicker">THE LADDER</span>
+                <h2>Earn your way up</h2>
+              </div>
+            </div>
+            <div id="trade-opponents" class="opponent-grid"></div>
+          </section>
+          <section class="surface-panel trade-right">
+            <div class="panel-heading">
+              <div>
+                <span class="card-kicker">THE SHOP</span>
+                <h2>Invest in strategy</h2>
+              </div>
+            </div>
+            <div id="shop-items" class="shop-grid"></div>
+          </section>
+        </div>
+      </section>
+    </main>
 
-    <main id="campaign-screen" class="screen fullscreen-overlay screen-content hidden"><section class="content-shell"><header class="screen-header"><div><div class="eyebrow">LEGACY CAMPAIGN</div><h1>Desert of despair</h1><p>The original battle route.</p></div><button class="btn-back button button-ghost" data-back="main-menu">← Back</button></header><div class="progress-summary"><div><span>ACT I PROGRESS</span><strong id="act-progress-text">0/5</strong></div><div class="progress-bar"><div class="progress-fill" id="act-progress" style="width: 0%"></div></div></div><div class="campaign-map"><div class="map-line"></div><button class="map-node" data-node="fight-1" data-level="1"><span class="node-icon">♟</span><span class="node-level">Level 1</span></button><button class="map-node locked" data-node="fight-2" data-level="2"><span class="node-icon">♞</span><span class="node-level">Level 2</span></button><button class="map-node locked" data-node="fight-3" data-level="3"><span class="node-icon">♜</span><span class="node-level">Level 3</span></button><button class="map-node locked" data-node="fight-4" data-level="4"><span class="node-icon">♛</span><span class="node-level">Level 4</span></button><button class="map-node locked" data-node="boss-1" data-level="5"><span class="node-icon">♚</span><span class="node-level">Boss</span></button></div></section></main>
+    <main id="campaign-screen" class="screen fullscreen-overlay screen-content hidden">
+      <section class="content-shell">
+        <header class="screen-header">
+          <div>
+            <div class="eyebrow">LEGACY CAMPAIGN</div>
+            <h1>Desert of despair</h1>
+            <p>The original battle route.</p>
+          </div>
+          <button class="btn-back button button-ghost" data-back="main-menu">← Back</button>
+        </header>
+        <div class="progress-summary">
+          <div>
+            <span>ACT I PROGRESS</span>
+            <strong id="act-progress-text">0/5</strong>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="act-progress" style="width: 0%"></div></div>
+        </div>
+        <div class="campaign-map">
+          <div class="map-line"></div>
+          <button class="map-node" data-node="fight-1" data-level="1">
+            <span class="node-icon">♟</span>
+            <span class="node-level">Level 1</span>
+          </button>
+          <button class="map-node locked" data-node="fight-2" data-level="2">
+            <span class="node-icon">♞</span>
+            <span class="node-level">Level 2</span>
+          </button>
+          <button class="map-node locked" data-node="fight-3" data-level="3">
+            <span class="node-icon">♜</span>
+            <span class="node-level">Level 3</span>
+          </button>
+          <button class="map-node locked" data-node="fight-4" data-level="4">
+            <span class="node-icon">♛</span>
+            <span class="node-level">Level 4</span>
+          </button>
+          <button class="map-node locked" data-node="boss-1" data-level="5">
+            <span class="node-icon">♚</span>
+            <span class="node-level">Boss</span>
+          </button>
+        </div>
+      </section>
+    </main>
 
-    <main id="arena-screen" class="screen fullscreen-overlay screen-content hidden"><section class="content-shell"><header class="screen-header"><div><div class="eyebrow">OPEN PLAY</div><h1>Arena challenges</h1><p>Choose an opponent and test your reading of the board.</p></div><button class="btn-back button button-ghost" data-back="main-menu">← Back</button></header><div class="opponent-grid arena-grid"><article class="opponent-card" data-opponent="easy-1"><div class="card-icon">♟</div><h2>Rookie</h2><p>Easy · First steps</p><button class="btn-challenge button button-outline">Challenge</button></article><article class="opponent-card" data-opponent="easy-2"><div class="card-icon">♞</div><h2>Training dummy</h2><p>Easy · Practice</p><button class="btn-challenge button button-outline">Challenge</button></article><article class="opponent-card" data-opponent="medium-1"><div class="card-icon">♜</div><h2>Arena fighter</h2><p>Medium · Pressure</p><button class="btn-challenge button button-outline">Challenge</button></article><article class="opponent-card" data-opponent="hard-1"><div class="card-icon">♛</div><h2>Champion</h2><p>Hard · No mercy</p><button class="btn-challenge button button-outline">Challenge</button></article></div></section></main>
+    <main id="arena-screen" class="screen fullscreen-overlay screen-content hidden">
+      <section class="content-shell">
+        <header class="screen-header">
+          <div>
+            <div class="eyebrow">OPEN PLAY</div>
+            <h1>Arena challenges</h1>
+            <p>Choose an opponent and test your reading of the board.</p>
+          </div>
+          <button class="btn-back button button-ghost" data-back="main-menu">← Back</button>
+        </header>
+        <div class="opponent-grid arena-grid">
+          <article class="opponent-card" data-opponent="easy-1">
+            <div class="card-icon">♟</div>
+            <h2>Rookie</h2>
+            <p>Easy · First steps</p>
+            <button class="btn-challenge button button-outline">Challenge</button>
+          </article>
+          <article class="opponent-card" data-opponent="easy-2">
+            <div class="card-icon">♞</div>
+            <h2>Training dummy</h2>
+            <p>Easy · Practice</p>
+            <button class="btn-challenge button button-outline">Challenge</button>
+          </article>
+          <article class="opponent-card" data-opponent="medium-1">
+            <div class="card-icon">♜</div>
+            <h2>Arena fighter</h2>
+            <p>Medium · Pressure</p>
+            <button class="btn-challenge button button-outline">Challenge</button>
+          </article>
+          <article class="opponent-card" data-opponent="hard-1">
+            <div class="card-icon">♛</div>
+            <h2>Champion</h2>
+            <p>Hard · No mercy</p>
+            <button class="btn-challenge button button-outline">Challenge</button>
+          </article>
+        </div>
+      </section>
+    </main>
 
-    <main id="dialogue-screen" class="screen fullscreen-overlay screen-dialogue hidden"><section class="dialogue-container"><div class="dialogue-portraits"><div class="dialogue-portrait left">♔</div><div class="dialogue-portrait right" id="enemy-portrait">♚</div></div><div class="dialogue-content"><div class="card-kicker">BEFORE THE MATCH</div><div class="dialogue-name" id="dialogue-name">Opponent</div><div class="dialogue-text" id="dialogue-text"></div></div><button id="dialogue-continue" class="button button-primary button-large">Continue <span>→</span></button></section></main>
+    <main id="dialogue-screen" class="screen fullscreen-overlay screen-dialogue hidden">
+      <section class="dialogue-container">
+        <div class="dialogue-portraits">
+          <div class="dialogue-portrait left">♔</div>
+          <div class="dialogue-portrait right" id="enemy-portrait">♚</div>
+        </div>
+        <div class="dialogue-content">
+          <div class="card-kicker">BEFORE THE MATCH</div>
+          <div class="dialogue-name" id="dialogue-name">Opponent</div>
+          <div class="dialogue-text" id="dialogue-text"></div>
+        </div>
+        <button id="dialogue-continue" class="button button-primary button-large">
+          Continue
+          <span>→</span>
+        </button>
+      </section>
+    </main>
 
-    <main id="battle-screen" class="screen fullscreen-overlay screen-battle hidden map-main"><div class="battle-shell"><header class="battle-topbar"><a class="brand" href="#"><span class="brand-mark">♞</span><span><strong>Chess</strong> Project</span></a><div class="battle-context"><span class="status-dot"></span><span id="battle-turn">Turn: 1</span><span class="header-divider"></span><span id="battle-opponent">vs Sandlord</span></div><button class="btn-surrender button button-danger">Resign</button></header><div class="battle-layout"><aside class="battle-sidebar battle-sidebar-left"><section class="player-panel opponent-panel"><div class="player-row"><div class="avatar avatar-red">♚</div><div><span class="card-kicker">OPPONENT</span><h2 id="battle-opponent-label">Sandlord</h2></div></div><div class="clock clock-opponent" id="opponent-timer">10:00</div></section><section class="surface-panel log-panel"><div class="panel-heading"><h3>Move history</h3><span class="panel-count">10</span></div><div id="move-log" class="log-container move-history"></div></section><section class="surface-panel log-panel"><div class="panel-heading"><h3>Battle log</h3></div><div id="skill-log" class="log-container"></div></section><section class="surface-panel effects-panel"><div class="panel-heading"><h3>Effects</h3></div><div id="buff-debuff-list"></div></section></aside><section class="board-stage"><div class="board-status"><span class="turn-pip"></span><span>Your turn</span><small>Choose a piece to begin</small></div><div class="board-frame"><div class="rank-labels" aria-hidden="true"><div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div></div><div class="board-core"><div id="chess-board" class="chess-board" aria-label="Chess board"></div><div class="file-labels" aria-hidden="true"><div>a</div><div>b</div><div>c</div><div>d</div><div>e</div><div>f</div><div>g</div><div>h</div></div></div></div><section class="player-panel player-panel-bottom"><div class="player-row"><div class="avatar avatar-gold">♔</div><div><span class="card-kicker">YOU</span><h2>You · Bao</h2></div></div><div class="clock clock-player" id="player-timer">10:00</div></section></section><aside class="battle-sidebar battle-sidebar-right"><section class="surface-panel energy-panel"><div class="panel-heading"><h3>Energy</h3><span class="energy-bolt">✦</span></div><div class="energy-readout"><strong id="current-ep">1</strong><span>/ <span id="max-ep">12</span> EP</span></div><div class="energy-track"><span></span></div></section><section class="surface-panel skills-panel"><div class="panel-heading"><div><span class="card-kicker">YOUR HAND</span><h3>Skills</h3></div></div><div id="battle-skills" class="skill-cards-vertical"></div></section><section class="surface-panel special-panel"><div class="panel-heading"><h3>Special actions</h3></div><p>Available during your turn.</p></section></aside></div></div></main>
+    <main id="battle-screen" class="screen fullscreen-overlay screen-battle hidden map-main">
+      <div class="battle-shell">
+        <header class="battle-topbar">
+          <a class="brand" href="#">
+            <span class="brand-mark">♞</span>
+            <span>
+              <strong>Chess</strong>
+              Project
+            </span>
+          </a>
+          <div class="battle-context">
+            <span class="status-dot"></span>
+            <span id="battle-turn">Turn: 1</span>
+            <span class="header-divider"></span>
+            <span id="battle-opponent">vs Sandlord</span>
+          </div>
+          <button class="btn-surrender button button-danger">Resign</button>
+        </header>
+        <div class="battle-layout">
+          <aside class="battle-sidebar battle-sidebar-left">
+            <section class="player-panel opponent-panel">
+              <div class="player-row">
+                <div class="avatar avatar-red">♚</div>
+                <div>
+                  <span class="card-kicker">OPPONENT</span>
+                  <h2 id="battle-opponent-label">Sandlord</h2>
+                </div>
+              </div>
+              <div class="clock clock-opponent" id="opponent-timer">10:00</div>
+            </section>
+            <section class="surface-panel log-panel">
+              <div class="panel-heading">
+                <h3>Move history</h3>
+                <span class="panel-count">10</span>
+              </div>
+              <div id="move-log" class="log-container move-history"></div>
+            </section>
+            <section class="surface-panel log-panel">
+              <div class="panel-heading"><h3>Battle log</h3></div>
+              <div id="skill-log" class="log-container"></div>
+            </section>
+            <section class="surface-panel effects-panel">
+              <div class="panel-heading"><h3>Effects</h3></div>
+              <div id="buff-debuff-list"></div>
+            </section>
+          </aside>
+          <section class="board-stage">
+            <div class="board-status">
+              <span class="turn-pip"></span>
+              <span>Your turn</span>
+              <small>Choose a piece to begin</small>
+            </div>
+            <div class="board-frame">
+              <div class="rank-labels" aria-hidden="true">
+                <div>8</div>
+                <div>7</div>
+                <div>6</div>
+                <div>5</div>
+                <div>4</div>
+                <div>3</div>
+                <div>2</div>
+                <div>1</div>
+              </div>
+              <div class="board-core">
+                <div id="chess-board" class="chess-board" aria-label="Chess board"></div>
+                <div class="file-labels" aria-hidden="true">
+                  <div>a</div>
+                  <div>b</div>
+                  <div>c</div>
+                  <div>d</div>
+                  <div>e</div>
+                  <div>f</div>
+                  <div>g</div>
+                  <div>h</div>
+                </div>
+              </div>
+            </div>
+            <section class="player-panel player-panel-bottom">
+              <div class="player-row">
+                <div class="avatar avatar-gold">♔</div>
+                <div>
+                  <span class="card-kicker">YOU</span>
+                  <h2>You · Bao</h2>
+                </div>
+              </div>
+              <div class="clock clock-player" id="player-timer">10:00</div>
+            </section>
+          </section>
+          <aside class="battle-sidebar battle-sidebar-right">
+            <section class="surface-panel energy-panel">
+              <div class="panel-heading">
+                <h3>Energy</h3>
+                <span class="energy-bolt">✦</span>
+              </div>
+              <div class="energy-readout">
+                <strong id="current-ep">1</strong>
+                <span>
+                  /
+                  <span id="max-ep">12</span>
+                  EP
+                </span>
+              </div>
+              <div class="energy-track"><span></span></div>
+            </section>
+            <section class="surface-panel skills-panel">
+              <div class="panel-heading">
+                <div>
+                  <span class="card-kicker">YOUR HAND</span>
+                  <h3>Skills</h3>
+                </div>
+              </div>
+              <div id="battle-skills" class="skill-cards-vertical"></div>
+            </section>
+            <section class="surface-panel special-panel">
+              <div class="panel-heading"><h3>Special actions</h3></div>
+              <p>Available during your turn.</p>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
 
-    <main id="victory-screen" class="screen fullscreen-overlay screen-result hidden"><section class="result-panel victory"><div class="result-mark">✦</div><div class="eyebrow">MATCH COMPLETE</div><h1>Victory</h1><p>You found the line through.</p><div class="result-rewards"><div><span>REWARD</span><strong id="exp-gained">+25 EXP</strong></div><div><span>LEVEL</span><strong id="new-level">2</strong></div></div><button class="button button-primary button-large" id="victory-continue">Continue <span>→</span></button></section></main>
-    <main id="defeat-screen" class="screen fullscreen-overlay screen-result hidden"><section class="result-panel defeat"><div class="result-mark">×</div><div class="eyebrow">MATCH COMPLETE</div><h1>Defeat</h1><p>The board is still here. Your next move can be better.</p><button class="button button-primary button-large" id="defeat-retry">Try again <span>↗</span></button><button class="button button-ghost" id="defeat-menu">Return to menu</button></section></main>
+    <main id="victory-screen" class="screen fullscreen-overlay screen-result hidden">
+      <section class="result-panel victory">
+        <div class="result-mark">✦</div>
+        <div class="eyebrow">MATCH COMPLETE</div>
+        <h1>Victory</h1>
+        <p>You found the line through.</p>
+        <div class="result-rewards">
+          <div>
+            <span>REWARD</span>
+            <strong id="exp-gained">+25 EXP</strong>
+          </div>
+          <div>
+            <span>LEVEL</span>
+            <strong id="new-level">2</strong>
+          </div>
+        </div>
+        <button class="button button-primary button-large" id="victory-continue">
+          Continue
+          <span>→</span>
+        </button>
+      </section>
+    </main>
+    <main id="defeat-screen" class="screen fullscreen-overlay screen-result hidden">
+      <section class="result-panel defeat">
+        <div class="result-mark">×</div>
+        <div class="eyebrow">MATCH COMPLETE</div>
+        <h1>Defeat</h1>
+        <p>The board is still here. Your next move can be better.</p>
+        <button class="button button-primary button-large" id="defeat-retry">
+          Try again
+          <span>↗</span>
+        </button>
+        <button class="button button-ghost" id="defeat-menu">Return to menu</button>
+      </section>
+    </main>
 
-    <main id="deck-builder" class="screen fullscreen-overlay screen-content hidden"><section class="content-shell"><header class="screen-header"><div><div class="eyebrow">PREPARE YOUR STRATEGY</div><h1>Deck builder</h1><p>Bring five skills into the next match.</p></div><button class="btn-back button button-ghost" data-back="main-menu">← Back</button></header><div class="deck-content"><section class="surface-panel deck-left"><div class="panel-heading"><div><span class="card-kicker">AVAILABLE</span><h2>Skill library</h2></div></div><div id="available-skills" class="skill-grid"></div></section><section class="surface-panel deck-right"><div class="panel-heading"><div><span class="card-kicker">EQUIPPED</span><h2>Your deck <span class="deck-limit">5 cards</span></h2></div></div><div id="selected-skills" class="skill-list-large"></div><button class="button button-primary btn-save-deck" id="save-deck-btn">Save deck <span>✓</span></button></section></div></section></main>
+    <main id="deck-builder" class="screen fullscreen-overlay screen-content hidden">
+      <section class="content-shell">
+        <header class="screen-header">
+          <div>
+            <div class="eyebrow">PREPARE YOUR STRATEGY</div>
+            <h1>Deck builder</h1>
+            <p>Bring five skills into the next match.</p>
+          </div>
+          <button class="btn-back button button-ghost" data-back="main-menu">← Back</button>
+        </header>
+        <div class="deck-content">
+          <section class="surface-panel deck-left">
+            <div class="panel-heading">
+              <div>
+                <span class="card-kicker">AVAILABLE</span>
+                <h2>Skill library</h2>
+              </div>
+            </div>
+            <div id="available-skills" class="skill-grid"></div>
+          </section>
+          <section class="surface-panel deck-right">
+            <div class="panel-heading">
+              <div>
+                <span class="card-kicker">EQUIPPED</span>
+                <h2>
+                  Your deck
+                  <span class="deck-limit">5 cards</span>
+                </h2>
+              </div>
+            </div>
+            <div id="selected-skills" class="skill-list-large"></div>
+            <button class="button button-primary btn-save-deck" id="save-deck-btn">
+              Save deck
+              <span>✓</span>
+            </button>
+          </section>
+        </div>
+      </section>
+    </main>
 
-    <main id="profile-screen" class="screen fullscreen-overlay screen-content hidden"><section class="content-shell"><header class="screen-header"><div><div class="eyebrow">PLAYER RECORD</div><h1>Profile</h1><p>Your path through the desert so far.</p></div><button class="btn-back button button-ghost" data-back="main-menu">← Back</button></header><div class="profile-content"><section class="surface-panel profile-stats"><div class="profile-identity"><div class="avatar avatar-gold avatar-large">♔</div><div><div class="card-kicker">THE WANDERER</div><h2 id="profile-name">Bao</h2><p>Level <span id="profile-level">1</span></p></div></div><div class="stat-grid"><div><span>Experience</span><strong id="profile-exp">0</strong></div><div><span>Win rate</span><strong id="profile-winrate">0%</strong></div><div><span>Battles won</span><strong id="profile-wins">0</strong></div><div><span>Battles lost</span><strong id="profile-losses">0</strong></div></div></section><section class="surface-panel profile-achievements"><div class="panel-heading"><div><span class="card-kicker">MILESTONES</span><h2>Achievements</h2></div></div><div class="achievement locked"><span class="achievement-icon">✦</span><span><strong>First victory</strong><small>Win your first duel</small></span></div><div class="achievement locked"><span class="achievement-icon">♞</span><span><strong>Arena champion</strong><small>Defeat the arena champion</small></span></div><div class="achievement locked"><span class="achievement-icon">♚</span><span><strong>Boss slayer</strong><small>Reach the end of the road</small></span></div></section></div></section></main>
+    <main id="profile-screen" class="screen fullscreen-overlay screen-content hidden">
+      <section class="content-shell">
+        <header class="screen-header">
+          <div>
+            <div class="eyebrow">PLAYER RECORD</div>
+            <h1>Profile</h1>
+            <p>Your path through the desert so far.</p>
+          </div>
+          <button class="btn-back button button-ghost" data-back="main-menu">← Back</button>
+        </header>
+        <div class="profile-content">
+          <section class="surface-panel profile-stats">
+            <div class="profile-identity">
+              <div class="avatar avatar-gold avatar-large">♔</div>
+              <div>
+                <div class="card-kicker">THE WANDERER</div>
+                <h2 id="profile-name">Bao</h2>
+                <p>
+                  Level
+                  <span id="profile-level">1</span>
+                </p>
+              </div>
+            </div>
+            <div class="stat-grid">
+              <div>
+                <span>Experience</span>
+                <strong id="profile-exp">0</strong>
+              </div>
+              <div>
+                <span>Win rate</span>
+                <strong id="profile-winrate">0%</strong>
+              </div>
+              <div>
+                <span>Battles won</span>
+                <strong id="profile-wins">0</strong>
+              </div>
+              <div>
+                <span>Battles lost</span>
+                <strong id="profile-losses">0</strong>
+              </div>
+            </div>
+          </section>
+          <section class="surface-panel profile-achievements">
+            <div class="panel-heading">
+              <div>
+                <span class="card-kicker">MILESTONES</span>
+                <h2>Achievements</h2>
+              </div>
+            </div>
+            <div class="achievement locked">
+              <span class="achievement-icon">✦</span>
+              <span>
+                <strong>First victory</strong>
+                <small>Win your first duel</small>
+              </span>
+            </div>
+            <div class="achievement locked">
+              <span class="achievement-icon">♞</span>
+              <span>
+                <strong>Arena champion</strong>
+                <small>Defeat the arena champion</small>
+              </span>
+            </div>
+            <div class="achievement locked">
+              <span class="achievement-icon">♚</span>
+              <span>
+                <strong>Boss slayer</strong>
+                <small>Reach the end of the road</small>
+              </span>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
 
-    <script src="game_Stage.js"></script><script src="ai_System.js"></script><script src="dialogue_System.js"></script><script src="skill_System.js"></script><script src="chess_Logic.js"></script><script src="menu_Logic.js"></script><script src="battle_System.js"></script>
+    <script src="game_Stage.js"></script>
+    <script src="ai_System.js"></script>
+    <script src="dialogue_System.js"></script>
+    <script src="skill_System.js"></script>
+    <script src="chess_Logic.js"></script>
+    <script src="menu_Logic.js"></script>
+    <script src="battle_System.js"></script>
   </body>
 </html>
