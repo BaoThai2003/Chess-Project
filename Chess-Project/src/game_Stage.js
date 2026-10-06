@@ -1,4 +1,3 @@
-// CRITICAL FIX: Game State with proper dead piece handling
 window.gameState = {
   boardState: [],
   whiteKingPos: [7, 4],
@@ -164,7 +163,6 @@ window.gameState = {
       this.updateSkillCardsUI();
       this.showBattleNotification(`${skill.name} activated`, "success");
 
-      // CRITICAL: Prune and update after skill
       this.pruneDeadPieces();
       if (window.syncBoardStateWithDOM) window.syncBoardStateWithDOM();
       if (window.updateAllHealthBars) window.updateAllHealthBars();
@@ -349,16 +347,13 @@ window.gameState = {
     container.innerHTML = "";
     this.activeEffects.forEach((effect) => {
       const div = document.createElement("div");
-      // Default owner to white when missing
       const owner = effect.owner || "white";
       let classes = `effect-item ${effect.type}`;
       if (owner === "black") {
-        // enemy: use special coloring class
         if (effect.type === "buff") classes += " enemy-buff";
         else if (effect.type === "debuff") classes += " enemy-debuff";
         else classes += " enemy-buff";
       } else {
-        // player effects keep default styling
       }
 
       div.className = classes;
@@ -397,8 +392,6 @@ window.gameState = {
     this.pruneDeadPieces();
   },
 
-  // Mark a piece (by its current position key) as having attacked. The marker persists until
-  // the piece is removed or the battle ends.
   markAttacked(color, key) {
     if (!color || !key) return;
     if (!this.attackedPieces) this.attackedPieces = { white: {}, black: {} };
@@ -406,26 +399,22 @@ window.gameState = {
     else this.attackedPieces.black[key] = true;
   },
 
-  // Remove attacked marker for a removed piece
   unmarkAttacked(key) {
     if (!key) return;
     if (this.attackedPieces.white && this.attackedPieces.white[key]) delete this.attackedPieces.white[key];
     if (this.attackedPieces.black && this.attackedPieces.black[key]) delete this.attackedPieces.black[key];
   },
 
-  // Clear all attacked markers (call at end of battle)
   clearAttackedMarkers() {
     this.attackedPieces = { white: {}, black: {} };
   },
 
-  // CRITICAL FIX: Apply damage with immediate dead piece removal
   applyDamage(row, col, amount, source = "skill", attacker = null) {
     if (source === "skill") amount = Math.min(amount, 0.5);
     if (source === "capture") amount = Math.min(amount, 0.75);
 
     const key = `${row}-${col}`;
     let health = this.pieceHealth[key];
-    // If health entry is missing but a piece exists on the board, initialize it to full health
     if (!health) {
       const piece = this.boardState[row] ? this.boardState[row][col] : null;
       if (!piece || piece === "") return false;
@@ -444,7 +433,6 @@ window.gameState = {
     if (health.current <= 0) {
       const piece = this.boardState[row][col];
 
-      // IMMEDIATE REMOVAL
       this.boardState[row][col] = "";
       delete this.pieceHealth[key];
 
@@ -457,7 +445,6 @@ window.gameState = {
       this.moveLog.push(`Piece eliminated: ${piece} at ${this.positionToNotation(row, col)}`);
       this.updateMoveLog();
 
-      // Force immediate UI update
       if (window.syncBoardStateWithDOM) {
         window.syncBoardStateWithDOM();
       }
@@ -478,7 +465,6 @@ window.gameState = {
     return false;
   },
 
-  // CRITICAL FIX: Comprehensive dead piece cleanup
   pruneDeadPieces() {
     const toRemove = [];
 
@@ -500,7 +486,6 @@ window.gameState = {
 
       delete this.pieceHealth[key];
 
-      // Remove any attacked markers for the removed piece
       try {
         this.unmarkAttacked(key);
       } catch (e) {}
