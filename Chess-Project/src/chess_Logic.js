@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const whitePieces = ["♔", "♕", "♖", "♗", "♘", "♙"];
   const blackPieces = ["♚", "♛", "♜", "♝", "♞", "♟"];
 
-  // Flying pieces effect on hover
   if (notification) {
     notification.addEventListener("mouseenter", function () {
       for (let i = 0; i < 20; i++) {
@@ -16,14 +15,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Go button handler
   if (goButton) {
     goButton.addEventListener("click", function () {
       if (notification) notification.style.display = "none";
     });
   }
 
-  // Make createChessBoard globally accessible
   window.createChessBoard = createChessBoard;
   window.syncBoardStateWithDOM = syncBoardStateWithDOM;
   window.updateTimerDisplay = updateTimerDisplay;
@@ -53,13 +50,12 @@ document.addEventListener("DOMContentLoaded", function () {
     window.gameState.blackKingPos = [0, 4];
     window.gameState.init();
 
-    // Default colors (lighter board for better visual over map)
+    // Default color
     let whiteSquareColor = "#fbf5ea"; /* very light beige */
     let blackSquareColor = "#d6b889"; /* warm tan */
     let whitePieceColor = "#ffffff";
     let blackPieceColor = "#1a1a1a";
 
-    // Create board squares
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const square = document.createElement("div");
@@ -67,19 +63,16 @@ document.addEventListener("DOMContentLoaded", function () {
         square.dataset.row = row;
         square.dataset.col = col;
 
-        // Set square color
         if ((row + col) % 2 === 0) {
           square.style.backgroundColor = whiteSquareColor;
         } else {
           square.style.backgroundColor = blackSquareColor;
         }
 
-        // Check if energy tile
         if (window.gameState.isEnergyTile(row, col)) {
           square.classList.add("energy-tile");
         }
 
-        // Place piece from initialPosition
         const piece = initialPosition[row][col];
         if (piece) {
           square.innerHTML = `
@@ -95,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
           icon.style.color = whitePieces.includes(piece) ? whitePieceColor : blackPieceColor;
         }
 
-        // Click handler
         square.addEventListener("click", function () {
           handleSquareClick(this);
         });
@@ -104,7 +96,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Color controls (if exist)
     const colorInputs = ["white-square", "black-square", "white-piece", "black-piece"];
     colorInputs.forEach((id) => {
       const input = document.getElementById(id);
@@ -138,16 +129,10 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // Initialize timers
     initTimers();
   }
 
-  // === SPECIAL BATTLE ACTIONS ===
-  // Purge action removed
-
-  // === PAWN PROMOTION & CASTLING ===
   function checkPawnPromotion(row, col, piece, isWhite) {
-    // White pawns promoted at row 0, black pawns at row 7
     const promotionRow = isWhite ? 0 : 7;
 
     if (piece === "♙" && row === promotionRow) {
@@ -164,21 +149,16 @@ document.addEventListener("DOMContentLoaded", function () {
     let promoted = false;
     let choice = 0;
 
-    // Simple choice: default to Queen for now
-    // In a full implementation, could show a dialog for player choice
     choice = 0; // Queen
 
     const newPiece = pieceOptions[choice];
     const oldPiece = window.gameState.boardState[row][col];
 
-    // Replace pawn with promoted piece on board
     window.gameState.boardState[row][col] = newPiece;
 
-    // Create new piece health entry for the promoted piece
     const key = `${row}-${col}`;
     const oldHealth = window.gameState.pieceHealth[key];
     if (oldHealth) {
-      // Promoted piece keeps the pawn's health
       window.gameState.pieceHealth[key] = { ...oldHealth };
     }
 
@@ -190,31 +170,24 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function isCastlingMove(fromRow, fromCol, toRow, toCol, piece) {
-    // Castling is only for kings and must move 2 squares horizontally
     if ((piece !== "♔" && piece !== "♚") || fromRow !== toRow) return false;
     if (Math.abs(toCol - fromCol) !== 2) return false;
 
-    // King must not have moved (simplified check - would need to track move history for full implementation)
-    // For now, just allow if rook is in starting position
     const isWhite = piece === "♔";
     const rookRow = isWhite ? 7 : 0;
 
-    // Every square between the king and rook, including the destination,
-    // must be empty before castling can be performed.
     const step = toCol > fromCol ? 1 : -1;
     for (let col = fromCol + step; col !== (toCol > fromCol ? 8 : -1); col += step) {
       if (col === toCol) break;
       if (window.gameState.boardState[rookRow][col]) return false;
     }
 
-    // Kingside castling (king moves right)
     if (toCol === fromCol + 2) {
       const rookCol = 7;
       const rook = window.gameState.boardState[rookRow][rookCol];
       return !window.gameState.boardState[rookRow][toCol] && ((isWhite && rook === "♖") || (!isWhite && rook === "♜"));
     }
 
-    // Queenside castling (king moves left)
     if (toCol === fromCol - 2) {
       const rookCol = 0;
       const rook = window.gameState.boardState[rookRow][rookCol];
@@ -227,11 +200,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function executeCastling(fromRow, fromCol, toRow, toCol) {
     const piece = window.gameState.boardState[fromRow][fromCol];
 
-    // Move king
     window.gameState.boardState[toRow][toCol] = piece;
     window.gameState.boardState[fromRow][fromCol] = "";
 
-    // Update king position and health entries
     const oldKingKey = `${fromRow}-${fromCol}`;
     const newKingKey = `${toRow}-${toCol}`;
     if (window.gameState.pieceHealth[oldKingKey]) {
@@ -239,13 +210,11 @@ document.addEventListener("DOMContentLoaded", function () {
       delete window.gameState.pieceHealth[oldKingKey];
     }
 
-    // Move rook
     const isWhite = piece === "♔";
     const rookRow = isWhite ? 7 : 0;
     const rook = isWhite ? "♖" : "♜";
 
     if (toCol === fromCol + 2) {
-      // Kingside castling - rook moves from h-file to f-file
       const rookFromCol = 7;
       const rookToCol = 5;
       window.gameState.boardState[rookRow][rookToCol] = rook;
@@ -258,7 +227,6 @@ document.addEventListener("DOMContentLoaded", function () {
         delete window.gameState.pieceHealth[oldRookKey];
       }
     } else if (toCol === fromCol - 2) {
-      // Queenside castling - rook moves from a-file to d-file
       const rookFromCol = 0;
       const rookToCol = 3;
       window.gameState.boardState[rookRow][rookToCol] = rook;
@@ -278,8 +246,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.gameState.moveLog.push(`Castling: ${piece} moves to ${window.gameState.positionToNotation(toRow, toCol)}`);
   }
 
-  // === PIECE MOVEMENT LOGIC ===
-  // Helper: robust checks for whether a piece at a square is alive and whether it's an enemy
   function isPieceAlive(r, c) {
     if (!window.gameState || !window.gameState.pieceHealth) return false;
     const h = window.gameState.pieceHealth[`${r}-${c}`];
@@ -313,7 +279,6 @@ document.addEventListener("DOMContentLoaded", function () {
         c = col + dc;
       while (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const target = window.gameState.boardState[r][c];
-        // If there's a piece but it's missing health or dead, treat it as empty (skip)
         if (target && !isPieceAlive(r, c)) {
           r += dr;
           c += dc;
@@ -453,7 +418,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!target) {
           moves.push([r, c]);
         } else if (!isPieceAlive(r, c)) {
-          // dead/orphaned piece: treat as empty square (allow landing)
           moves.push([r, c]);
         } else if (isEnemyAt(r, c, isWhite)) {
           moves.push([r, c]);
@@ -471,12 +435,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Forward move
     const forwardRow = row + direction;
-    // Forward square allowed if empty or contains a dead/orphaned piece
     if (forwardRow >= 0 && forwardRow < 8) {
       const forwardPiece = window.gameState.boardState[forwardRow][col];
       if (!forwardPiece || !isPieceAlive(forwardRow, col)) {
         moves.push([forwardRow, col]);
-        // Double move from start
         const doubleRow = row + 2 * direction;
         if (row === startRow && doubleRow >= 0 && doubleRow < 8) {
           const doublePiece = window.gameState.boardState[doubleRow][col];
@@ -524,7 +486,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return validMoves.some(([r, c]) => r === toRow && c === toCol);
   }
 
-  // Handle square click
   let selectedPiece = null;
   function handleSquareClick(square) {
     // CRITICAL: Clean up dead pieces at the start to prevent blocked moves
@@ -532,7 +493,6 @@ document.addEventListener("DOMContentLoaded", function () {
       window.gameState.pruneDeadPieces();
     }
 
-    // Intercept multi-step skill selections (if any)
     try {
       const pending = window.skillSystem && window.skillSystem.pending ? window.skillSystem.pending : null;
       if (pending) {
@@ -543,7 +503,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const icon = square.querySelector(".piece-icon");
         const clickedPiece = icon ? icon.textContent : "";
 
-        // AZW Attack: select friendly piece then choose direction
         if (pid === "azw_attack") {
           if (pending.step === 0) {
             const isWhitePiece = ["♔", "♕", "♖", "♗", "♘", "♙"].includes(clickedPiece);
@@ -554,7 +513,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             pending.step = 1;
             pending.data.selected = { r: rowClicked, c: colClicked, piece: clickedPiece };
-            // Ask direction
             const dir = prompt("Choose direction: straight, diag-left, diag-right");
             if (!dir) {
               window.skillSystem.pending = null;
@@ -582,20 +540,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const sel = pending.data.selected;
             const targetR = sel.r + dr;
             const targetC = sel.c + dc;
-            // bounds check
             if (targetR < 0 || targetR > 7 || targetC < 0 || targetC > 7) {
               alert("Target out of board. Skill cancelled.");
               window.skillSystem.pending = null;
               return;
             }
-            // cannot move into occupied square
             if (window.gameState.boardState[targetR][targetC]) {
               alert("Cannot push into an occupied square. Skill cancelled.");
               window.skillSystem.pending = null;
               return;
             }
 
-            // Check intermediate square for straight (must be empty)
             if (Math.abs(dr) === 2 && dc === 0) {
               const midR = sel.r + sign * 1;
               if (window.gameState.boardState[midR][sel.c]) {
@@ -605,7 +560,6 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             }
 
-            // Perform move
             window.gameState.boardState[targetR][targetC] = sel.piece;
             window.gameState.boardState[sel.r][sel.c] = "";
             // update health mapping
@@ -615,7 +569,6 @@ document.addEventListener("DOMContentLoaded", function () {
               window.gameState.pieceHealth[newKey] = window.gameState.pieceHealth[oldKey];
               delete window.gameState.pieceHealth[oldKey];
             }
-            // update king pos if needed
             if (sel.piece === "♔") window.gameState.whiteKingPos = [targetR, targetC];
             if (sel.piece === "♚") window.gameState.blackKingPos = [targetR, targetC];
 
@@ -633,7 +586,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // AZW Sand Rage: choose two enemy pieces to swap
         if (pid === "azw_sand_rage") {
           const isWhiteOwner = pending.player === "white";
           const isClickedEnemy =
@@ -675,7 +627,6 @@ document.addEventListener("DOMContentLoaded", function () {
             window.gameState.pieceHealth[keyB] = ha || { current: 1.0, max: 1.0 };
           }
 
-          // Damage both swapped pieces and any other enemy pieces on the same line
           function damageLine(r1, c1, r2, c2) {
             const dr = Math.sign(r2 - r1);
             const dc = Math.sign(c2 - c1);
@@ -685,7 +636,6 @@ document.addEventListener("DOMContentLoaded", function () {
               const key = `${r}-${c}`;
               const p = window.gameState.boardState[r][c];
               if (p) {
-                // only damage enemy pieces (opposite of owner)
                 const isWhiteP = ["♔", "♕", "♖", "♗", "♘", "♙"].includes(p);
                 if ((pending.player === "white" && !isWhiteP) || (pending.player === "black" && isWhiteP)) {
                   if (window.gameState.applyDamage) window.gameState.applyDamage(r, c, 0.25, "skill", null);
@@ -697,7 +647,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           }
 
-          // determine line endpoints
           damageLine(a.r, a.c, b.r, b.c);
 
           window.gameState.moveLog.push(
@@ -714,7 +663,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     } catch (e) {
-      // swallow and continue to normal click handling
       console.error(e);
     }
 
@@ -731,7 +679,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const isWhiteTurn = window.gameState.timers.currentPlayer === "white";
 
-      // Check for castling move
       if (isCastlingMove(fromRow, fromCol, row, col, movingPiece)) {
         executeCastling(fromRow, fromCol, row, col);
 
@@ -752,14 +699,12 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Sandstorm restrictions: prevent movement for affected piece types
       try {
         const sandEffects =
           window.gameState && window.gameState.activeEffects
             ? window.gameState.activeEffects.filter((e) => e.effect === "sandstorm" || e.name === "Sandstorm")
             : [];
         if (sandEffects && sandEffects.length > 0) {
-          // If the piece is on any sandstorm row, restrict movement
           const keyFrom = `${fromRow}-${fromCol}`;
           const pieceType = movingPiece;
           const isPawnOrKingOrKnight = ["♙", "♟", "♔", "♚", "♘", "♞"].includes(pieceType);
@@ -780,12 +725,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const captured = piece !== "";
         let defeatPieceSurvived = false;
 
-        // Handle capture using centralized applyDamage (awards EP to attacker)
         const attacker = isWhiteTurn ? "white" : "black";
 
-        // Mark last combat for visuals (attacker/defender keys)
         if (window.gameState) {
-          // clear previous timer
           if (window.gameState._lastCombatTimer) {
             clearTimeout(window.gameState._lastCombatTimer);
             window.gameState._lastCombatTimer = null;
@@ -794,7 +736,6 @@ document.addEventListener("DOMContentLoaded", function () {
             attacker: `${fromRow}-${fromCol}`,
             defender: `${row}-${col}`,
           };
-          // Clear markers after 3 seconds
           window.gameState._lastCombatTimer = setTimeout(() => {
             if (window.gameState) window.gameState.lastCombat = { attacker: null, defender: null };
             window.gameState._lastCombatTimer = null;
@@ -802,24 +743,18 @@ document.addEventListener("DOMContentLoaded", function () {
           }, 3000);
         }
         if (captured && window.gameState && window.gameState.applyDamage) {
-          // applyDamage returns true if the target died
           const died = window.gameState.applyDamage(row, col, 1, "capture", attacker);
-          // If it died, attacker can move to that square; if not, attacker should return to origin
           defeatPieceSurvived = !died;
         }
 
-        // Determine where attacking piece moves
         let finalRow = row;
         let finalCol = col;
 
         if (captured && defeatPieceSurvived) {
-          // If defeated piece survived, attacker returns to origin
           finalRow = fromRow;
           finalCol = fromCol;
         }
-        // If defeated piece died, attacker moves to target square (already set)
 
-        // Move piece in state only if final position differs from origin
         if (finalRow !== fromRow || finalCol !== fromCol) {
           window.gameState.boardState[finalRow][finalCol] = movingPiece;
           window.gameState.boardState[fromRow][fromCol] = "";
@@ -836,7 +771,6 @@ document.addEventListener("DOMContentLoaded", function () {
             delete window.gameState.pieceHealth[oldKey];
           }
 
-          // If this was an attack (capture) mark the attacker as having attacked
           try {
             if (captured && window.gameState && window.gameState.markAttacked) {
               const attackerColor = isWhiteTurn ? "white" : "black";
@@ -844,12 +778,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           } catch (e) {}
 
-          // Energy tile (only if actually moved to that square)
+          // Energy tile
           if (window.gameState.isEnergyTile(finalRow, finalCol)) {
             window.gameState.addEnergy(isWhiteTurn ? "white" : "black", 1);
           }
         } else {
-          // Stayed in place: no board/health changes needed
         }
 
         selectedPiece.classList.remove("selected");
@@ -858,17 +791,13 @@ document.addEventListener("DOMContentLoaded", function () {
         // Log move
         window.gameState.logMove([fromRow, fromCol], [finalRow, finalCol], movingPiece, captured);
 
-        // Check for pawn promotion
         checkPawnPromotion(finalRow, finalCol, movingPiece, isWhiteTurn);
 
-        // Update DOM - CRITICAL: Force complete re-render
         syncBoardStateWithDOM();
         updateAllHealthBars();
 
-        // Ensure any pieces reduced to 0 are cleaned up before switching player
         if (window.gameState && window.gameState.pruneDeadPieces) window.gameState.pruneDeadPieces();
 
-        // If moved piece was in sandstorm and is a sliding piece (rook/bishop/queen), move it back 1 square
         try {
           const sandEffects2 =
             window.gameState && window.gameState.activeEffects
@@ -878,13 +807,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const movedPiece = movingPiece;
             const isSlider = ["♕", "♛", "♖", "♜", "♗", "♝"].includes(movedPiece);
             if (isSlider) {
-              // compute backward step vector from origin to final
               const dr = finalRow - fromRow;
               const dc = finalCol - fromCol;
               const backR = finalRow - Math.sign(dr);
               const backC = finalCol - Math.sign(dc);
               if (backR >= 0 && backR < 8 && backC >= 0 && backC < 8 && !window.gameState.boardState[backR][backC]) {
-                // move back one
                 window.gameState.boardState[backR][backC] = window.gameState.boardState[finalRow][finalCol];
                 window.gameState.boardState[finalRow][finalCol] = "";
                 // update health keys
@@ -902,16 +829,14 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         } catch (e) {}
 
-        // Switch player and process effects
         switchPlayer();
         window.battleSystem.checkVictory();
 
-        // If it's enemy (black) turn now, trigger AI
         if (window.gameState.timers.currentPlayer === "black") {
           setTimeout(() => window.aiSystem.makeMove(), 600);
         }
 
-        // Auto-save
+        // Auto save
         if (window.saveGameAuto) setTimeout(window.saveGameAuto, 100);
       } else {
         alert("Invalid move or not your turn!");
@@ -931,14 +856,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Sync board state with DOM - FIXED VERSION
   function syncBoardStateWithDOM() {
     const squares = document.querySelectorAll(".chess-square");
 
-    // Remove any lingering tooltip when rebuilding
     removeSkillTooltip();
 
-    // CRITICAL FIX: Clean up dead pieces BEFORE syncing
     if (window.gameState && window.gameState.pruneDeadPieces) {
       window.gameState.pruneDeadPieces();
     }
@@ -948,12 +870,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const col = parseInt(square.dataset.col);
       const piece = window.gameState.boardState[row][col];
 
-      // If board has a piece but there is no health entry or health is zero,
-      // treat it as dead/orphaned and clear it so it doesn't block movement.
       const key = `${row}-${col}`;
       const healthData = window.gameState.pieceHealth ? window.gameState.pieceHealth[key] : null;
       if (piece && (!healthData || healthData.current <= 0)) {
-        // cleanup state and continue (render as empty)
         try {
           window.gameState.boardState[row][col] = "";
           if (window.gameState.pieceHealth && window.gameState.pieceHealth[key])
@@ -962,19 +881,16 @@ document.addEventListener("DOMContentLoaded", function () {
         square.innerHTML = "";
         square.classList.remove("energy-tile");
         square.classList.remove("selected");
-        // ensure no listeners flag remains so listeners can be reattached later
         if (square.dataset.pieceListenersAttached) delete square.dataset.pieceListenersAttached;
         return;
       }
 
-      // Preserve or toggle energy tile class
       if (window.gameState.isEnergyTile(row, col)) {
         square.classList.add("energy-tile");
       } else {
         square.classList.remove("energy-tile");
       }
 
-      // CRITICAL FIX: Always clear and rebuild content
       if (piece && piece !== "") {
         const isWhitePiece = whitePieces.includes(piece);
         square.innerHTML = `
@@ -989,14 +905,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const icon = square.querySelector(".piece-icon");
         icon.style.color = isWhitePiece ? "#fff" : "#000";
 
-        // Apply recent combat marker classes if applicable
         try {
           const key = `${row}-${col}`;
           const lc = window.gameState && window.gameState.lastCombat ? window.gameState.lastCombat : null;
           const stack = square.querySelector(".piece-stack");
           if (lc && stack) {
             if (lc.attacker === key || lc.defender === key) {
-              // mark based on side: white -> yellow, black -> red
               if (whitePieces.includes(piece)) {
                 stack.classList.add("recent-combat-white");
               } else {
@@ -1006,8 +920,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         } catch (e) {}
 
-        // Persistent attacked highlight: if this piece has attacked during the match,
-        // show a colored outline until end of match.
         try {
           const key2 = `${row}-${col}`;
           const attacked = window.gameState && window.gameState.attackedPieces ? window.gameState.attackedPieces : null;
@@ -1018,18 +930,15 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         } catch (e) {}
 
-        // Visual effects from activeEffects (shield, on-fire, sandstorm)
         try {
           const effects = window.gameState && window.gameState.activeEffects ? window.gameState.activeEffects : [];
           const stack3 = square.querySelector(".piece-stack");
           if (stack3) {
-            // remove any previous classes (fresh render)
             stack3.classList.remove("shielded", "on-fire", "sandstorm-affected");
 
             effects.forEach((effect) => {
               try {
                 if (effect.effect === "damage_reduction") {
-                  // team-wide shield; apply to friendly pieces of owner
                   if (
                     (effect.owner === "white" && whitePieces.includes(piece)) ||
                     (effect.owner === "black" && blackPieces.includes(piece))
@@ -1048,7 +957,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 if (effect.name === "Sandstorm" && effect.rows && effect.rows.includes(row)) {
-                  // any piece on sandstorm rows is visually affected
                   stack3.classList.add("sandstorm-affected");
                 }
               } catch (e) {}
@@ -1056,8 +964,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         } catch (e) {}
 
-        // Attach hover handlers to show piece skill tooltip after ~1s
-        // Avoid attaching duplicate listeners on repeated syncs by marking the square.
         if (!square.dataset.pieceListenersAttached) {
           let hoverTimer = null;
           const onEnter = function onEnter() {
@@ -1085,13 +991,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
           square.addEventListener("mouseenter", onEnter);
           square.addEventListener("mouseleave", onLeave);
-          // remember we attached listeners so we don't add them again
           square.dataset.pieceListenersAttached = "1";
         }
       } else {
-        // CRITICAL FIX: Completely clear empty squares and reset any visual state
-        // Remove any tooltip listeners flag so when a piece later appears
-        // listeners can be attached fresh if needed.
         if (square.dataset.pieceListenersAttached) {
           delete square.dataset.pieceListenersAttached;
         }
@@ -1102,21 +1004,17 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Ensure piece-skill mapping matches current board
     if (window.gameState && window.gameState.assignPieceSkills) {
       window.gameState.assignPieceSkills();
     }
 
-    // Update all health bars after sync
     updateAllHealthBars();
   }
 
-  // Tooltip helpers with persistence and auto-hide timer
   let _currentSkillTooltip = null;
   let _tooltipHideTimer = null;
 
   function showSkillTooltip(row, col, square, skillId, skill) {
-    // Clear any pending hide timer
     if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
 
     removeSkillTooltip();
@@ -1136,7 +1034,6 @@ document.addEventListener("DOMContentLoaded", function () {
     tip.innerHTML = `<strong style="display:block;margin-bottom:6px">${skill.name}</strong>
       <div style="font-size:12px;margin-bottom:8px">${skill.description}</div>`;
 
-    // Activation button (only for player side if enough EP)
     const btn = document.createElement("button");
     btn.textContent = `Use (${skill.cost} EP)`;
     btn.style.display = "inline-block";
@@ -1145,14 +1042,12 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.style.marginTop = "4px";
     btn.onclick = (e) => {
       e.stopPropagation();
-      // assume white player uses tooltip button
       if (window.gameState && window.gameState.usePieceSkill) {
         const ok = window.gameState.usePieceSkill(row, col, "white");
         if (ok) removeSkillTooltip();
       }
     };
 
-    // Gray out button if not enough EP
     if (!window.gameState || window.gameState.energy.white < (skill.cost || 0)) {
       btn.disabled = true;
       btn.style.opacity = "0.5";
@@ -1162,20 +1057,17 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.appendChild(tip);
     _currentSkillTooltip = tip;
 
-    // Persist tooltip when hovering over it; hide after 3s of inactivity
     tip.addEventListener("mouseenter", () => {
       if (_tooltipHideTimer) clearTimeout(_tooltipHideTimer);
     });
 
     tip.addEventListener("mouseleave", () => {
-      // Start 3 second timer to hide tooltip
       _tooltipHideTimer = setTimeout(() => {
         removeSkillTooltip();
         _tooltipHideTimer = null;
       }, 3000);
     });
 
-    // Initial 3s inactivity timer
     _tooltipHideTimer = setTimeout(() => {
       removeSkillTooltip();
       _tooltipHideTimer = null;
@@ -1190,7 +1082,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Update all health bars
   function updateAllHealthBars() {
     const squares = document.querySelectorAll(".chess-square");
     squares.forEach((square) => {
@@ -1218,7 +1109,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Switch player and timer
   function switchPlayer() {
     window.gameState.timers.currentPlayer = window.gameState.timers.currentPlayer === "white" ? "black" : "white";
     const statusText = document.querySelector("#battle-screen .board-status span:nth-child(2)");
@@ -1235,7 +1125,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.gameState.processTurnEffects();
   }
 
-  // Init timers
   function initTimers() {
     clearInterval(window.gameState.timers.interval);
     window.gameState.timers.interval = setInterval(() => {
@@ -1288,7 +1177,6 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => piece.remove(), 3000);
   }
 
-  // Expose move validators to global so AI can use them
   window.getValidQueenMoves = getValidQueenMoves;
   window.getValidKingMoves = getValidKingMoves;
   window.getValidRookMoves = getValidRookMoves;
