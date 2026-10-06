@@ -1,213 +1,393 @@
 window.dialogueSystem = {
   dialogues: {
-    // === AKH'ZAHARA MAIN PLOT ===
+    // MAIN PLOT - AKH'ZAHARA
+
     "miner-1": [
       {
         speaker: "player",
-        text: "Mắt từ từ mở ra... Một không gian hoàn toàn xa lạ hiện ra ngay trước mắt. Một khu mỏ rộng lớn được phủ dầy bởi cát và nắng gió sa mạc...",
-      },
-      { speaker: "enemy", text: "À! Một người lạ mặt sao? Lạc lối ở sa mạc hả? Thật tội nghiệp cho người này..." },
-      {
-        speaker: "player",
-        text: "Ông...ông là ai? Đây là đâu? Có lẽ ông có thể giúp tôi? Tôi đang tìm một cô gái, tên là Shizuku...",
+        text: "Shizuku... Em đang ở đâu vậy...? Mình phải tìm em ấy.",
       },
       {
         speaker: "enemy",
-        text: "Shizuku? Tôi không biết. Nhưng nếu muốn tôi trả lời, hãy đánh bại tôi trong một trận cờ vua!",
+        text: "Ồ? Có người tỉnh lại giữa sa mạc à? Nhìn cậu có vẻ đang tìm ai đó.",
       },
-      { speaker: "player", text: "Cờ vua? Được thôi, tôi sẽ đánh bại anh!" },
+      {
+        speaker: "player",
+        text: "Đúng. Bạn gái tôi... cô ấy biến mất ngay trước mắt tôi. Tôi phải tìm được cô ấy.",
+      },
+      {
+        speaker: "enemy",
+        text: "Bạn gái? Ha... Vậy ra cậu lặn lội đến tận nơi này chỉ để tìm cô ấy?",
+      },
+      {
+        speaker: "player",
+        text: "Tôi không biết cô ấy đang ở đâu, có chuyện gì xảy ra với cô ấy... Tôi không thể cứ đứng đây được.",
+      },
+      {
+        speaker: "enemy",
+        text: "Shizuku... Cái tên đó nghe quen đấy, nhưng tôi không nhớ đã gặp cô ấy.",
+      },
+      {
+        speaker: "player",
+        text: "Ông thật sự không biết sao? Làm ơn, nếu ông biết bất cứ điều gì về cô ấy, hãy nói cho tôi.",
+      },
+      {
+        speaker: "enemy",
+        text: "Bình tĩnh đi, cậu trai. Muốn có câu trả lời thì trước hết hãy đánh bại tôi.",
+      },
+      {
+        speaker: "player",
+        text: "...Được. Nếu đó là cách duy nhất.",
+      },
     ],
+
     "miner-2": [
       {
         speaker: "enemy",
-        text: "Anh nói là bạn của thợ mỏ đầu tiên? Thế thì anh cũng là kẻ muốn tìm đường ra khỏi đây sao?",
+        text: "Khoan... Cậu vừa đánh bại người ở khu mỏ phía ngoài?",
       },
-      { speaker: "player", text: "Đúng vậy. Tôi đang tìm người tên Shizuku. Ông có biết gì không?" },
-      {
-        speaker: "enemy",
-        text: "Mình là những nô lệ của chủ mỏ ở đây. Không ai biết Shizuku là ai. Hãy chuẩn bị cho trận đấu!",
-      },
-    ],
-    "miner-3": [
-      { speaker: "enemy", text: "Ba thợ mỏ đã bị đánh bại bởi anh... Chắc anh không phải con người bình thường..." },
       {
         speaker: "player",
-        text: "Các vị có thể giới thiệu tôi với người quản lý không? Tôi cần tìm hiểu thêm về nơi này!",
+        text: "Đừng phí thời gian. Ông có biết một cô gái tên Shizuku không?",
       },
       {
         speaker: "enemy",
-        text: "Người quản lý là Edras. Anh rất mạnh. Nhưng vì ba bạn tôi đều thua anh, tôi sẽ dẫn anh gặp ông ấy!",
+        text: "Shizuku...? Không. Tôi chưa từng nghe cái tên đó.",
+      },
+      {
+        speaker: "player",
+        text: "Chắc chắn chứ? Cô ấy có thể đã đến đây trước tôi.",
+      },
+      {
+        speaker: "enemy",
+        text: "Ở đây chẳng ai được tự do đi lại cả. Chúng tôi chỉ là những người làm việc trong mỏ.",
+      },
+      {
+        speaker: "player",
+        text: "Vậy ai biết chuyện gì đang xảy ra ở đây?",
+      },
+      {
+        speaker: "enemy",
+        text: "Edras. Ông ta là người quản lý khu mỏ.",
+      },
+      {
+        speaker: "player",
+        text: "Edras... Được. Dẫn tôi đến gặp ông ấy.",
+      },
+      {
+        speaker: "enemy",
+        text: "Muốn gặp ông ta thì trước tiên cậu phải vượt qua tôi.",
+      },
+      {
+        speaker: "player",
+        text: "Được. Tôi sẽ không để bất cứ thứ gì ngăn mình tìm thấy Shizuku.",
       },
     ],
+
+    "miner-3": [
+      {
+        speaker: "enemy",
+        text: "Ba người chúng tôi... đều thua cậu. Cậu thật sự quyết tâm đến mức đó sao?",
+      },
+      {
+        speaker: "player",
+        text: "Tôi không biết Shizuku đang gặp chuyện gì. Mỗi phút tôi ở đây đều khiến tôi lo hơn.",
+      },
+      {
+        speaker: "enemy",
+        text: "Tôi hiểu rồi...",
+      },
+      {
+        speaker: "player",
+        text: "Xin ông. Nếu biết gì thì hãy nói cho tôi.",
+      },
+      {
+        speaker: "enemy",
+        text: "Edras biết nhiều hơn chúng tôi. Nếu có người biết cô ấy đã đi đâu, có lẽ là ông ta.",
+      },
+      {
+        speaker: "player",
+        text: "Edras ở đâu?",
+      },
+      {
+        speaker: "enemy",
+        text: "Khu nhà quản lý. Đi theo con đường phía trước, cậu sẽ thấy.",
+      },
+      {
+        speaker: "player",
+        text: "Cảm ơn. Tôi phải đi ngay.",
+      },
+    ],
+
     edras: [
       {
         speaker: "enemy",
-        text: "Các thợ mỏ của tôi đã đánh thua? Thực sự là bất ngờ. Tôi tên là Edras, người quản lý của mỏ này.",
+        text: "Ba thợ mỏ của ta đều đã thua dưới tay ngươi...? Khá bất ngờ.",
       },
-      { speaker: "player", text: "Rất vui được gặp. Tôi đang tìm một cô gái tên Shizuku. Ông có thể giúp tôi không?" },
+      {
+        speaker: "player",
+        text: "Ông là Edras?",
+      },
       {
         speaker: "enemy",
-        text: "Shizuku? Tôi biết cô ấy. Cô ấy ở trong lâu đài của Wior - chủ nhân của cả vùng này. Nhưng trước tiên, bạn phải thắng được tôi!",
+        text: "Đúng. Và nhìn vẻ mặt của ngươi... ta đoán ngươi đang tìm ai đó.",
       },
-      { speaker: "player", text: "Tôi sẽ thắng! Đối với tôi, không có bất cứ điều gì không thể!" },
+      {
+        speaker: "player",
+        text: "Shizuku. Bạn gái tôi. Ông có biết cô ấy không?",
+      },
+      {
+        speaker: "enemy",
+        text: "Shizuku... Vậy cuối cùng ngươi cũng tìm đến đây.",
+      },
+      {
+        speaker: "player",
+        text: "...Ông biết cô ấy?",
+      },
+      {
+        speaker: "enemy",
+        text: "Ta biết. Cô ấy đang ở lâu đài của Wior.",
+      },
+      {
+        speaker: "player",
+        text: "Cô ấy có an toàn không?",
+      },
+      {
+        speaker: "enemy",
+        text: "Ta không biết. Wior là người nắm quyền ở vùng đất này.",
+      },
+      {
+        speaker: "player",
+        text: "Vậy đưa tôi đến đó.",
+      },
+      {
+        speaker: "enemy",
+        text: "Không nhanh vậy. Muốn bước vào lãnh địa của Wior, trước tiên ngươi phải vượt qua ta.",
+      },
+      {
+        speaker: "player",
+        text: "Nếu đó là cái giá để gặp Shizuku... tôi chấp nhận.",
+      },
     ],
+
     wior: [
-      { speaker: "enemy", text: "Wior đây. Tôi nghe nói có một kẻ lạ mặt chinh phục cả mỏ của tôi..." },
-      { speaker: "player", text: "Tôi là Bao. Tôi cần gặp Shizuku ngay lập tức! Hãy chỉ cho tôi đường đi!" },
       {
         speaker: "enemy",
-        text: "Haha! Dũng khí tuy tốt, nhưng thế giới này không phải do dũng khí quyết định. Cờ vua quyết định tất cả. Nếu muốn gặp cô gái, hãy thắng tôi!",
+        text: "Vậy ngươi chính là kẻ đã làm náo loạn khu mỏ của ta.",
       },
-      { speaker: "player", text: "Được! Tôi sẽ không thua! Cho tôi cơ hội để cứu Shizuku!" },
-    ],
-
-    // === TRADE ASSOCIATION ===
-    "trade-1": [
-      { speaker: "enemy", text: "Chào mừng đến Hiệp Hội Thương Mại! Hãy kiếm tiền bằng cách thắng các trận đấu!" },
-      { speaker: "player", text: "Tôi sẽ chiến đấu để kiếm tiền mua kỹ năng và quân cờ." },
-    ],
-    "trade-2": [
-      { speaker: "enemy", text: "Một người khác muốn kiểm tra kỹ năng của mình sao?" },
-      { speaker: "player", text: "Vâng, tôi đã sẵn sàng." },
-    ],
-    "trade-3": [
-      { speaker: "enemy", text: "Bạn thực sự rất mạnh. Đây là một đối thủ đáng gặp." },
-      { speaker: "player", text: "Cảm ơn. Tôi sẽ tiếp tục cải thiện." },
-    ],
-
-    // === DESERT MERCHANT ===
-    "desert-merchant": [
-      { speaker: "enemy", text: "Xin chào, du khách. Tôi là một thương nhân bí ẩn của sa mạc này." },
-      { speaker: "player", text: "Ai vậy? Tôi chưa bao giờ gặp ông trước." },
+      {
+        speaker: "player",
+        text: "Tôi không quan tâm đến khu mỏ của ông. Tôi đến đây để tìm Shizuku.",
+      },
       {
         speaker: "enemy",
-        text: "Tôi là một lũy thừa bị giấu kín trong sa mạc. Mỗi người chỉ được thử thách tôi một lần trong đời. Nếu bạn thắng, kỹ năng độc nhất của tôi sẽ là của bạn, cùng với một kho tàng vàng.",
+        text: "Ngươi nói tên cô gái đó với vẻ sốt ruột như vậy... Cô ta quan trọng với ngươi đến thế sao?",
       },
-      { speaker: "player", text: "Một lũy thừa ẩn giấu? Điều này nghe như một cơ hội không thể bỏ qua!" },
-      { speaker: "enemy", text: "Chúng ta sẽ xem. Nếu bạn không đủ mạnh, bạn sẽ mất tất cả!" },
-    ],
-
-    // === CAMPAIGN ACT 1 (Kept for backward compatibility) ===
-    "fight-1": [
-      { speaker: "player", text: "Mắt từ từ mở ra... Một không gian hoàn toàn xa lạ hiện ra ngay trước mắt..." },
-      { speaker: "enemy", text: "Lại thêm một lãng khách nữa lạc lối sao? Thật tội nghiệp..." },
-      { speaker: "player", text: "Ông có thấy một cô gái mặc kimono cao khoảng 1m65 không?" },
-      { speaker: "enemy", text: "Biết rồi, nhưng hãy đánh bại tôi trước!" },
-    ],
-    "fight-2": [
-      { speaker: "enemy", text: "You survived the desert? Impressive..." },
-      { speaker: "player", text: "Tell me about this place. Where am I?" },
-    ],
-    "fight-3": [
-      { speaker: "enemy", text: "You've made it far, stranger." },
-      { speaker: "player", text: "I just want to find Shizuku and leave." },
-    ],
-    "fight-4": [
-      { speaker: "enemy", text: "You dare challenge the elite?" },
-      { speaker: "player", text: "I've beaten everyone else." },
-    ],
-    "boss-1": [
-      { speaker: "enemy", text: "So... you're the outsider causing trouble." },
-      { speaker: "player", text: "Where is Shizuku?!" },
-    ],
-
-    // === ARENA OPPONENTS (Backward compatibility) ===
-    "easy-1": [
-      { speaker: "enemy", text: "First time in the arena?" },
-      { speaker: "player", text: "Let's get this over with." },
-    ],
-    "easy-2": [
-      { speaker: "enemy", text: "Training time! I hope you're ready!" },
-      { speaker: "player", text: "I learn best under pressure." },
-    ],
-    "medium-1": [
-      { speaker: "enemy", text: "You think you're ready for real competition?" },
-      { speaker: "player", text: "I didn't come here to play." },
-    ],
-    "hard-1": [
-      { speaker: "enemy", text: "A challenger approaches the champion?" },
-      { speaker: "player", text: "Every champion falls eventually." },
+      {
+        speaker: "player",
+        text: "Cô ấy là bạn gái tôi. Tôi đã tìm cô ấy suốt từ lúc đặt chân đến nơi này.",
+      },
+      {
+        speaker: "player",
+        text: "Tôi không biết cô ấy có bị thương hay không, đang ở đâu, hay chuyện gì đã xảy ra với cô ấy.",
+      },
+      {
+        speaker: "player",
+        text: "Vì vậy, làm ơn... chỉ cho tôi gặp cô ấy.",
+      },
+      {
+        speaker: "enemy",
+        text: "Làm ơn? Ngươi đã đánh bại cả khu mỏ chỉ để nói câu đó với ta sao?",
+      },
+      {
+        speaker: "player",
+        text: "Nếu cần đánh bại ông để gặp được cô ấy... tôi sẽ làm.",
+      },
+      {
+        speaker: "enemy",
+        text: "Ha... Được. Ta thích ánh mắt đó.",
+      },
+      {
+        speaker: "enemy",
+        text: "Nhưng ở vùng đất này, mong muốn không quyết định được điều gì. Cờ vua mới là thứ quyết định.",
+      },
+      {
+        speaker: "enemy",
+        text: "Thắng ta, và ta sẽ cho ngươi gặp Shizuku.",
+      },
+      {
+        speaker: "player",
+        text: "Vậy thì bắt đầu đi.",
+      },
     ],
   },
 
-  // Victory dialogues
   victoryDialogues: {
     "miner-1": [
       {
         speaker: "enemy",
-        text: "Anh quá mạnh... Shizuku? Tôi thực sự không biết. Nhưng Edras - người quản lý mỏ, hắn có thể biết...",
+        text: "Được rồi... Tôi thua.",
       },
-      { speaker: "player", text: "Cảm ơn! Tôi sẽ gặp Edras ngay!" },
+      {
+        speaker: "player",
+        text: "Shizuku. Ông có biết cô ấy ở đâu không?",
+      },
+      {
+        speaker: "enemy",
+        text: "Tôi thật sự không biết. Nhưng Edras có thể biết nhiều hơn tôi.",
+      },
+      {
+        speaker: "player",
+        text: "Edras... Ông ấy ở đâu?",
+      },
+      {
+        speaker: "enemy",
+        text: "Khu nhà quản lý. Đi thẳng về phía trước.",
+      },
+      {
+        speaker: "player",
+        text: "Cảm ơn ông. Tôi phải đi tìm cô ấy.",
+      },
     ],
+
     "miner-2": [
-      { speaker: "enemy", text: "Tôi thua rồi... Anh có thể gặp những người khác ở mỏ này..." },
-      { speaker: "player", text: "Cảm ơn sự hợp tác của anh!" },
+      {
+        speaker: "enemy",
+        text: "Tôi thua rồi... Nhưng tôi thật sự không biết gì về Shizuku.",
+      },
+      {
+        speaker: "player",
+        text: "Không sao. Chỉ cần ông chỉ cho tôi người có thể biết.",
+      },
+      {
+        speaker: "enemy",
+        text: "Edras. Nếu ông ấy cũng không biết, tôi e rằng chẳng ai trong khu mỏ này biết nữa.",
+      },
+      {
+        speaker: "player",
+        text: "Hiểu rồi. Cảm ơn ông.",
+      },
     ],
+
     "miner-3": [
-      { speaker: "enemy", text: "Nếu anh thắng được ba chúng tôi, chắc anh đủ mạnh. Đến gặp Edras đi..." },
-      { speaker: "player", text: "Cảm ơn các bạn!" },
+      {
+        speaker: "enemy",
+        text: "Cậu đã đánh bại cả ba chúng tôi... Tôi nghĩ Edras sẽ chịu nói chuyện với cậu.",
+      },
+      {
+        speaker: "player",
+        text: "Tôi không cần gì khác. Chỉ cần biết Shizuku đang ở đâu.",
+      },
+      {
+        speaker: "enemy",
+        text: "Cậu thực sự lo cho cô ấy đến vậy sao?",
+      },
+      {
+        speaker: "player",
+        text: "Tôi không thể yên tâm khi chưa tận mắt thấy cô ấy.",
+      },
+      {
+        speaker: "enemy",
+        text: "Vậy thì đi gặp Edras đi. Ông ấy ở khu nhà quản lý.",
+      },
+      {
+        speaker: "player",
+        text: "Cảm ơn. Tôi đi ngay.",
+      },
     ],
+
     edras: [
       {
         speaker: "enemy",
-        text: "Tôi thua... Điều này chưa bao giờ xảy ra. Bạn thực sự mạnh. Wior - chủ nhân, ông ấy đang chờ bạn ở lâu đài...",
+        text: "Ta... thua rồi. Đã lâu lắm rồi không có ai khiến ta phải nghiêm túc như vậy.",
       },
-      { speaker: "player", text: "Cảm ơn Edras! Tôi sẽ gặp Wior!" },
-      { speaker: "enemy", text: "Cẩn thận... Wior mạnh hơn tôi rất nhiều. May mắn cho bạn!" },
+      {
+        speaker: "player",
+        text: "Shizuku. Cô ấy thực sự đang ở lâu đài của Wior?",
+      },
+      {
+        speaker: "enemy",
+        text: "Đúng. Ta không nói dối ngươi.",
+      },
+      {
+        speaker: "player",
+        text: "Cô ấy có bị thương không?",
+      },
+      {
+        speaker: "enemy",
+        text: "Ta không biết. Nhưng lần cuối ta nghe tin, cô ấy vẫn còn ở đó.",
+      },
+      {
+        speaker: "player",
+        text: "Vậy là đủ rồi. Tôi phải đến đó.",
+      },
+      {
+        speaker: "enemy",
+        text: "Khoan đã. Đừng đánh giá thấp Wior. Hắn mạnh hơn ta rất nhiều.",
+      },
+      {
+        speaker: "player",
+        text: "Tôi hiểu. Nhưng tôi không thể bỏ mặc cô ấy ở đó.",
+      },
+      {
+        speaker: "enemy",
+        text: "...Vậy thì chúc ngươi may mắn.",
+      },
     ],
+
     wior: [
       {
         speaker: "enemy",
-        text: "Không thể... Tôi đã thua... Shizuku ở tháp phía bắc. Cô ấy đang chờ...Nhưng cẩn thận, đây chỉ là khởi đầu...",
+        text: "Không thể nào... Ta đã thua.",
       },
-      { speaker: "player", text: "Cảm ơn! Tôi sẽ cứu Shizuku!" },
+      {
+        speaker: "player",
+        text: "Shizuku đang ở đâu?",
+      },
       {
         speaker: "enemy",
-        text: "Khi cậu gặp được cô ấy, hãy hỏi cô ấy về AZI faction... Điều gì lắp ẩn đằng sau tất cả...Đây chỉ là cuộc chiến đầu tiên...",
+        text: "Tháp phía bắc.",
       },
-    ],
-    "trade-1": [
-      { speaker: "enemy", text: "Bạn mạnh lắm! Đây là tiền thưởng của bạn." },
-      { speaker: "player", text: "Cảm ơn! Tôi sẽ mua kỹ năng mới." },
-    ],
-    "trade-2": [
-      { speaker: "enemy", text: "Bạn lại thắng! Kỹ năng của bạn thực sự tuyệt vời." },
-      { speaker: "player", text: "Tôi sẽ tiếp tục cải thiện." },
-    ],
-    "trade-3": [
-      { speaker: "enemy", text: "Tôi phục! Bạn xứng đáng là một chiến binh tuyệt vời!" },
-      { speaker: "player", text: "Cảm ơn! Tôi sẽ không bao giờ từ bỏ!" },
-    ],
-    "desert-merchant": [
-      { speaker: "enemy", text: "Bạn... bạn đã thắng tôi? Điều này là không thể... Bạn chắc là người tuyệt vời..." },
-      { speaker: "player", text: "Kỹ năng độc nhất của bạn là của tôi bây giờ!" },
+      {
+        speaker: "player",
+        text: "...Cô ấy vẫn ở đó chứ?",
+      },
       {
         speaker: "enemy",
-        text: "Vâng... Lấy nó. Cùng với vàng... Nhưng xin hãy nhớ... Có những lực lượng lớn hơn lao động viên và trí thức... Có một cuộc chiến sắp xảy ra...",
+        text: "Đúng. Nếu ngươi nhanh chân, ngươi vẫn còn kịp gặp cô ấy.",
       },
-      { speaker: "player", text: "Cuộc chiến? Tôi sẽ sẵn sàng cho bất cứ điều gì!" },
-    ],
-
-    // Campaign backwards compat
-    "fight-1": [
-      { speaker: "enemy", text: "Không thể... Làm sao cậu...?" },
-      { speaker: "player", text: "Hãy cho tôi biết đường tới người lãnh đạo!" },
-    ],
-    "fight-2": [
-      { speaker: "enemy", text: "Cậu mạnh hơn vẻ ngoài..." },
-      { speaker: "player", text: "Tôi có người cần bảo vệ." },
-    ],
-    "fight-3": [
-      { speaker: "enemy", text: "Có lẽ còn hy vọng..." },
-      { speaker: "player", text: "Tôi sẽ không bao giờ từ bỏ!" },
-    ],
-    "fight-4": [
-      { speaker: "enemy", text: "Tôi thua rồi..." },
-      { speaker: "player", text: "Tôi sẽ tiếp tục chiến đấu!" },
-    ],
-    "boss-1": [
-      { speaker: "enemy", text: "Không... điều này không thể..." },
-      { speaker: "player", text: "Shizuku ở đâu?!" },
+      {
+        speaker: "player",
+        text: "Cảm ơn. Tôi đi ngay.",
+      },
+      {
+        speaker: "enemy",
+        text: "Khoan đã.",
+      },
+      {
+        speaker: "player",
+        text: "Còn chuyện gì nữa?",
+      },
+      {
+        speaker: "enemy",
+        text: "Khi gặp Shizuku, hãy hỏi cô ấy về AZI.",
+      },
+      {
+        speaker: "player",
+        text: "AZI...? Chuyện đó liên quan gì đến cô ấy?",
+      },
+      {
+        speaker: "enemy",
+        text: "Ta không biết toàn bộ sự thật. Nhưng nếu ngươi muốn hiểu tại sao mình lại bị kéo đến nơi này...",
+      },
+      {
+        speaker: "enemy",
+        text: "...thì Shizuku có thể là người duy nhất biết câu trả lời.",
+      },
+      {
+        speaker: "player",
+        text: "...Tôi sẽ hỏi cô ấy.",
+      },
     ],
   },
 
@@ -239,13 +419,10 @@ window.dialogueSystem = {
     if (enemyPortrait) enemyPortrait.textContent = enemyData.portrait;
     if (enemyName) enemyName.textContent = enemyData.name;
 
-    // Show screen
     dialogueScreen.classList.remove("hidden");
 
-    // Display first dialogue
     this.displayCurrentDialogue();
 
-    // Continue button
     const continueBtn = document.getElementById("dialogue-continue");
     if (continueBtn) {
       continueBtn.onclick = () => {
@@ -260,7 +437,6 @@ window.dialogueSystem = {
     }
   },
 
-  // Show victory dialogue
   showVictoryDialogue(enemyId, callback) {
     this.currentDialogue = this.victoryDialogues[enemyId] || [
       { speaker: "enemy", text: "You... win..." },
@@ -315,9 +491,7 @@ window.dialogueSystem = {
       }
     }
 
-    // Typewriter effect: show characters progressively
     dialogueText.textContent = "";
-    // Ensure text direction is set correctly
     dialogueText.style.direction = "ltr";
     dialogueText.style.unicodeBidi = "bidi-override";
 
@@ -366,7 +540,7 @@ window.dialogueSystem = {
   },
 };
 
-// Story intro handler
+// Story intro
 document.addEventListener("DOMContentLoaded", () => {
   const startBtn = document.getElementById("start-story-btn");
   if (startBtn) {
