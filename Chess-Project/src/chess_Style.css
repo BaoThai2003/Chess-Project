@@ -782,7 +782,6 @@ a {
     monospace;
 }
 
-/* Panels and cards */
 .panel-heading {
   display: flex;
   align-items: flex-start;
@@ -994,7 +993,6 @@ a {
   font-size: 11px;
 }
 
-/* Battle */
 .screen-battle {
   overflow: hidden;
   background: #141821;
@@ -1882,7 +1880,6 @@ a {
   }
 }
 
-/* Existing skill tooltip and utility visuals */
 .piece-skill-tooltip {
   max-width: 260px;
   padding: 12px;
